@@ -1,27 +1,37 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../lib/api'; // Importer les fonctions API
+import * as api from '../lib/api';
 import KanbanBoard from '../components/kanban/KanbanBoard';
-import AssemblyView from '../components/assembly/AssemblyView'; // Import décommenté
+import AssemblyView from '../components/assembly/AssemblyView';
 
 type ViewMode = 'kanban' | 'assembly';
-
-// ID de projet factice pour l'instant. Cela viendrait de react-router (useParams)
-const TEMP_PROJECT_ID = 1;
 
 const ProjectPage: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>('kanban');
   const queryClient = useQueryClient();
+  const { projectId } = useParams<{ projectId: string }>();
+  
+  // Convertir l'ID en nombre et valider
+  const projectIdNumber = projectId ? parseInt(projectId, 10) : null;
+  
+  if (!projectIdNumber || isNaN(projectIdNumber)) {
+    return (
+      <div className="p-8 h-full flex items-center justify-center text-xl text-red-500">
+        ID de projet invalide: {projectId}
+      </div>
+    );
+  }
 
   // Récupérer les données du projet
   const { data: project, isLoading: isLoadingProject, error: projectError, refetch: refetchProject } = useQuery({
-    queryKey: ['project', TEMP_PROJECT_ID],
-    queryFn: () => api.getProject(TEMP_PROJECT_ID),
-    enabled: !!TEMP_PROJECT_ID, // Ne pas exécuter si projectId est null/undefined
+    queryKey: ['project', projectIdNumber],
+    queryFn: () => api.getProject(projectIdNumber),
+    enabled: !!projectIdNumber,
   });
 
   // Les tâches sont incluses dans la réponse de getProject selon nos types API
-  // Si ce n'était pas le cas, on ferait un autre useQuery pour api.getTasksByProject(TEMP_PROJECT_ID)
+  // Si ce n'était pas le cas, on ferait un autre useQuery pour api.getTasksByProject(projectIdNumber)
 
   // Mutation pour la planification IA
   const planProjectMutation = useMutation({
