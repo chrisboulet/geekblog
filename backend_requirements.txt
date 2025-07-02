@@ -1,10 +1,14 @@
-fastapi
-uvicorn
-sqlalchemy
-psycopg2-binary
-alembic
-pydantic[email]
-pydantic-settings
-python-dotenv
-pytest
-httpx
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+python-dotenv>=1.0.0
+crewai>=0.28.8
+groq>=0.4.0
+duckduckgo-search>=4.0.0
+fastapi-cors>=0.1.0
+pydantic[email] # Gardé de l'original, peut être utile
+pydantic-settings # Gardé de l'original
+pytest # Gardé pour les tests futurs
+httpx # Gardé pour les tests futurs ou appels externes si besoin

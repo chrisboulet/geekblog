@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles de base personnalisés ici, si nécessaire */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #111827; /* bg-gray-900 */
+  color: white;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Définition des variables de couleurs Neural Flow (sera utilisé par Tailwind) */
+:root {
+  --bg-primary: #0D0C10; /* Noir très sombre, exemple */
+  --bg-secondary: #1A181D; /* Gris très sombre, exemple */
+  --bg-glass: rgba(26, 24, 29, 0.7); /* Fond semi-transparent pour glassmorphism */
+
+  --neural-purple: #8A2BE2; /* Violet */
+  --neural-pink: #FF1493;   /* Rose / Magenta */
+  --neural-blue: #00BFFF;   /* Bleu Ciel Profond */
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0A0A0;
+  --text-tertiary: #6B6B6B;
+
+  /* Effets (peuvent être utilisés dans box-shadow par exemple) */
+  --glow-color-purple: rgba(138, 43, 226, 0.5);
+  --glow-color-pink: rgba(255, 20, 147, 0.5);
+  --glow-color-blue: rgba(0, 191, 255, 0.5);
+}
