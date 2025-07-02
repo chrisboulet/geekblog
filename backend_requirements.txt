@@ -10,5 +10,7 @@ duckduckgo-search>=4.0.0
 fastapi-cors>=0.1.0
 pydantic[email] # Gardé de l'original, peut être utile
 pydantic-settings # Gardé de l'original
-pytest # Gardé pour les tests futurs
-httpx # Gardé pour les tests futurs ou appels externes si besoin
+pytest>=7.0.0 # Framework de test
+pytest-cov>=4.0.0 # Coverage des tests
+pytest-asyncio>=0.21.0 # Support async pour pytest
+httpx>=0.24.0 # Client HTTP pour tests
