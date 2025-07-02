@@ -3,8 +3,11 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from app.schemas import schemas
+from app.schemas.job_schemas import JobStatus
 from app.services import project_service, task_service, ai_service # Ajout de task_service et ai_service
+from app.services.job_service import JobService
 from app.db.config import get_db
+from app.tasks.ai_tasks import planning_task
 
 router = APIRouter()
 
@@ -24,7 +27,7 @@ def read_project_endpoint(project_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Project not found")
     return db_project
 
-# Endpoint pour la planification IA
+# Endpoint pour la planification IA (synchrone - version originale)
 @router.post("/{project_id}/plan", response_model=schemas.Project, tags=["Projects", "AI Planning"])
 async def plan_project_with_ai(
     project_id: int,
@@ -70,6 +73,45 @@ async def plan_project_with_ai(
     # Rafraîchir l'objet projet pour inclure les nouvelles tâches
     db.refresh(db_project)
     return db_project
+
+
+# Endpoint pour la planification IA (asynchrone - POC Phase 1.3)
+@router.post("/{project_id}/plan-async", response_model=JobStatus, tags=["Projects", "AI Planning", "Async"])
+async def plan_project_async(
+    project_id: int,
+    project_goal: Optional[str] = Body(None, description="Objectif détaillé du projet pour guider la planification IA. Si non fourni, la description du projet sera utilisée."),
+    db: Session = Depends(get_db)
+):
+    """
+    Version asynchrone de la planification IA - POC Phase 1.3
+    Retourne immédiatement un job_id pour suivre la progression
+    """
+    db_project = project_service.get_project(db, project_id=project_id)
+    if not db_project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    goal_to_plan = project_goal if project_goal else db_project.description
+    if not goal_to_plan:
+        raise HTTPException(status_code=400, detail="Project goal or description is required for AI planning.")
+
+    # Démarrer le job asynchrone
+    job = planning_task.delay(project_id, goal_to_plan)
+    
+    # Créer l'enregistrement en base de données
+    JobService.create_job_record(
+        db=db,
+        job_id=job.id,
+        job_type="planning",
+        project_id=project_id
+    )
+    
+    return JobStatus(
+        job_id=job.id,
+        status="PENDING",
+        job_type="planning",
+        progress=0.0,
+        step="Démarrage de la planification IA..."
+    )
 
 # Endpoint pour l'assemblage et le raffinage IA
 class AssemblePayloadBody(schemas.BaseModel): # Renommé pour éviter conflit avec un potentiel type AssemblePayload de l'API
