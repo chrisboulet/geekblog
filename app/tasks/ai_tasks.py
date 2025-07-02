@@ -8,9 +8,10 @@ from sqlalchemy.orm import Session
 
 from app.celery_config import celery_app
 from app.db.config import SessionLocal
-from app.services import ai_service, project_service, task_service
+from app.services import ai_service, project_service, task_service, output_service
 from app.schemas.schemas import TaskCreate
 from app.tasks.base_task import JobAwareTask
+from app.models.workflow_models import TaskOutputType
 
 
 from contextlib import contextmanager
@@ -26,7 +27,7 @@ def get_db() -> Session:
 
 
 @celery_app.task(bind=True, base=JobAwareTask, name="app.tasks.ai_tasks.planning_task")
-def planning_task(self, project_id: int, project_goal: str) -> dict:
+def planning_task(self, project_id: int, project_goal: str, workflow_execution_id: Optional[str] = None) -> dict:
     """
     Tâche asynchrone pour la planification IA d'un projet
     
@@ -107,6 +108,25 @@ def planning_task(self, project_id: int, project_goal: str) -> dict:
                     'status': created_task.status
                 })
             
+            # Sauvegarder le résultat de planification dans TaskOutput si dans un workflow
+            if workflow_execution_id and created_tasks:
+                planning_content = f"Planification générale:\n{project_goal}\n\nTâches créées:\n"
+                planning_content += "\n".join([f"- {task['title']}" for task in created_tasks])
+                
+                # Utiliser la première tâche créée comme référence
+                output_service.save_task_output(
+                    db=db,
+                    task_id=created_tasks[0]['id'],
+                    output_type=TaskOutputType.PLANNING,
+                    content=planning_content,
+                    workflow_execution_id=workflow_execution_id,
+                    metadata={
+                        "planning_goal": project_goal,
+                        "tasks_created": len(created_tasks),
+                        "task_titles": task_titles
+                    }
+                )
+            
             # Mettre à jour le statut final
             self.update_state_with_db(
                 state='PROGRESS',
@@ -121,7 +141,8 @@ def planning_task(self, project_id: int, project_goal: str) -> dict:
                 'success': True,
                 'message': f'{len(task_titles)} tâches créées avec succès',
                 'task_titles': task_titles,
-                'created_tasks': created_tasks
+                'created_tasks': created_tasks,
+                'workflow_execution_id': workflow_execution_id
             }
             
     except Exception as e:
@@ -130,7 +151,7 @@ def planning_task(self, project_id: int, project_goal: str) -> dict:
 
 
 @celery_app.task(bind=True, base=JobAwareTask, name="app.tasks.ai_tasks.research_task")
-def research_task(self, task_id: int, task_title: str, context: Optional[str] = None) -> dict:
+def research_task(self, task_id: int, task_title: str, context: Optional[str] = None, workflow_execution_id: Optional[str] = None) -> dict:
     """
     Tâche asynchrone pour la recherche IA
     
@@ -181,6 +202,22 @@ def research_task(self, task_id: int, task_title: str, context: Optional[str] = 
         
         # Mettre à jour la tâche en base
         with get_db() as db:
+            # Sauvegarder dans TaskOutput si dans un workflow
+            if workflow_execution_id:
+                output_service.save_task_output(
+                    db=db,
+                    task_id=task_id,
+                    output_type=TaskOutputType.RESEARCH,
+                    content=research_result,
+                    workflow_execution_id=workflow_execution_id,
+                    metadata={
+                        "task_title": task_title,
+                        "context_provided": context is not None,
+                        "research_method": "crewai_simulation" if not hasattr(ai_service, 'run_research_crew') else "crewai_actual"
+                    }
+                )
+            
+            # Mettre à jour la tâche traditionnellement pour rétrocompatibilité
             updated_task = task_service.update_task(
                 db, 
                 task_id, 
@@ -194,7 +231,8 @@ def research_task(self, task_id: int, task_title: str, context: Optional[str] = 
                 'success': True,
                 'message': 'Recherche terminée avec succès',
                 'content': research_result,
-                'task_id': task_id
+                'task_id': task_id,
+                'workflow_execution_id': workflow_execution_id
             }
             
     except Exception as e:
@@ -203,7 +241,7 @@ def research_task(self, task_id: int, task_title: str, context: Optional[str] = 
 
 
 @celery_app.task(bind=True, base=JobAwareTask, name="app.tasks.ai_tasks.writing_task")
-def writing_task(self, task_id: int, task_title: str, context: Optional[str] = None) -> dict:
+def writing_task(self, task_id: int, task_title: str, context: Optional[str] = None, workflow_execution_id: Optional[str] = None) -> dict:
     """
     Tâche asynchrone pour la rédaction IA
     """
@@ -245,6 +283,22 @@ def writing_task(self, task_id: int, task_title: str, context: Optional[str] = N
         
         # Mettre à jour la tâche en base
         with get_db() as db:
+            # Sauvegarder dans TaskOutput si dans un workflow
+            if workflow_execution_id:
+                output_service.save_task_output(
+                    db=db,
+                    task_id=task_id,
+                    output_type=TaskOutputType.WRITING,
+                    content=writing_result,
+                    workflow_execution_id=workflow_execution_id,
+                    metadata={
+                        "task_title": task_title,
+                        "context_provided": context is not None,
+                        "writing_method": "crewai_simulation" if not hasattr(ai_service, 'run_writing_crew') else "crewai_actual"
+                    }
+                )
+            
+            # Mettre à jour la tâche traditionnellement pour rétrocompatibilité
             updated_task = task_service.update_task(
                 db, 
                 task_id, 
@@ -258,7 +312,8 @@ def writing_task(self, task_id: int, task_title: str, context: Optional[str] = N
                 'success': True,
                 'message': 'Rédaction terminée avec succès',
                 'content': writing_result,
-                'task_id': task_id
+                'task_id': task_id,
+                'workflow_execution_id': workflow_execution_id
             }
             
     except Exception as e:

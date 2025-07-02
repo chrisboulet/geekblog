@@ -4,7 +4,7 @@ Service pour la gestion des jobs asynchrones
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 
 from app.models.job_models import AsyncJob
@@ -36,7 +36,7 @@ def create_job_record(
         progress_history=[]
     )
     db.add(job)
-    db.commit()
+    db.flush()  # Let caller control transaction
     db.refresh(job)
     return job
 
@@ -72,13 +72,13 @@ def update_job_progress(
             history_entry = {
                 "step": step,
                 "progress": progress,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "message": status_message
             }
             job.progress_history.append(history_entry)
         
         job.updated_at = func.now()
-        db.commit()
+        db.flush()  # Let caller control transaction
         db.refresh(job)
     return job
 
@@ -105,7 +105,7 @@ def complete_job(
         if error_message:
             job.error_message = error_message
             
-        db.commit()
+        db.flush()  # Let caller control transaction
         db.refresh(job)
     return job
 
@@ -154,7 +154,7 @@ def cleanup_old_jobs(db: Session, days_old: int = 7) -> int:
     """
     try:
         # Utiliser func.now() pour cohérence avec la timezone de la DB
-        cutoff_date = datetime.utcnow() - timedelta(days=days_old)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_old)
         
         deleted_count = (
             db.query(AsyncJob)
@@ -165,7 +165,7 @@ def cleanup_old_jobs(db: Session, days_old: int = 7) -> int:
             .delete(synchronize_session=False)
         )
         
-        db.commit()
+        db.flush()  # Let caller control transaction
         return deleted_count
     except Exception as e:
         db.rollback()

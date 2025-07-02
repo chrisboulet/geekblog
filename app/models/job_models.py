@@ -37,3 +37,7 @@ class AsyncJob(Base):
     
     # Résultat (optionnel, peut être stocké dans Redis)
     result_summary = Column(Text, nullable=True)  # Résumé du résultat
+    
+    # Relations pour workflows
+    workflow_execution_id = Column(String, nullable=True)  # FK vers WorkflowExecution
+    parent_job_id = Column(String, nullable=True)  # FK vers job parent pour sous-tâches

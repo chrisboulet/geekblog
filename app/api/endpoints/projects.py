@@ -4,10 +4,19 @@ from typing import List, Optional
 
 from app.schemas import schemas
 from app.schemas.job_schemas import JobStatus
+from app.schemas.workflow_schemas import (
+    WorkflowExecutionCreate, 
+    WorkflowExecutionStatus, 
+    WorkflowLaunchResponse,
+    WorkflowOutputsResponse,
+    TaskOutputSummary
+)
 from app.services import project_service, task_service, ai_service # Ajout de task_service et ai_service
-from app.services import job_service
+from app.services import job_service, workflow_service, output_service
 from app.db.config import get_db
 from app.tasks.ai_tasks import planning_task, finishing_task
+from app.tasks.orchestrator_tasks import full_article_workflow_task
+from app.models.workflow_models import WorkflowType
 
 router = APIRouter()
 
@@ -200,3 +209,150 @@ def delete_project_endpoint(project_id: int, db: Session = Depends(get_db)):
     if db_project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     return db_project
+
+
+# ====== WORKFLOW ENDPOINTS (Phase 2.2) ======
+
+@router.post("/{project_id}/workflows/generate-article", response_model=WorkflowLaunchResponse, tags=["Projects", "Workflows"])
+async def launch_article_workflow(
+    project_id: int,
+    workflow_data: WorkflowExecutionCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Lance un workflow complet de génération d'article
+    
+    Orchestration: Planning → Research Parallèle → Assembly → Finishing
+    """
+    # Vérifier que le projet existe
+    db_project = project_service.get_project(db, project_id=project_id)
+    if not db_project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Valider que le project_id correspond
+    if workflow_data.project_id != project_id:
+        raise HTTPException(status_code=400, detail="Project ID mismatch in URL and body")
+    
+    try:
+        # Créer l'exécution de workflow (pas encore commitée)
+        workflow_execution = workflow_service.create_workflow_execution(
+            db=db,
+            project_id=project_id,
+            workflow_type=WorkflowType.FULL_ARTICLE,
+            metadata=workflow_data.options or {}
+        )
+        
+        # Lancer le workflow orchestré
+        workflow_job = full_article_workflow_task.delay(
+            project_id, 
+            workflow_execution.id
+        )
+        
+        # Créer l'enregistrement job principal (pas encore commitée)
+        job_service.create_job_record(
+            db=db,
+            job_id=workflow_job.id,
+            job_type="full_article_workflow",
+            project_id=project_id,
+            workflow_execution_id=workflow_execution.id
+        )
+        
+        # Committer toutes les opérations DB en une seule transaction
+        db.commit()
+        
+        return WorkflowLaunchResponse(
+            workflow_execution_id=workflow_execution.id,
+            primary_job_id=workflow_job.id,
+            estimated_duration=300,  # 5 minutes estimation
+            message=f"Workflow de génération d'article lancé pour le projet {project_id}"
+        )
+        
+    except Exception as e:
+        db.rollback()  # Rollback sur échec
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Échec du lancement du workflow: {str(e)}"
+        )
+
+
+@router.get("/workflows/{workflow_id}/status", response_model=WorkflowExecutionStatus, tags=["Workflows"])
+async def get_workflow_status(
+    workflow_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Récupère le statut détaillé d'un workflow avec progression
+    """
+    workflow = workflow_service.get_workflow_by_id(db, workflow_id)
+    if not workflow:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+    
+    # Calculer la progression basée sur les jobs
+    calculated_progress = workflow_service.calculate_workflow_progress(db, workflow_id)
+    
+    # Récupérer les jobs associés pour les statistiques
+    workflow_jobs = workflow_service.get_workflow_jobs(db, workflow_id)
+    
+    # Compter les jobs par statut
+    total_jobs = len(workflow_jobs)
+    completed_jobs = len([j for j in workflow_jobs if j.status == "SUCCESS"])
+    failed_jobs = len([j for j in workflow_jobs if j.status == "FAILURE"])
+    
+    return WorkflowExecutionStatus(
+        id=workflow.id,
+        project_id=workflow.project_id,
+        workflow_type=workflow.workflow_type,
+        status=workflow.status,
+        current_step=workflow.current_step,
+        progress_percentage=calculated_progress,
+        started_at=workflow.started_at,
+        completed_at=workflow.completed_at,
+        updated_at=workflow.updated_at,
+        error_details=workflow.error_details,
+        metadata=workflow.metadata,
+        total_jobs=total_jobs,
+        completed_jobs=completed_jobs,
+        failed_jobs=failed_jobs
+    )
+
+
+@router.get("/workflows/{workflow_id}/outputs", response_model=WorkflowOutputsResponse, tags=["Workflows"])
+async def get_workflow_outputs(
+    workflow_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Récupère tous les outputs/résultats d'un workflow
+    """
+    workflow = workflow_service.get_workflow_by_id(db, workflow_id)
+    if not workflow:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+    
+    # Récupérer tous les outputs du workflow
+    raw_outputs = output_service.get_outputs_by_workflow(db, workflow_id)
+    
+    # Convertir en TaskOutputSummary (task déjà préchargé via joinedload)
+    output_summaries = []
+    for output in raw_outputs:
+        summary = TaskOutputSummary(
+            id=output.id,
+            task_id=output.task_id,
+            task_title=output.task.title if output.task else "Tâche système",
+            output_type=output.output_type,
+            content_preview=output.content[:200],
+            word_count=output.metadata.get('word_count') if output.metadata else len(output.content.split()),
+            created_at=output.created_at,
+            metadata=output.metadata
+        )
+        output_summaries.append(summary)
+    
+    # Obtenir les statistiques
+    stats = output_service.get_output_statistics(db, workflow_id=workflow_id)
+    
+    return WorkflowOutputsResponse(
+        workflow_id=workflow_id,
+        outputs=output_summaries,
+        total_outputs=stats["total_outputs"],
+        total_words=stats["total_words"],
+        outputs_by_type=stats["outputs_by_type"]
+    )
