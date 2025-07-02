@@ -16,8 +16,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId }) => {
 
   const runAgentMutation = useMutation({
     mutationFn: ({ agentType, context }: { agentType: api.AgentType; context?: string }) => {
-      // task.id est une string dans KanbanTaskType, mais l'API attend un nombre potentiellement
-      return api.runAgentOnTask(Number(task.id), agentType, context);
+      // Types harmonisés - plus besoin de conversion
+      return api.runAgentOnTask(task.id, agentType, context);
     },
     onSuccess: (updatedTaskData) => {
       // Mettre à jour la query du projet pour refléter les changements dans la tâche

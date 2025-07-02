@@ -11,6 +11,7 @@ from app.celery_config import celery_app
 from app.models.job_models import AsyncJob
 from app.schemas.job_schemas import JobStatus, JobCreate
 from app.services.job_service import JobService
+from app.tasks.ai_tasks import planning_task
 
 router = APIRouter()
 
@@ -132,25 +133,37 @@ def list_jobs(
         
         jobs = query.order_by(AsyncJob.created_at.desc()).limit(limit).all()
         
-        # Convertir en réponse avec statuts Celery à jour
+        # Convertir en réponse avec statuts Celery optimisés (Fix N+1 queries)
         result = []
+        final_statuses = {"SUCCESS", "FAILURE", "REVOKED"}
+        
         for job in jobs:
-            celery_result = celery_app.AsyncResult(job.id)
+            # Optimisation: interroger Celery seulement pour les jobs non-finaux
+            status_from_celery = job.status
+            result_from_celery = None
+            
+            # N'interroger Celery que si le job n'a pas de statut final en DB
+            if job.status not in final_statuses:
+                try:
+                    celery_result = celery_app.AsyncResult(job.id)
+                    status_from_celery = celery_result.status or job.status
+                    if celery_result.ready():
+                        result_from_celery = celery_result.result
+                except Exception:
+                    # En cas d'erreur Celery, utiliser les données DB
+                    status_from_celery = job.status
             
             job_status = JobStatus(
                 job_id=job.id,
-                status=celery_result.status or job.status,
+                status=status_from_celery,
                 job_type=job.type,
                 progress=job.progress,
                 step=job.step,
                 error=job.error_message,
                 created_at=job.created_at,
-                updated_at=job.updated_at
+                updated_at=job.updated_at,
+                result=result_from_celery
             )
-            
-            # Ajouter le résultat si disponible
-            if celery_result.ready():
-                job_status.result = celery_result.result
             
             result.append(job_status)
         
@@ -166,7 +179,6 @@ def create_test_job():
     Endpoint de test pour créer un job de démonstration
     Utile pour tester l'infrastructure async sans dépendre de l'IA
     """
-    from app.tasks.ai_tasks import planning_task
     
     # Créer un job de test avec des données simulées
     job = planning_task.delay(

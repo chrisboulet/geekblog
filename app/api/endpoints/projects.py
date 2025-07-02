@@ -5,9 +5,9 @@ from typing import List, Optional
 from app.schemas import schemas
 from app.schemas.job_schemas import JobStatus
 from app.services import project_service, task_service, ai_service # Ajout de task_service et ai_service
-from app.services.job_service import JobService
+from app.services import job_service
 from app.db.config import get_db
-from app.tasks.ai_tasks import planning_task
+from app.tasks.ai_tasks import planning_task, finishing_task
 
 router = APIRouter()
 
@@ -98,7 +98,7 @@ async def plan_project_async(
     job = planning_task.delay(project_id, goal_to_plan)
     
     # Créer l'enregistrement en base de données
-    JobService.create_job_record(
+    job_service.create_job_record(
         db=db,
         job_id=job.id,
         job_type="planning",
@@ -147,6 +147,44 @@ async def assemble_and_refine_project_content(
     # db.commit()
 
     return refined_article
+
+
+# Endpoint asynchrone pour l'assemblage et le raffinage IA (Code Review Fix)
+@router.post("/{project_id}/assemble-async", response_model=JobStatus, tags=["Projects", "AI Finishing Crew", "Async"])
+async def assemble_and_refine_project_content_async(
+    project_id: int,
+    payload: AssemblePayloadBody,
+    db: Session = Depends(get_db)
+):
+    """
+    Version asynchrone de l'assemblage IA - Fix code review
+    Retourne immédiatement un job_id pour suivre la progression
+    """
+    db_project = project_service.get_project(db, project_id=project_id)
+    if not db_project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if not payload.raw_content or not payload.raw_content.strip():
+        raise HTTPException(status_code=400, detail="Raw content for assembly cannot be empty.")
+
+    # Démarrer le job asynchrone
+    job = finishing_task.delay(project_id, payload.raw_content)
+    
+    # Créer l'enregistrement en base de données
+    job_service.create_job_record(
+        db=db,
+        job_id=job.id,
+        job_type="finishing",
+        project_id=project_id
+    )
+    
+    return JobStatus(
+        job_id=job.id,
+        status="PENDING",
+        job_type="finishing",
+        progress=0.0,
+        step="Démarrage du raffinage IA..."
+    )
 
 
 @router.put("/{project_id}", response_model=schemas.Project)

@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session
 from app.models import models
 from app.schemas import schemas
-from fastapi import HTTPException
+from app.services.exceptions import ProjectNotFoundException, TaskNotFoundException, InvalidTaskDataException
 from typing import List, Optional
 
 def create_task(db: Session, task: schemas.TaskCreate) -> models.Task:
     # Vérifier si le projet associé existe
     db_project = db.query(models.Project).filter(models.Project.id == task.project_id).first()
     if not db_project:
-        raise HTTPException(status_code=404, detail=f"Project with id {task.project_id} not found")
+        raise ProjectNotFoundException(task.project_id)
 
     db_task = models.Task(
         title=task.title,
@@ -41,7 +41,7 @@ def update_task(db: Session, task_id: int, task_update: schemas.TaskUpdate) -> O
     if 'project_id' in update_data:
         db_project = db.query(models.Project).filter(models.Project.id == update_data['project_id']).first()
         if not db_project:
-            raise HTTPException(status_code=404, detail=f"New project with id {update_data['project_id']} not found")
+            raise ProjectNotFoundException(update_data['project_id'])
 
     db.add(db_task)
     db.commit()

@@ -1,16 +1,13 @@
+import os
 from fastapi import FastAPI
 from app.api.api import api_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="GeekBlog API", version="0.1.0", openapi_url="/api/v1/openapi.json")
 
-# CORS (Cross-Origin Resource Sharing)
-origins = [
-    "http://localhost",
-    "http://localhost:3000", # Assuming React frontend runs on port 3000
-    "http://localhost:5173", # Default Vite port
-    # Add any other origins as needed
-]
+# CORS (Cross-Origin Resource Sharing) - Configuration via variables d'environnement
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+origins = [origin.strip() for origin in allowed_origins_str.split(",")]
 
 app.add_middleware(
     CORSMiddleware,

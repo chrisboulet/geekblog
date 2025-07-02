@@ -3,9 +3,13 @@ from sqlalchemy.orm import Session
 from typing import List, Optional, Literal
 
 from app.schemas import schemas
+from app.schemas.job_schemas import JobStatus
 from app.services import task_service, ai_service # ai_service ajouté
+from app.services import job_service
+from app.services.exceptions import ProjectNotFoundException, TaskNotFoundException, InvalidTaskDataException
 from app.db.config import get_db
 from app.models import models
+from app.tasks.ai_tasks import run_agent_task
 
 router = APIRouter()
 
@@ -15,9 +19,11 @@ AgentType = Literal["researcher", "writer"]
 def create_task_endpoint(task: schemas.TaskCreate, db: Session = Depends(get_db)):
     try:
         return task_service.create_task(db=db, task=task)
-    except HTTPException as e: # Capturer les erreurs soulevées par le service (ex: projet non trouvé)
-        raise e
-    except Exception as e: # Autres erreurs potentielles
+    except ProjectNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except InvalidTaskDataException as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -84,6 +90,43 @@ async def run_agent_on_task(
 
     return updated_task
 
+
+# Endpoint asynchrone pour exécuter un agent IA sur une tâche (Code Review Fix)
+@router.post("/{task_id}/run-agent-async", response_model=JobStatus, tags=["Tasks", "AI Agents", "Async"])
+async def run_agent_on_task_async(
+    task_id: int,
+    agent_type: AgentType = Body(..., embed=True, description="Type d'agent à exécuter ('researcher' ou 'writer')."),
+    context: Optional[str] = Body(None, embed=True, description="Contexte supplémentaire pour l'agent."),
+    db: Session = Depends(get_db)
+):
+    """
+    Version asynchrone de l'exécution d'agents IA - Fix code review
+    Retourne immédiatement un job_id pour suivre la progression
+    """
+    db_task = task_service.get_task(db, task_id=task_id)
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # Démarrer le job asynchrone
+    job = run_agent_task.delay(task_id, agent_type, context)
+    
+    # Créer l'enregistrement en base de données
+    job_service.create_job_record(
+        db=db,
+        job_id=job.id,
+        job_type=f"agent_{agent_type}",
+        task_id=task_id
+    )
+    
+    return JobStatus(
+        job_id=job.id,
+        status="PENDING",
+        job_type=f"agent_{agent_type}",
+        progress=0.0,
+        step=f"Démarrage de l'agent {agent_type}..."
+    )
+
+
 # Endpoint pour récupérer les tâches d'un projet spécifique
 @router.get("/project/{project_id}", response_model=List[schemas.Task])
 def get_tasks_for_project_endpoint(project_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -103,8 +146,12 @@ def update_task_endpoint(task_id: int, task: schemas.TaskUpdate, db: Session = D
         if db_task is None:
             raise HTTPException(status_code=404, detail="Task not found")
         return db_task
-    except HTTPException as e: # Capturer les erreurs soulevées par le service
-        raise e
+    except ProjectNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except TaskNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except InvalidTaskDataException as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

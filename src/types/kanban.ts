@@ -1,7 +1,7 @@
 // src/types/kanban.ts
 
 export interface Task {
-  id: string; // ou number, selon votre backend
+  id: number; // Harmonisé avec api.ts - l'ID vient de la DB
   title: string;
   description?: string;
   status: string; // Correspondra à l'ID de la colonne

@@ -240,6 +240,46 @@ def writing_task(self, task_id: int, task_title: str, context: Optional[str] = N
         raise
 
 
+@celery_app.task(bind=True, name="app.tasks.ai_tasks.run_agent_task")
+def run_agent_task(self, task_id: int, agent_type: str, context: Optional[str] = None) -> dict:
+    """
+    Tâche asynchrone générique pour exécuter un agent IA sur une tâche
+    
+    Args:
+        task_id: ID de la tâche à traiter
+        agent_type: Type d'agent ('researcher' ou 'writer')
+        context: Contexte additionnel pour l'agent
+        
+    Returns:
+        dict: Résultat avec success, content, et message
+    """
+    try:
+        # Récupérer la tâche pour obtenir son titre
+        db = get_db()
+        try:
+            task = task_service.get_task(db, task_id)
+            if not task:
+                raise ValueError(f"Tâche {task_id} non trouvée")
+            task_title = task.title
+        finally:
+            db.close()
+        
+        # Déléguer à la tâche spécialisée appropriée
+        if agent_type.lower() == 'researcher':
+            return research_task.apply_async(args=[task_id, task_title, context]).get()
+        elif agent_type.lower() == 'writer':
+            return writing_task.apply_async(args=[task_id, task_title, context]).get()
+        else:
+            raise ValueError(f"Type d'agent non supporté: {agent_type}")
+            
+    except Exception as e:
+        self.update_state(
+            state='FAILURE',
+            meta={'error': str(e), 'step': f'Erreur lors de l\'exécution de l\'agent {agent_type}'}
+        )
+        raise
+
+
 @celery_app.task(bind=True, name="app.tasks.ai_tasks.finishing_task")
 def finishing_task(self, project_id: int, raw_content: str) -> dict:
     """

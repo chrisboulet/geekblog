@@ -11,26 +11,26 @@ interface AssemblyViewProps {
 
 const AssemblyView: React.FC<AssemblyViewProps> = ({ project }) => {
   const queryClient = useQueryClient();
-  const [orderedTasks, setOrderedTasks] = useState<ApiTask[]>([]);
-  const [assembledContent, setAssembledContent] = useState<string>('');
   const [refinedContent, setRefinedContent] = useState<string>('');
 
-  // Filtrer et trier les tâches éligibles pour l'assemblage
-  useEffect(() => {
+  // Filtrer et trier les tâches éligibles pour l'assemblage (optimisé avec useMemo)
+  const orderedTasks = useMemo<ApiTask[]>(() => {
     const eligibleStatuses = ["Terminé", "Révision"]; // Statuts considérés comme prêts pour l'assemblage
-    const tasksForAssembly = project.tasks
+    return project.tasks
       .filter(task => eligibleStatuses.includes(task.status || ''))
       .sort((a, b) => (a.order || 0) - (b.order || 0));
-    setOrderedTasks(tasksForAssembly);
   }, [project.tasks]);
 
-  // Mettre à jour le contenu assemblé brut lorsque les tâches ordonnées changent
-  useEffect(() => {
+  // Assembler le contenu brut (optimisé avec useMemo)
+  const assembledContent = useMemo<string>(() => {
     const rawHtmlContent = orderedTasks.map(task =>
       `<h2>${task.title}</h2>\n${task.description || '<p>Contenu non disponible.</p>'}`
     ).join('<hr class="my-4 border-neutral-700">\n');
-    setAssembledContent(rawHtmlContent);
-    setRefinedContent(''); // Réinitialiser le contenu raffiné si les tâches sources changent
+    
+    // Réinitialiser le contenu raffiné si les tâches sources changent
+    setRefinedContent('');
+    
+    return rawHtmlContent;
   }, [orderedTasks]);
 
   // Mutation pour lancer le "Crew de Finition" IA

@@ -16,40 +16,39 @@ interface KanbanBoardProps {
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ project }) => {
   const queryClient = useQueryClient();
-  const [kanbanColumns, setKanbanColumns] = useState<KanbanColumnType[]>([]);
 
-  // Transformation des tâches du projet en colonnes Kanban
-  useEffect(() => {
-    if (project && project.tasks) {
-      const columnsMap: Record<string, KanbanColumnType> = KANBAN_COLUMNS_STATUS_ORDER.reduce((acc, status) => {
-        acc[status] = { id: status, title: status, tasks: [] };
-        return acc;
-      }, {} as Record<string, KanbanColumnType>);
+  // Transformation des tâches du projet en colonnes Kanban (optimisé avec useMemo)
+  const kanbanColumns = useMemo<KanbanColumnType[]>(() => {
+    if (!project?.tasks) return [];
 
-      project.tasks.forEach(task => {
-        const taskStatus = task.status || 'À faire'; // Default status si non défini
-        if (columnsMap[taskStatus]) {
-          // Conversion ApiTask vers KanbanTaskType (elles sont structurellement similaires pour l'instant)
-          columnsMap[taskStatus].tasks.push({
-            id: String(task.id), // Assurer que l'ID est une string pour dnd-kit si besoin
-            title: task.title,
-            description: task.description || undefined,
-            status: taskStatus,
-            order: task.order,
-          });
-        } else {
-          // Gérer les tâches avec des statuts inconnus, peut-être les mettre dans une colonne "Autre"
-          console.warn(`Tâche "${task.title}" avec statut inconnu: ${taskStatus}`);
-        }
-      });
+    const columnsMap: Record<string, KanbanColumnType> = KANBAN_COLUMNS_STATUS_ORDER.reduce((acc, status) => {
+      acc[status] = { id: status, title: status, tasks: [] };
+      return acc;
+    }, {} as Record<string, KanbanColumnType>);
 
-      // Trier les tâches dans chaque colonne par leur `order`
-      Object.values(columnsMap).forEach(column => {
-        column.tasks.sort((a, b) => (a.order || 0) - (b.order || 0));
-      });
+    project.tasks.forEach(task => {
+      const taskStatus = task.status || 'À faire'; // Default status si non défini
+      if (columnsMap[taskStatus]) {
+        // Conversion ApiTask vers KanbanTaskType (types maintenant harmonisés)
+        columnsMap[taskStatus].tasks.push({
+          id: task.id, // Types harmonisés - plus besoin de conversion
+          title: task.title,
+          description: task.description || undefined,
+          status: taskStatus,
+          order: task.order,
+        });
+      } else {
+        // Gérer les tâches avec des statuts inconnus, peut-être les mettre dans une colonne "Autre"
+        console.warn(`Tâche "${task.title}" avec statut inconnu: ${taskStatus}`);
+      }
+    });
 
-      setKanbanColumns(Object.values(columnsMap));
-    }
+    // Trier les tâches dans chaque colonne par leur `order`
+    Object.values(columnsMap).forEach(column => {
+      column.tasks.sort((a, b) => (a.order || 0) - (b.order || 0));
+    });
+
+    return Object.values(columnsMap);
   }, [project]);
 
   // Mutation pour mettre à jour une tâche (sera utilisée par dnd-kit plus tard)
