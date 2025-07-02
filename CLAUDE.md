@@ -42,6 +42,11 @@ npm run type-check
 # Linting
 npm run lint
 
+# Run tests (Vitest + React Testing Library)
+npm test
+npm run test:watch
+npm run test:coverage
+
 # Preview production build
 npm run preview
 ```
@@ -55,6 +60,9 @@ DATABASE_URL=postgresql://user:password@localhost:5432/geekblogdb
 
 # AI Service (CrewAI with Groq)
 GROQ_API_KEY=your_groq_api_key_here
+
+# Async Jobs (Phase 1.3 POC)
+REDIS_URL=redis://localhost:6379/0
 ```
 
 ### Frontend
@@ -120,7 +128,21 @@ GeekBlog is a content creation command center that combines human creativity wit
 5. Start frontend: `npm run dev`
 6. Access app at http://localhost:5173
 
-### Testing Strategy
-- Backend: pytest configured but no tests implemented yet
-- Frontend: No test framework configured yet
-- Both use linting (backend: via IDE, frontend: `npm run lint`)
+### Testing Strategy (Phase 1 Complete)
+- **Backend**: Complete pytest infrastructure with 60% coverage requirement
+  - Integration tests for all CRUD endpoints with SQLite test database
+  - Unit tests with CrewAI mocking for AI service components
+  - Run tests: `pytest` or `pytest --cov` for coverage
+- **Frontend**: Complete Vitest + React Testing Library setup
+  - Component tests for TaskCard, KanbanBoard, AssemblyView
+  - API client tests with mocked endpoints
+  - Run tests: `npm test` or `npm run test:coverage`
+
+### Async Job System (Phase 1.3 POC)
+- **Infrastructure**: Celery + Redis for background AI processing
+- **Job Tracking**: AsyncJob model with dual tracking (Celery + Database)
+- **Endpoints**: 
+  - Sync: `/projects/{id}/plan` (original blocking version)
+  - Async: `/projects/{id}/plan-async` (returns job_id immediately)
+  - Status: `/jobs/{job_id}/status` for progress tracking
+- **Usage**: Compare sync vs async performance for AI operations
