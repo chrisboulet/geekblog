@@ -3,11 +3,12 @@ Service pour la gestion des jobs asynchrones
 """
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
+import json
 
 from app.models.job_models import AsyncJob
-from app.schemas.job_schemas import JobCreate
+from app.schemas.job_schemas import JobCreate, ProgressStep
 from app.celery_config import celery_app
 
 
@@ -16,10 +17,12 @@ def create_job_record(
     job_id: str,
     job_type: str,
     project_id: Optional[int] = None,
-    task_id: Optional[int] = None
+    task_id: Optional[int] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    estimated_duration: Optional[float] = None
 ) -> AsyncJob:
     """
-    Créer un enregistrement de job en base de données
+    Créer un enregistrement de job en base de données avec métadonnées enrichies
     """
     job = AsyncJob(
         id=job_id,
@@ -27,7 +30,10 @@ def create_job_record(
         status="PENDING",
         project_id=project_id,
         task_id=task_id,
-        progress=0.0
+        progress=0.0,
+        metadata=metadata,
+        estimated_duration=estimated_duration,
+        progress_history=[]
     )
     db.add(job)
     db.commit()
@@ -40,10 +46,12 @@ def update_job_progress(
     job_id: str,
     progress: float,
     step: Optional[str] = None,
-    status: Optional[str] = None
+    status: Optional[str] = None,
+    status_message: Optional[str] = None,
+    add_to_history: bool = True
 ) -> Optional[AsyncJob]:
     """
-    Mettre à jour la progression d'un job
+    Mettre à jour la progression d'un job avec historique enrichi
     """
     job = db.query(AsyncJob).filter(AsyncJob.id == job_id).first()
     if job:
@@ -52,6 +60,23 @@ def update_job_progress(
             job.step = step
         if status:
             job.status = status
+        if status_message:
+            job.status_message = status_message
+        
+        # Ajouter à l'historique de progression
+        if add_to_history and step:
+            if job.progress_history is None:
+                job.progress_history = []
+            
+            # Créer une nouvelle entrée d'historique
+            history_entry = {
+                "step": step,
+                "progress": progress,
+                "timestamp": datetime.utcnow().isoformat(),
+                "message": status_message
+            }
+            job.progress_history.append(history_entry)
+        
         job.updated_at = func.now()
         db.commit()
         db.refresh(job)
@@ -125,16 +150,23 @@ def get_active_jobs(db: Session, limit: int = 100) -> List[AsyncJob]:
 
 def cleanup_old_jobs(db: Session, days_old: int = 7) -> int:
     """
-    Nettoyer les anciens jobs terminés
+    Nettoyer les anciens jobs terminés avec transaction sécurisée
     """
-    cutoff_date = datetime.now() - timedelta(days=days_old)
-    deleted_count = (
-        db.query(AsyncJob)
-        .filter(
-            AsyncJob.completed_at < cutoff_date,
-            AsyncJob.status.in_(["SUCCESS", "FAILURE", "REVOKED"])
+    try:
+        # Utiliser func.now() pour cohérence avec la timezone de la DB
+        cutoff_date = datetime.utcnow() - timedelta(days=days_old)
+        
+        deleted_count = (
+            db.query(AsyncJob)
+            .filter(
+                AsyncJob.completed_at < cutoff_date,
+                AsyncJob.status.in_(["SUCCESS", "FAILURE", "REVOKED"])
+            )
+            .delete(synchronize_session=False)
         )
-        .delete()
-    )
-    db.commit()
-    return deleted_count
+        
+        db.commit()
+        return deleted_count
+    except Exception as e:
+        db.rollback()
+        raise Exception(f"Erreur lors du nettoyage des jobs: {e}")

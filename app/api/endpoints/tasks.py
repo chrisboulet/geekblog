@@ -9,7 +9,7 @@ from app.services import job_service
 from app.services.exceptions import ProjectNotFoundException, TaskNotFoundException, InvalidTaskDataException
 from app.db.config import get_db
 from app.models import models
-from app.tasks.ai_tasks import run_agent_task
+from app.tasks.ai_tasks import research_task, writing_task
 
 router = APIRouter()
 
@@ -91,7 +91,7 @@ async def run_agent_on_task(
     return updated_task
 
 
-# Endpoint asynchrone pour exécuter un agent IA sur une tâche (Code Review Fix)
+# Endpoint asynchrone pour exécuter un agent IA sur une tâche (Phase 2.1 - Fix Anti-Pattern)
 @router.post("/{task_id}/run-agent-async", response_model=JobStatus, tags=["Tasks", "AI Agents", "Async"])
 async def run_agent_on_task_async(
     task_id: int,
@@ -100,30 +100,53 @@ async def run_agent_on_task_async(
     db: Session = Depends(get_db)
 ):
     """
-    Version asynchrone de l'exécution d'agents IA - Fix code review
+    Version asynchrone de l'exécution d'agents IA - Phase 2.1 Anti-Pattern Fix
+    Dispatch direct vers les tâches spécialisées (plus de meta-task bloquante)
     Retourne immédiatement un job_id pour suivre la progression
     """
     db_task = task_service.get_task(db, task_id=task_id)
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    # Démarrer le job asynchrone
-    job = run_agent_task.delay(task_id, agent_type, context)
+    # Dispatch direct vers la tâche appropriée (élimine l'anti-pattern .get())
+    if agent_type == "researcher":
+        job = research_task.delay(task_id, db_task.title, context)
+        job_type = "agent_researcher"
+    elif agent_type == "writer":
+        job = writing_task.delay(task_id, db_task.title, context)
+        job_type = "agent_writer"
+    else:
+        raise HTTPException(status_code=400, detail=f"Invalid agent type: {agent_type}")
     
-    # Créer l'enregistrement en base de données
+    # Estimation de durée basée sur le type d'agent
+    estimated_duration = 60.0 if agent_type == "researcher" else 45.0  # en secondes
+    
+    # Métadonnées pour tracking
+    metadata = {
+        "agent_type": agent_type,
+        "task_title": db_task.title,
+        "context_provided": context is not None
+    }
+    
+    # Créer l'enregistrement en base de données avec métadonnées enrichies
     job_service.create_job_record(
         db=db,
         job_id=job.id,
-        job_type=f"agent_{agent_type}",
-        task_id=task_id
+        job_type=job_type,
+        task_id=task_id,
+        metadata=metadata,
+        estimated_duration=estimated_duration
     )
     
     return JobStatus(
         job_id=job.id,
         status="PENDING",
-        job_type=f"agent_{agent_type}",
+        job_type=job_type,
         progress=0.0,
-        step=f"Démarrage de l'agent {agent_type}..."
+        step=f"Démarrage de l'agent {agent_type}...",
+        status_message=f"Initialisation de l'agent {agent_type} pour la tâche '{db_task.title}'",
+        estimated_duration=estimated_duration,
+        metadata=metadata
     )
 
 
@@ -135,7 +158,7 @@ def get_tasks_for_project_endpoint(project_id: int, skip: int = 0, limit: int = 
         # Il est possible qu'un projet n'ait pas de tâches, donc ce n'est pas nécessairement une erreur 404
         # Cependant, si le projet lui-même n'existe pas, cela pourrait être géré en amont ou ici.
         # Pour l'instant, retourne une liste vide si aucune tâche n'est trouvée.
-        pass
+        return []
     return tasks
 
 

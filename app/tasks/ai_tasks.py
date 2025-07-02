@@ -10,14 +10,22 @@ from app.celery_config import celery_app
 from app.db.config import SessionLocal
 from app.services import ai_service, project_service, task_service
 from app.schemas.schemas import TaskCreate
+from app.tasks.base_task import JobAwareTask
 
 
+from contextlib import contextmanager
+
+@contextmanager
 def get_db() -> Session:
-    """Obtenir une session de base de données pour les tâches Celery"""
-    return SessionLocal()
+    """Context manager pour obtenir une session de base de données pour les tâches Celery"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-@celery_app.task(bind=True, name="app.tasks.ai_tasks.planning_task")
+@celery_app.task(bind=True, base=JobAwareTask, name="app.tasks.ai_tasks.planning_task")
 def planning_task(self, project_id: int, project_goal: str) -> dict:
     """
     Tâche asynchrone pour la planification IA d'un projet
@@ -31,9 +39,13 @@ def planning_task(self, project_id: int, project_goal: str) -> dict:
     """
     try:
         # Mettre à jour le statut de la tâche
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Initialisation planification IA', 'progress': 10}
+            meta={
+                'step': 'Initialisation planification IA', 
+                'progress': 10,
+                'status_message': f'Démarrage de la planification pour le projet {project_id}'
+            }
         )
         
         # Vérifier que le LLM est configuré
@@ -41,9 +53,13 @@ def planning_task(self, project_id: int, project_goal: str) -> dict:
             raise ValueError("Service IA non configuré (GROQ_API_KEY manquant)")
         
         # Mettre à jour le statut
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Génération du plan avec IA', 'progress': 30}
+            meta={
+                'step': 'Génération du plan avec IA', 
+                'progress': 30,
+                'status_message': f'Génération du plan IA pour: {project_goal[:100]}'
+            }
         )
         
         # Exécuter la planification IA
@@ -57,14 +73,17 @@ def planning_task(self, project_id: int, project_goal: str) -> dict:
             }
         
         # Mettre à jour le statut
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Création des tâches en base', 'progress': 70}
+            meta={
+                'step': 'Création des tâches en base', 
+                'progress': 70,
+                'status_message': f'Création de {len(task_titles)} tâches en base de données'
+            }
         )
         
         # Créer les tâches en base de données
-        db = get_db()
-        try:
+        with get_db() as db:
             # Vérifier que le projet existe
             project = project_service.get_project(db, project_id)
             if not project:
@@ -89,9 +108,13 @@ def planning_task(self, project_id: int, project_goal: str) -> dict:
                 })
             
             # Mettre à jour le statut final
-            self.update_state(
+            self.update_state_with_db(
                 state='PROGRESS',
-                meta={'step': 'Finalisation', 'progress': 100}
+                meta={
+                    'step': 'Finalisation', 
+                    'progress': 100,
+                    'status_message': f'Planification terminée: {len(created_tasks)} tâches créées'
+                }
             )
             
             return {
@@ -101,19 +124,12 @@ def planning_task(self, project_id: int, project_goal: str) -> dict:
                 'created_tasks': created_tasks
             }
             
-        finally:
-            db.close()
-            
     except Exception as e:
-        # En cas d'erreur, mettre à jour le statut
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'step': 'Erreur lors de la planification'}
-        )
+        # JobAwareTask gère automatiquement l'état d'échec
         raise
 
 
-@celery_app.task(bind=True, name="app.tasks.ai_tasks.research_task")
+@celery_app.task(bind=True, base=JobAwareTask, name="app.tasks.ai_tasks.research_task")
 def research_task(self, task_id: int, task_title: str, context: Optional[str] = None) -> dict:
     """
     Tâche asynchrone pour la recherche IA
@@ -127,17 +143,25 @@ def research_task(self, task_id: int, task_title: str, context: Optional[str] = 
         dict: Résultat avec success, content, et message
     """
     try:
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Démarrage recherche IA', 'progress': 10}
+            meta={
+                'step': 'Démarrage recherche IA', 
+                'progress': 10,
+                'status_message': f'Initialisation de la recherche pour: {task_title[:100]}'
+            }
         )
         
         if not ai_service.llm:
             raise ValueError("Service IA non configuré")
         
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Recherche en cours avec IA', 'progress': 50}
+            meta={
+                'step': 'Recherche en cours avec IA', 
+                'progress': 50,
+                'status_message': f'Recherche IA en cours pour: {task_title[:80]}'
+            }
         )
         
         # Note: Cette fonction doit être implémentée dans ai_service
@@ -146,14 +170,17 @@ def research_task(self, task_id: int, task_title: str, context: Optional[str] = 
         if hasattr(ai_service, 'run_research_crew'):
             research_result = ai_service.run_research_crew(task_title, context)
         
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Mise à jour de la tâche', 'progress': 80}
+            meta={
+                'step': 'Mise à jour de la tâche', 
+                'progress': 80,
+                'status_message': f'Mise à jour de la tâche {task_id} avec les résultats de recherche'
+            }
         )
         
         # Mettre à jour la tâche en base
-        db = get_db()
-        try:
+        with get_db() as db:
             updated_task = task_service.update_task(
                 db, 
                 task_id, 
@@ -170,34 +197,36 @@ def research_task(self, task_id: int, task_title: str, context: Optional[str] = 
                 'task_id': task_id
             }
             
-        finally:
-            db.close()
-            
     except Exception as e:
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'step': 'Erreur lors de la recherche'}
-        )
+        # JobAwareTask gère automatiquement l'état d'échec
         raise
 
 
-@celery_app.task(bind=True, name="app.tasks.ai_tasks.writing_task")
+@celery_app.task(bind=True, base=JobAwareTask, name="app.tasks.ai_tasks.writing_task")
 def writing_task(self, task_id: int, task_title: str, context: Optional[str] = None) -> dict:
     """
     Tâche asynchrone pour la rédaction IA
     """
     try:
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Démarrage rédaction IA', 'progress': 10}
+            meta={
+                'step': 'Démarrage rédaction IA', 
+                'progress': 10,
+                'status_message': f'Initialisation de la rédaction pour: {task_title[:100]}'
+            }
         )
         
         if not ai_service.llm:
             raise ValueError("Service IA non configuré")
         
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Rédaction en cours avec IA', 'progress': 50}
+            meta={
+                'step': 'Rédaction en cours avec IA', 
+                'progress': 50,
+                'status_message': f'Rédaction IA en cours pour: {task_title[:80]}'
+            }
         )
         
         # Simulation pour le POC
@@ -205,14 +234,17 @@ def writing_task(self, task_id: int, task_title: str, context: Optional[str] = N
         if hasattr(ai_service, 'run_writing_crew'):
             writing_result = ai_service.run_writing_crew(task_title, context)
         
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Mise à jour de la tâche', 'progress': 80}
+            meta={
+                'step': 'Mise à jour de la tâche', 
+                'progress': 80,
+                'status_message': f'Mise à jour de la tâche {task_id} avec le contenu rédigé'
+            }
         )
         
         # Mettre à jour la tâche en base
-        db = get_db()
-        try:
+        with get_db() as db:
             updated_task = task_service.update_task(
                 db, 
                 task_id, 
@@ -229,85 +261,59 @@ def writing_task(self, task_id: int, task_title: str, context: Optional[str] = N
                 'task_id': task_id
             }
             
-        finally:
-            db.close()
-            
     except Exception as e:
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'step': 'Erreur lors de la rédaction'}
-        )
+        # JobAwareTask gère automatiquement l'état d'échec
         raise
 
 
-@celery_app.task(bind=True, name="app.tasks.ai_tasks.run_agent_task")
-def run_agent_task(self, task_id: int, agent_type: str, context: Optional[str] = None) -> dict:
-    """
-    Tâche asynchrone générique pour exécuter un agent IA sur une tâche
-    
-    Args:
-        task_id: ID de la tâche à traiter
-        agent_type: Type d'agent ('researcher' ou 'writer')
-        context: Contexte additionnel pour l'agent
-        
-    Returns:
-        dict: Résultat avec success, content, et message
-    """
-    try:
-        # Récupérer la tâche pour obtenir son titre
-        db = get_db()
-        try:
-            task = task_service.get_task(db, task_id)
-            if not task:
-                raise ValueError(f"Tâche {task_id} non trouvée")
-            task_title = task.title
-        finally:
-            db.close()
-        
-        # Déléguer à la tâche spécialisée appropriée
-        if agent_type.lower() == 'researcher':
-            return research_task.apply_async(args=[task_id, task_title, context]).get()
-        elif agent_type.lower() == 'writer':
-            return writing_task.apply_async(args=[task_id, task_title, context]).get()
-        else:
-            raise ValueError(f"Type d'agent non supporté: {agent_type}")
-            
-    except Exception as e:
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'step': f'Erreur lors de l\'exécution de l\'agent {agent_type}'}
-        )
-        raise
+# SUPPRIMÉ: run_agent_task - Était un anti-pattern Celery avec .get() bloquant
+# Remplacé par dispatch direct depuis l'endpoint API vers research_task/writing_task
+# Voir: app/api/endpoints/tasks.py:run_agent_on_task_async
 
-
-@celery_app.task(bind=True, name="app.tasks.ai_tasks.finishing_task")
+@celery_app.task(bind=True, base=JobAwareTask, name="app.tasks.ai_tasks.finishing_task")
 def finishing_task(self, project_id: int, raw_content: str) -> dict:
     """
     Tâche asynchrone pour le raffinage final avec le Finishing Crew
     """
     try:
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Démarrage du raffinage IA', 'progress': 10}
+            meta={
+                'step': 'Démarrage du raffinage IA', 
+                'progress': 10,
+                'status_message': f'Initialisation du raffinage pour le projet {project_id}'
+            }
         )
         
         if not ai_service.llm:
             raise ValueError("Service IA non configuré")
         
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Raffinage en cours (Critique)', 'progress': 25}
+            meta={
+                'step': 'Raffinage en cours (Critique)', 
+                'progress': 25,
+                'status_message': 'Analyse critique du contenu par l\'IA'
+            }
         )
         
         # Simulation progressive pour le POC
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Raffinage en cours (Style)', 'progress': 50}
+            meta={
+                'step': 'Raffinage en cours (Style)', 
+                'progress': 50,
+                'status_message': 'Amélioration du style et de la cohérence'
+            }
         )
         
-        self.update_state(
+        self.update_state_with_db(
             state='PROGRESS',
-            meta={'step': 'Raffinage en cours (Vérification)', 'progress': 75}
+            meta={
+                'step': 'Raffinage en cours (Vérification)', 
+                'progress': 75,
+                'status_message': 'Vérification finale et corrections'
+            }
         )
         
         # Appel du service de raffinage
@@ -323,8 +329,5 @@ def finishing_task(self, project_id: int, raw_content: str) -> dict:
         }
         
     except Exception as e:
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'step': 'Erreur lors du raffinage'}
-        )
+        # JobAwareTask gère automatiquement l'état d'échec
         raise

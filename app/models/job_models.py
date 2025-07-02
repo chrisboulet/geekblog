@@ -1,7 +1,7 @@
 """
 Modèles pour le suivi des jobs asynchrones
 """
-from sqlalchemy import Column, Integer, String, Text, DateTime, Float
+from sqlalchemy import Column, Integer, String, Text, DateTime, Float, JSON
 from sqlalchemy.sql import func
 from app.db.config import Base
 
@@ -22,7 +22,13 @@ class AsyncJob(Base):
     # Métadonnées du job
     step = Column(String, nullable=True)  # Étape actuelle
     progress = Column(Float, default=0.0)  # Progression 0-100
+    status_message = Column(Text, nullable=True)  # Message de statut détaillé
     error_message = Column(Text, nullable=True)  # Message d'erreur si échec
+    metadata = Column(JSON, nullable=True)  # Métadonnées additionnelles (configs, paramètres)
+    
+    # Progress tracking avancé
+    estimated_duration = Column(Float, nullable=True)  # Durée estimée en secondes
+    progress_history = Column(JSON, nullable=True)  # Historique des étapes avec timestamps
     
     # Horodatage
     created_at = Column(DateTime(timezone=True), server_default=func.now())

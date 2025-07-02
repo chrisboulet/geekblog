@@ -10,7 +10,7 @@ from app.db.config import get_db
 from app.celery_config import celery_app
 from app.models.job_models import AsyncJob
 from app.schemas.job_schemas import JobStatus, JobCreate
-from app.services.job_service import JobService
+from app.services import job_service
 from app.tasks.ai_tasks import planning_task
 
 router = APIRouter()
@@ -50,10 +50,17 @@ def get_job_status(job_id: str, db: Session = Depends(get_db)):
         if db_job:
             status_response.progress = db_job.progress or status_response.progress
             status_response.step = db_job.step or status_response.step
+            status_response.status_message = db_job.status_message
             status_response.error = db_job.error_message or status_response.error
             status_response.created_at = db_job.created_at
             status_response.updated_at = db_job.updated_at
             status_response.job_type = db_job.type
+            status_response.estimated_duration = db_job.estimated_duration
+            status_response.metadata = db_job.metadata
+            
+            # Convertir l'historique de progression depuis JSON
+            if db_job.progress_history:
+                status_response.progress_history = db_job.progress_history
         
         return status_response
         
@@ -159,9 +166,13 @@ def list_jobs(
                 job_type=job.type,
                 progress=job.progress,
                 step=job.step,
+                status_message=job.status_message,
                 error=job.error_message,
                 created_at=job.created_at,
                 updated_at=job.updated_at,
+                estimated_duration=job.estimated_duration,
+                metadata=job.metadata,
+                progress_history=job.progress_history,
                 result=result_from_celery
             )
             
