@@ -30,6 +30,11 @@ GeekBlog est un **centre de commandement de contenu** qui transforme la créatio
 
 #### Backend
 ```bash
+# Activation de l'environnement virtuel Python
+source .venv/bin/activate  # Linux/macOS
+# ou
+.venv\Scripts\activate     # Windows
+
 # Installation des dépendances
 pip install -r backend_requirements.txt
 

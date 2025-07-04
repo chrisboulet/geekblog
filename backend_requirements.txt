@@ -1,18 +1,21 @@
+# Core Framework
 fastapi>=0.100.0
 uvicorn[standard]>=0.20.0
-psycopg2-binary>=2.9.0
+pydantic[email]>=2.0.0
+
+# Database
 sqlalchemy>=2.0.0
 alembic>=1.11.0
+psycopg2-binary>=2.9.0
+
+# Configuration
 python-dotenv>=1.0.0
+
+# Async Jobs
+celery>=5.3.0
+redis>=5.0.0
+
+# AI Features
 crewai>=0.28.8
 groq>=0.4.0
 duckduckgo-search>=4.0.0
-fastapi-cors>=0.1.0
-pydantic[email] # Gardé de l'original, peut être utile
-pydantic-settings # Gardé de l'original
-pytest>=7.0.0 # Framework de test
-pytest-cov>=4.0.0 # Coverage des tests
-pytest-asyncio>=0.21.0 # Support async pour pytest
-httpx>=0.24.0 # Client HTTP pour tests
-celery>=5.3.0 # Task queue pour jobs asynchrones
-redis>=5.0.0 # Backend pour Celery

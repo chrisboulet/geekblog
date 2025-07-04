@@ -1,0 +1,11 @@
+# Development and Testing Dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Testing Framework
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0
+
+# Optional - Advanced Pydantic features (if needed)
+pydantic-settings>=2.0.0
