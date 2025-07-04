@@ -7,6 +7,7 @@ import {
     TaskCreate,
     TaskUpdate
 } from '../types/api'; // Ces types devront être créés/ajustés pour correspondre aux schémas Pydantic
+import { JobStatus } from '../types/job';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1', // L'URL de base de l'API
@@ -96,6 +97,34 @@ export const runFinishingCrew = async (projectId: number | string, rawContent: s
   const payload = { raw_content: rawContent };
   const response = await apiClient.post(`/projects/${projectId}/assemble`, payload);
   // La réponse est directement le texte raffiné (string), pas un objet JSON Task ou Project
+  return response.data;
+};
+
+// ============== ASYNC ENDPOINTS ==============
+// These functions return JobStatus objects for polling-based async operations
+
+// Async version of project planning
+export const planProjectAsync = async (projectId: number | string, projectGoal?: string): Promise<JobStatus> => {
+  const payload = projectGoal ? { project_goal: projectGoal } : {};
+  const response = await apiClient.post(`/projects/${projectId}/plan-async`, payload);
+  return response.data;
+};
+
+// Async version of project content assembly/finishing
+export const assembleProjectAsync = async (projectId: number | string, rawContent: string): Promise<JobStatus> => {
+  const payload = { raw_content: rawContent };
+  const response = await apiClient.post(`/projects/${projectId}/assemble-async`, payload);
+  return response.data;
+};
+
+// Async version of running AI agents on tasks
+export const runAgentOnTaskAsync = async (
+  taskId: number | string,
+  agentType: AgentType,
+  context?: string
+): Promise<JobStatus> => {
+  const payload = { agent_type: agentType, context: context };
+  const response = await apiClient.post(`/tasks/${taskId}/run-agent-async`, payload);
   return response.data;
 };
 

@@ -23,15 +23,20 @@ L'implémentation est basée sur **Tailwind CSS**, mais utilise un système de v
 -   **Transparence ("Glassmorphism") :** Les panneaux et les modales utilisent un fond semi-transparent avec un flou d'arrière-plan (`--bg-glass`), donnant une impression de profondeur.
 -   **Lueur ("Glow") :** Les éléments importants ou survolés émettent une lueur subtile (`--glow-md`, `--shadow-neural`), renforçant le thème futuriste.
 -   **Animations :**
-    -   `pulse` : Utilisée pour attirer l'attention sur des éléments actifs.
+    -   `pulse` : Utilisée pour attirer l'attention sur des éléments actifs et les indicateurs de progression.
+    -   `shimmer` : Animation de balayage pour les barres de progression actives, renforçant le feedback visuel.
     -   `particleFloat` : Crée un arrière-plan animé subtil qui évoque un flux de données.
     -   Transitions `ease-out` : Utilisées pour toutes les interactions afin de garantir des animations douces et naturelles.
 
 ## Décisions sur les Composants Clés
 
--   **Kanban :** Le cœur de l'interface. Les colonnes sont sombres et semi-transparentes. Les cartes de tâches (`TaskCard`) reprennent le style des "nœuds neuraux" avec des bordures colorées et des effets de survol.
+-   **Kanban :** Le cœur de l'interface. Les colonnes sont sombres et semi-transparentes. Les cartes de tâches (`TaskCard`) reprennent le style des "nœuds neuraux" avec des bordures colorées, des effets de survol, et intègrent maintenant des indicateurs de progression en temps réel pour les opérations asynchrones.
+-   **Composants de Progression :** Nouveaux composants essentiels du système :
+    -   `JobProgressBar` : Barres de progression avec animations shimmer et couleurs adaptatives selon le statut.
+    -   `JobStatusBadge` : Badges de statut avec icônes et couleurs neurales pour un feedback visuel immédiat.
+    -   `LoadingSpinner` : Spinners avec effets de lueur neural pour les opérations en cours.
 -   **Éditeur de Texte :** L'éditeur (`RichTextEditor` basé sur Tiptap) est conçu pour être "headless" et s'intégrer parfaitement. Il n'a pas de style propre, mais hérite de la configuration `prose` de Tailwind, elle-même personnalisée pour correspondre à notre thème.
--   **Boutons et Contrôles :** Les boutons sont arrondis ("pill-shaped") ou circulaires pour les icônes. Ils utilisent des dégradés subtils et des ombres portées pour se détacher de l'arrière-plan.
--   **Composants UI de Base :** La décision a été prise d'utiliser **Radix UI** (via `shadcn/ui`) comme fondation pour les composants complexes (Dropdowns, Dialogs) afin de garantir une accessibilité et une robustesse maximales, tout en les stylisant pour qu'ils correspondent à notre thème.
+-   **Boutons et Contrôles :** Les boutons sont arrondis ("pill-shaped") ou circulaires pour les icônes. Ils utilisent des dégradés subtils et des ombres portées pour se détacher de l'arrière-plan. Les nouveaux toggles async/sync suivent la même philosophie avec des couleurs neurales distinctives.
+-   **Composants UI de Base :** La décision a été prise d'utiliser **Radix UI** (via `shadcn/ui`) comme fondation pour les composants complexes (Dropdowns, Dialogs, Progress) afin de garantir une accessibilité et une robustesse maximales, tout en les stylisant pour qu'ils correspondent à notre thème.
 
 Ce guide de style est le garant de la cohérence visuelle de l'application. Toute nouvelle fonctionnalité ou composant doit s'y conformer strictement.

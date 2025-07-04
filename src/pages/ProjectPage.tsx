@@ -4,11 +4,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '../lib/api';
 import KanbanBoard from '../components/kanban/KanbanBoard';
 import AssemblyView from '../components/assembly/AssemblyView';
+import { useAsyncOperation } from '../hooks/useAsyncOperation';
+import JobProgressBar from '../components/ui/JobProgressBar';
+import JobStatusBadge from '../components/ui/JobStatusBadge';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 type ViewMode = 'kanban' | 'assembly';
 
 const ProjectPage: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>('kanban');
+  const [useAsyncPlanning, setUseAsyncPlanning] = useState(true); // Default to async planning
   const queryClient = useQueryClient();
   const { projectId } = useParams<{ projectId: string }>();
   
@@ -33,7 +38,7 @@ const ProjectPage: React.FC = () => {
   // Les tâches sont incluses dans la réponse de getProject selon nos types API
   // Si ce n'était pas le cas, on ferait un autre useQuery pour api.getTasksByProject(projectIdNumber)
 
-  // Mutation pour la planification IA
+  // Existing sync mutation (preserved for backward compatibility)
   const planProjectMutation = useMutation({
     mutationFn: () => {
       if (!project) throw new Error("Projet non chargé pour la planification.");
@@ -54,6 +59,43 @@ const ProjectPage: React.FC = () => {
       // L'erreur est déjà gérée pour l'affichage dans le JSX.
     },
   });
+
+  // New async planning operation
+  const asyncPlanningOperation = useAsyncOperation(
+    () => {
+      if (!project) throw new Error("Projet non chargé pour la planification.");
+      return api.planProjectAsync(project.id, project.description || project.name);
+    },
+    {
+      invalidateQueries: [['project', projectIdNumber]],
+      onSuccess: (result) => {
+        console.log(`Async planning completed for project ${project?.id}:`, result);
+        // Could show success notification here
+      },
+      onError: (error) => {
+        console.error(`Async planning failed for project ${project?.id}:`, error);
+        // Could show error notification here
+      }
+    }
+  );
+
+  // Helper functions
+  const handlePlanProject = () => {
+    if (useAsyncPlanning) {
+      asyncPlanningOperation.execute();
+    } else {
+      planProjectMutation.mutate();
+    }
+  };
+
+  // Determine which operation is currently active
+  const isPlanningInProgress = useAsyncPlanning 
+    ? asyncPlanningOperation.isExecuting 
+    : planProjectMutation.isPending;
+  
+  const planningError = useAsyncPlanning 
+    ? asyncPlanningOperation.error 
+    : (planProjectMutation.error instanceof Error ? planProjectMutation.error.message : null);
 
   if (isLoadingProject) {
     return (
@@ -86,24 +128,56 @@ const ProjectPage: React.FC = () => {
           <span className="text-sm text-text-tertiary ml-2">(ID: {project.id})</span>
         </h1>
         <div className="flex space-x-2 items-center">
+          {/* Planning mode toggle */}
           <button
-            onClick={() => planProjectMutation.mutate()}
-            disabled={planProjectMutation.isPending}
-            className="px-4 py-2 rounded-md font-semibold bg-neural-blue text-white hover:bg-opacity-80 transition-all duration-150 ease-in-out shadow-neural-glow-blue disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setUseAsyncPlanning(!useAsyncPlanning)}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 ease-in-out ${
+              useAsyncPlanning 
+                ? 'bg-neural-blue/20 text-neural-blue border border-neural-blue' 
+                : 'bg-neural-purple/20 text-neural-purple border border-neural-purple'
+            }`}
+            title={`Basculer vers le mode ${useAsyncPlanning ? 'synchrone' : 'asynchrone'}`}
           >
-            {planProjectMutation.isPending ? 'Planification IA...' : "Planifier avec l'IA"}
+            {useAsyncPlanning ? 'Async' : 'Sync'}
           </button>
+
+          {/* Main planning button */}
+          <button
+            onClick={handlePlanProject}
+            disabled={isPlanningInProgress}
+            className="px-4 py-2 rounded-md font-semibold bg-neural-blue text-white hover:bg-opacity-80 transition-all duration-150 ease-in-out shadow-neural-glow-blue disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+          >
+            {isPlanningInProgress && <LoadingSpinner size="sm" color="white" />}
+            <span>
+              {isPlanningInProgress 
+                ? (useAsyncPlanning && asyncPlanningOperation.step 
+                    ? asyncPlanningOperation.step 
+                    : 'Planification IA...'
+                  )
+                : "Planifier avec l'IA"
+              }
+            </span>
+          </button>
+
+          {/* Cancel button for async operations */}
+          {useAsyncPlanning && asyncPlanningOperation.jobId && asyncPlanningOperation.isPolling && (
+            <button
+              onClick={() => asyncPlanningOperation.cancel()}
+              className="px-3 py-2 rounded-md font-medium bg-red-500/20 text-red-400 border border-red-500 hover:bg-red-500/30 transition-all duration-150 ease-in-out"
+              title="Annuler la planification"
+            >
+              Annuler
+            </button>
+          )}
           <button
             onClick={() => setCurrentView('kanban')}
-            className={`px-4 py-2 rounded-md font-semibold transition-all duration-150 ease-in-out
-                        ${currentView === 'kanban' ? 'bg-neural-pink text-white shadow-neural-glow-pink' : 'bg-bg-secondary hover:bg-neural-blue/30'}`}
+            className={`px-4 py-2 rounded-md font-semibold transition-all duration-150 ease-in-out ${currentView === 'kanban' ? 'bg-neural-pink text-white shadow-neural-glow-pink' : 'bg-bg-secondary hover:bg-neural-blue/30'}`}
           >
             Vue Kanban
           </button>
           <button
             onClick={() => setCurrentView('assembly')}
-            className={`px-4 py-2 rounded-md font-semibold transition-all duration-150 ease-in-out
-                        ${currentView === 'assembly' ? 'bg-neural-pink text-white shadow-neural-glow-pink' : 'bg-bg-secondary hover:bg-neural-blue/30'}`}
+            className={`px-4 py-2 rounded-md font-semibold transition-all duration-150 ease-in-out ${currentView === 'assembly' ? 'bg-neural-pink text-white shadow-neural-glow-pink' : 'bg-bg-secondary hover:bg-neural-blue/30'}`}
           >
             Vue Assemblage
           </button>
@@ -112,18 +186,42 @@ const ProjectPage: React.FC = () => {
       {project.description && (
         <p className="mb-6 text-text-secondary italic">{project.description}</p>
       )}
-      {planProjectMutation.error && (
+
+      {/* Async planning progress */}
+      {useAsyncPlanning && asyncPlanningOperation.status && (
+        <div className="mb-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <JobStatusBadge 
+              status={asyncPlanningOperation.status} 
+              size="md" 
+              showProgress={true}
+            />
+            <span className="text-sm text-text-tertiary">
+              Mode: Planification asynchrone
+            </span>
+          </div>
+          <JobProgressBar 
+            status={asyncPlanningOperation.status}
+            size="md"
+            showStep={true}
+            showTimeRemaining={true}
+          />
+        </div>
+      )}
+
+      {/* Error display for both sync and async */}
+      {planningError && (
         <div className="mb-4 p-3 bg-red-900/50 border border-red-700 text-red-300 rounded-md">
-          Erreur de planification IA: {planProjectMutation.error instanceof Error ? planProjectMutation.error.message : JSON.stringify(planProjectMutation.error)}
+          Erreur de planification IA: {planningError}
         </div>
       )}
 
       <div className="flex-grow overflow-auto">
         {currentView === 'kanban' && (
-          <KanbanBoard project={project} /> {/* Passer le projet entier au KanbanBoard */}
+          <KanbanBoard project={project} />
         )}
         {currentView === 'assembly' && (
-          <AssemblyView project={project} /> // Remplacement du placeholder
+          <AssemblyView project={project} />
         )}
       </div>
     </div>

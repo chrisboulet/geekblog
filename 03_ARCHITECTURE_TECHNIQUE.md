@@ -6,10 +6,12 @@ Ce document décrit l'architecture technique de l'application, les choix de tech
 
 L'application est une **Single-Page Application (SPA)** avec un backend découplé, conçue pour être robuste, évolutive et maintenable.
 
--   **Backend :** API RESTful en **Python 3.9+** avec **FastAPI**.
--   **Frontend :** Application **React 18+** avec **TypeScript** et **Vite**.
+-   **Backend :** API RESTful en **Python 3.9+** avec **FastAPI** et **Celery + Redis** pour le traitement asynchrone.
+-   **Frontend :** Application **React 18+** avec **TypeScript**, **Vite**, et **TanStack Query** pour la gestion d'état asynchrone.
 -   **Base de Données :** **PostgreSQL**, gérée par l'ORM **SQLAlchemy** et les migrations **Alembic**.
 -   **Orchestration IA :** **`crewAI`** avec des modèles de langage servis par **Groq** (Llama 3).
+-   **Jobs Asynchrones :** **Celery** workers avec **Redis** backend pour les opérations IA longues.
+-   **Polling en Temps Réel :** **TanStack Query** avec intervals dynamiques pour le suivi de progression.
 -   **Déploiement :** **Docker** et **Docker Compose** pour un environnement de développement et de production cohérent.
 
 ---
@@ -53,9 +55,14 @@ C'est le cerveau de l'application. Il orchestre les agents `crewAI`.
 
 Les endpoints principaux exposent les fonctionnalités au frontend.
 
--   `POST /projects/{id}/plan`: Lance l'agent planificateur.
--   `POST /tasks/{id}/run-agent`: Délègue une tâche à un agent (chercheur ou rédacteur).
--   `POST /projects/{id}/assemble`: Lance le "Crew de Finition" sur les tâches terminées.
+-   `POST /projects/{id}/plan`: Lance l'agent planificateur (synchrone).
+-   `POST /projects/{id}/plan-async`: Lance l'agent planificateur (asynchrone, retourne job_id).
+-   `POST /tasks/{id}/run-agent`: Délègue une tâche à un agent (synchrone).
+-   `POST /tasks/{id}/run-agent-async`: Délègue une tâche à un agent (asynchrone, retourne job_id).
+-   `POST /projects/{id}/assemble`: Lance le "Crew de Finition" (synchrone).
+-   `POST /projects/{id}/assemble-async`: Lance le "Crew de Finition" (asynchrone, retourne job_id).
+-   `GET /jobs/{job_id}/status`: Récupère le statut et la progression d'un job asynchrone.
+-   `DELETE /jobs/{job_id}`: Annule un job en cours.
 -   Endpoints CRUD standards pour `/projects` et `/tasks`.
 
 ---
@@ -66,15 +73,21 @@ Le frontend est conçu pour être interactif et réactif.
 
 ### 3.1. Composants Clés
 
--   **`ProjectPage.tsx`**: Le conteneur principal qui gère l'état de la page (vue Kanban ou vue Assemblage) et les appels API principaux via TanStack Query.
+-   **`ProjectPage.tsx`**: Le conteneur principal qui gère l'état de la page (vue Kanban ou vue Assemblage) et les appels API via TanStack Query. **Intègre maintenant** les opérations asynchrones avec toggles sync/async, barres de progression, et annulation des jobs.
 -   **`KanbanBoard.tsx`**:
     -   Utilise `dnd-kit` pour gérer toute la logique de glisser-déposer.
     -   Affiche les `KanbanColumn` et leur passe les tâches correspondantes.
     -   Gère l'état de la modale de détail (`TaskDetailsModal`).
 -   **`TaskCard.tsx`**:
-    -   Représente une tâche individuelle.
-    -   Contient le menu `DropdownMenu` (Radix UI) pour les actions de délégation à l'IA.
+    -   Représente une tâche individuelle avec **support async complet**.
+    -   Contient le menu `DropdownMenu` (Radix UI) pour les actions de délégation à l'IA avec mode toggle async/sync.
+    -   **Intègre** `JobProgressBar` et `JobStatusBadge` pour le feedback visuel en temps réel.
+    -   **Permet** l'annulation des opérations en cours.
     -   Déclenche l'ouverture de la modale de détail au clic.
+-   **Nouveaux Composants UI**:
+    -   **`JobProgressBar.tsx`**: Barre de progression avec animations shimmer et couleurs adaptatives.
+    -   **`JobStatusBadge.tsx`**: Badge de statut avec icônes et thème neural.
+    -   **`LoadingSpinner.tsx`**: Spinner avec effets de lueur et variantes multiples.
 -   **`TaskDetailsModal.tsx`**:
     -   Utilise le composant `Dialog` (Radix UI).
     -   Intègre le `RichTextEditor` pour permettre la visualisation et la modification du contenu de la tâche.
@@ -90,7 +103,12 @@ Le frontend est conçu pour être interactif et réactif.
 ### 3.2. Gestion de l'État
 
 -   **TanStack Query (React Query)** est utilisé pour toutes les interactions avec le backend. Cela simplifie la mise en cache, la revalidation automatique des données et la gestion des états de chargement/erreur.
--   Les mutations de React Query (`useMutation`) sont utilisées pour toutes les actions qui modifient les données (mise à jour d'une tâche, lancement d'un agent), avec une revalidation automatique des données du projet en cas de succès.
+-   **Hooks Async Personnalisés**:
+    -   **`useJobPolling.ts`**: Gère le polling automatique des jobs avec intervalles dynamiques (2s pendant l'exécution, arrêt automatique à completion).
+    -   **`useAsyncOperation.ts`**: Combine mutation + polling pour une gestion complète des opérations async avec invalidation des queries.
+-   **Services Spécialisés**:
+    -   **`jobService.ts`**: Utilitaires pour la gestion des jobs (status, annulation, helpers de vérification).
+-   Les mutations de React Query (`useMutation`) sont utilisées pour toutes les actions qui modifient les données, **maintenant avec support async/sync** et revalidation automatique des données du projet en cas de succès.
 
 ---
 

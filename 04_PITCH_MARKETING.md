@@ -6,7 +6,7 @@
 
 ### L'Ascenseur Pitch
 
-GeekBlog V2 est un **centre de commandement de contenu** qui transforme la manière dont les créateurs produisent leurs articles. Au lieu de jongler avec dix outils et de lutter contre la page blanche, vous pilotez un workflow intelligent où des **agents IA spécialisés** deviennent vos co-équipiers pour la recherche, la rédaction et la révision, vous permettant de produire plus de contenu, de meilleure qualité, et sans vous épuiser.
+GeekBlog V2 est un **centre de commandement de contenu** qui transforme la manière dont les créateurs produisent leurs articles. Au lieu de jongler avec dix outils et de lutter contre la page blanche, vous pilotez un workflow intelligent où des **agents IA spécialisés** deviennent vos co-équipiers pour la recherche, la rédaction et la révision. Avec un **interface réactive en temps réel** et des **indicateurs de progression visuels**, vous gardez le contrôle total tout en déléguant efficacement, vous permettant de produire plus de contenu, de meilleure qualité, et sans vous épuiser.
 
 ---
 
@@ -34,8 +34,8 @@ Vous avez une idée ? C'est tout ce dont vous avez besoin. Notre **Agent Planifi
 
 #### **Votre Équipe d'Experts IA à la Demande**
 
-- **Besoin de recherche ?** Déléguez la tâche à l'**Agent Chercheur**. Il vous livrera un résumé concis avec les points clés.
-- **Bloqué sur un paragraphe ?** Confiez-le à l'**Agent Rédacteur**. Il vous proposera un premier jet que vous pourrez ensuite peaufiner.
+- **Besoin de recherche ?** Déléguez la tâche à l'**Agent Chercheur** en un clic. Suivez la progression en temps réel avec des indicateurs visuels, annulez si nécessaire, et recevez un résumé concis avec les points clés.
+- **Bloqué sur un paragraphe ?** Confiez-le à l'**Agent Rédacteur**. Regardez l'avancement step-by-step, gardez le contrôle avec la possibilité d'annulation, et recevez un premier jet que vous pourrez ensuite peaufiner.
 
 #### **L'Escadron de Finition : De "Bon" à "Parfait"**
 
@@ -52,7 +52,7 @@ C'est notre arme secrète. Une fois votre article assemblé, lancez le "Crew de 
 
 Les autres outils vous donnent des briques. **Nous vous aidons à construire la maison.**
 
-La différence fondamentale n'est pas la présence de l'IA, mais son **intégration profonde dans un workflow**. Ce n'est pas une collection de fonctionnalités, mais un **processus orchestré** où l'humain et la machine collaborent de manière fluide, chacun se concentrant sur ce qu'il fait de mieux.
+La différence fondamentale n'est pas la présence de l'IA, mais son **intégration profonde dans un workflow transparent**. Ce n'est pas une collection de fonctionnalités, mais un **processus orchestré en temps réel** où l'humain et la machine collaborent de manière fluide, avec une visibilité complète sur l'avancement, la possibilité d'intervenir à tout moment, et chacun se concentrant sur ce qu'il fait de mieux.
 
 ---
 

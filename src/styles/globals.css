@@ -38,3 +38,14 @@ code {
   --glow-color-pink: rgba(255, 20, 147, 0.5);
   --glow-color-blue: rgba(0, 191, 255, 0.5);
 }
+
+/* Job Progress Bar Animations */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

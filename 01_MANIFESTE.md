@@ -19,12 +19,13 @@ Notre solution vise à résoudre ce problème en transformant le processus d'une
 
 ## Le Workflow Collaboratif Homme-IA
 
-Le cœur de l'innovation réside dans le workflow :
+Le cœur de l'innovation réside dans le workflow asynchrone et réactif :
 
-1.  **Planification Assistée :** L'utilisateur fournit une idée, et un **Agent Planificateur** la décompose en un plan de tâches structuré.
-2.  **Délégation à la Carte :** L'utilisateur peut exécuter une tâche lui-même ou la déléguer à un agent IA spécialisé (Chercheur, Rédacteur) en un seul clic depuis le Kanban.
-3.  **Exécution Autonome :** L'IA exécute la tâche en arrière-plan, produisant du contenu (résumés de recherche, brouillons de paragraphes).
-4.  **Cycle de Révision Humaine :** Le résultat de l'IA est présenté à l'utilisateur pour validation. Il peut l'accepter, le modifier dans un éditeur intégré, ou le rejeter.
-5.  **Assemblage et Raffinage Final :** Les tâches terminées sont assemblées dans un ordre défini par l'utilisateur. Une **"Équipe de Finition" IA** (Critique, Styleur, Correcteur, Vérificateur) prend alors le relais pour polir l'article, le transformant d'un assemblage de morceaux en une œuvre cohérente et de haute qualité.
+1.  **Planification Assistée :** L'utilisateur fournit une idée, et un **Agent Planificateur** la décompose en un plan de tâches structuré avec suivi de progression en temps réel.
+2.  **Délégation Intelligente :** L'utilisateur peut basculer entre mode synchrone et asynchrone, déléguer des tâches aux agents IA spécialisés (Chercheur, Rédacteur) avec indicateurs de progression visuels et possibilité d'annulation.
+3.  **Exécution Transparente :** L'IA exécute les tâches en arrière-plan avec polling automatique, barres de progression, et notifications de statut. L'interface reste responsive pendant les opérations longues (60-300 secondes).
+4.  **Feedback Visuel Continu :** Composants de statut en temps réel (JobProgressBar, JobStatusBadge) avec thème neural pour suivre l'avancement de chaque opération IA.
+5.  **Cycle de Révision Humaine :** Le résultat de l'IA est présenté à l'utilisateur pour validation avec historique complet des étapes. Il peut l'accepter, le modifier dans un éditeur intégré, ou le rejeter.
+6.  **Assemblage et Raffinage Final :** Les tâches terminées sont assemblées dans un ordre défini par l'utilisateur. Une **"Équipe de Finition" IA** (Critique, Styleur, Correcteur, Vérificateur) prend alors le relais pour polir l'article avec suivi de progression complet.
 
 Ce manifeste représente la "Loi Fondamentale" du projet, le document de référence qui doit guider toutes les décisions techniques et de conception futures.

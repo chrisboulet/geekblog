@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '../../lib/api';
 import { Task as KanbanTaskType } from '../../types/kanban';
-import { MoreHorizontal, Brain, Search, Edit3 } from 'lucide-react'; // Icônes
+import { MoreHorizontal, Brain, Search, Edit3, Zap } from 'lucide-react'; // Icônes
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import { useAsyncOperation } from '../../hooks/useAsyncOperation';
+import JobProgressBar from '../ui/JobProgressBar';
+import JobStatusBadge from '../ui/JobStatusBadge';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 interface TaskCardProps {
   task: KanbanTaskType;
@@ -13,7 +17,9 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, projectId }) => {
   const queryClient = useQueryClient();
+  const [useAsync, setUseAsync] = useState(true); // Default to async operations
 
+  // Existing sync mutation (preserved for backward compatibility)
   const runAgentMutation = useMutation({
     mutationFn: ({ agentType, context }: { agentType: api.AgentType; context?: string }) => {
       // Types harmonisés - plus besoin de conversion
@@ -31,7 +37,24 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId }) => {
     },
   });
 
-  const handleDelegateToAI = (agentType: api.AgentType) => {
+  // New async operation hook
+  const asyncAgentOperation = useAsyncOperation(
+    ({ agentType, context }: { agentType: api.AgentType; context?: string }) => 
+      api.runAgentOnTaskAsync(task.id, agentType, context),
+    {
+      invalidateQueries: [['project', projectId]],
+      onSuccess: (result) => {
+        console.log(`Async agent completed for task ${task.id}:`, result);
+        // Could show success notification here
+      },
+      onError: (error) => {
+        console.error(`Async agent failed for task ${task.id}:`, error);
+        // Could show error notification here
+      }
+    }
+  );
+
+  const handleDelegateToAI = (agentType: api.AgentType, forceSync = false) => {
     // Pour le chercheur, le contexte pourrait être vide ou des instructions spécifiques.
     // Pour le rédacteur, le contexte est généralement le résultat d'une recherche (description actuelle de la tâche).
     let contextForAgent: string | undefined = undefined;
@@ -40,8 +63,21 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId }) => {
     }
     // On pourrait aussi ouvrir une modale pour demander un contexte spécifique à l'utilisateur ici.
 
-    runAgentMutation.mutate({ agentType, context: contextForAgent });
+    if (useAsync && !forceSync) {
+      asyncAgentOperation.execute({ agentType, context: contextForAgent });
+    } else {
+      runAgentMutation.mutate({ agentType, context: contextForAgent });
+    }
   };
+
+  // Determine which operation is currently active
+  const isExecuting = useAsync 
+    ? asyncAgentOperation.isExecuting 
+    : runAgentMutation.isPending;
+  
+  const currentError = useAsync 
+    ? asyncAgentOperation.error 
+    : (runAgentMutation.error instanceof Error ? runAgentMutation.error.message : null);
 
   return (
     <div
@@ -74,23 +110,67 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId }) => {
                 <Edit3 size={14} className="mr-2 text-neural-blue" /> Modifier la tâche
               </DropdownMenuPrimitive.Item>
               <DropdownMenuPrimitive.Separator className="h-px bg-neutral-700 my-1" />
-              <DropdownMenuPrimitive.Label className="px-2 py-1 text-xs text-text-tertiary">Déléguer à l'IA</DropdownMenuPrimitive.Label>
+              <DropdownMenuPrimitive.Label className="px-2 py-1 text-xs text-text-tertiary">
+                Mode: {useAsync ? 'Asynchrone' : 'Synchrone'}
+              </DropdownMenuPrimitive.Label>
+              
+              {/* Mode toggle */}
               <DropdownMenuPrimitive.Item
-                className={`flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-blue/30 outline-none cursor-pointer ${runAgentMutation.isPending && runAgentMutation.variables?.agentType === 'researcher' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className="flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-purple/30 outline-none cursor-pointer"
+                onClick={() => setUseAsync(!useAsync)}
+              >
+                <Zap size={14} className={`mr-2 ${useAsync ? 'text-neural-blue' : 'text-neural-purple'}`} />
+                Basculer vers {useAsync ? 'synchrone' : 'asynchrone'}
+              </DropdownMenuPrimitive.Item>
+              
+              <DropdownMenuPrimitive.Separator className="h-px bg-neutral-700 my-1" />
+              <DropdownMenuPrimitive.Label className="px-2 py-1 text-xs text-text-tertiary">Déléguer à l'IA</DropdownMenuPrimitive.Label>
+              
+              <DropdownMenuPrimitive.Item
+                className={`flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-blue/30 outline-none cursor-pointer ${isExecuting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={() => handleDelegateToAI('researcher')}
-                disabled={runAgentMutation.isPending && runAgentMutation.variables?.agentType === 'researcher'}
+                disabled={isExecuting}
               >
                 <Search size={14} className="mr-2 text-neural-purple" />
-                {runAgentMutation.isPending && runAgentMutation.variables?.agentType === 'researcher' ? 'Recherche IA...' : 'Chercheur IA'}
+                {isExecuting ? 
+                  (useAsync && asyncAgentOperation.step ? `${asyncAgentOperation.step}...` : 'Recherche IA...') : 
+                  'Chercheur IA'
+                }
+                {useAsync && (
+                  <span className="ml-auto text-xs text-neural-blue">Async</span>
+                )}
               </DropdownMenuPrimitive.Item>
+              
               <DropdownMenuPrimitive.Item
-                className={`flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-blue/30 outline-none cursor-pointer ${runAgentMutation.isPending && runAgentMutation.variables?.agentType === 'writer' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-blue/30 outline-none cursor-pointer ${isExecuting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={() => handleDelegateToAI('writer')}
-                disabled={runAgentMutation.isPending && runAgentMutation.variables?.agentType === 'writer'}
+                disabled={isExecuting}
               >
                 <Brain size={14} className="mr-2 text-neural-pink" />
-                {runAgentMutation.isPending && runAgentMutation.variables?.agentType === 'writer' ? 'Rédaction IA...' : 'Rédacteur IA'}
+                {isExecuting ? 
+                  (useAsync && asyncAgentOperation.step ? `${asyncAgentOperation.step}...` : 'Rédaction IA...') : 
+                  'Rédacteur IA'
+                }
+                {useAsync && (
+                  <span className="ml-auto text-xs text-neural-blue">Async</span>
+                )}
               </DropdownMenuPrimitive.Item>
+              
+              {/* Emergency sync fallback when async is active */}
+              {useAsync && asyncAgentOperation.jobId && asyncAgentOperation.isPolling && (
+                <>
+                  <DropdownMenuPrimitive.Separator className="h-px bg-neutral-700 my-1" />
+                  <DropdownMenuPrimitive.Item
+                    className="flex items-center px-2 py-1.5 rounded-sm hover:bg-red-500/30 outline-none cursor-pointer text-red-400"
+                    onClick={() => asyncAgentOperation.cancel()}
+                  >
+                    <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v4a1 1 0 11-2 0V7zM8 13a1 1 0 112 0 1 1 0 01-2 0z" clipRule="evenodd" />
+                    </svg>
+                    Annuler l'opération
+                  </DropdownMenuPrimitive.Item>
+                </>
+              )}
               {/* Ajouter d'autres actions ici, comme Supprimer */}
             </DropdownMenuPrimitive.Content>
           </DropdownMenuPrimitive.Portal>
@@ -101,12 +181,39 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId }) => {
           {task.description}
         </p>
       )}
-      {runAgentMutation.isPending && (
+
+      {/* Async operation progress */}
+      {useAsync && asyncAgentOperation.status && (
+        <div className="mb-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <JobStatusBadge 
+              status={asyncAgentOperation.status} 
+              size="sm" 
+              showProgress={true}
+            />
+            {asyncAgentOperation.isExecuting && (
+              <LoadingSpinner size="sm" color="neural-blue" />
+            )}
+          </div>
+          <JobProgressBar 
+            status={asyncAgentOperation.status}
+            size="sm"
+            showStep={true}
+            showTimeRemaining={true}
+          />
+        </div>
+      )}
+
+      {/* Legacy sync operation status */}
+      {!useAsync && runAgentMutation.isPending && (
          <p className="text-xs text-neural-blue animate-pulse-fast">Agent IA en cours ({runAgentMutation.variables?.agentType})...</p>
       )}
-      {runAgentMutation.error && (
-         <p className="text-xs text-red-400">Erreur Agent IA: {runAgentMutation.error instanceof Error ? runAgentMutation.error.message : "Erreur inconnue"}</p>
+      
+      {/* Error display for both sync and async */}
+      {currentError && (
+         <p className="text-xs text-red-400 mb-2">Erreur Agent IA: {currentError}</p>
       )}
+      
       {/* <div className="text-xs text-text-tertiary">ID: {task.id}</div> */}
     </div>
   );
