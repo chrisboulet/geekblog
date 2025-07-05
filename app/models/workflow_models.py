@@ -52,7 +52,7 @@ class WorkflowExecution(Base):
     total_steps = Column(Integer, default=4)  # planning, research, assembly, finishing
     
     # Métadonnées et configuration
-    metadata = Column(JSON, nullable=True)  # Options du workflow, paramètres, etc.
+    workflow_metadata = Column(JSON, nullable=True)  # Options du workflow, paramètres, etc.
     
     # Horodatage
     started_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -89,7 +89,7 @@ class TaskOutput(Base):
     content_hash = Column(String(64), nullable=True)  # SHA-256 pour déduplication
     
     # Métadonnées enrichies
-    metadata = Column(JSON, nullable=True)
+    output_metadata = Column(JSON, nullable=True)
     # Exemples: {
     #   "source": "research_agent",
     #   "word_count": 1500,
