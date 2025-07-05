@@ -1,12 +1,29 @@
 import os
 from typing import Optional # Ajout de l'import Optional
+from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
-try:
-    from crewai_tools import DuckDuckGoSearchRun
-except ImportError:
-    print("Warning: crewai_tools not installed. AI features will be limited.")
-    DuckDuckGoSearchRun = None
+
+# Charger les variables d'environnement
+load_dotenv()
 from langchain_groq import ChatGroq
+from langchain.tools import tool
+
+# Alternative DuckDuckGo implementation using duckduckgo_search directly
+try:
+    from duckduckgo_search import DDGS
+    
+    @tool("Internet Search Tool")
+    def internet_search_tool(query: str) -> list:
+        """Search Internet for relevant information based on a query."""
+        ddgs = DDGS()
+        results = ddgs.text(keywords=query, region='wt-wt', safesearch='moderate', max_results=5)
+        return results
+    
+    DuckDuckGoSearchRun = internet_search_tool
+    print("DuckDuckGo search tool loaded successfully.")
+except ImportError:
+    print("Warning: duckduckgo_search not installed. AI features will be limited.")
+    DuckDuckGoSearchRun = None
 
 # Configuration du LLM (Groq dans cet exemple)
 # Assurez-vous que GROQ_API_KEY est défini dans vos variables d'environnement
@@ -23,9 +40,9 @@ except Exception as e:
 
 # Outils
 if DuckDuckGoSearchRun:
-    search_tool = DuckDuckGoSearchRun()
+    search_tool = DuckDuckGoSearchRun  # Le tool est déjà une fonction décorée
 else:
-    # Fallback si crewai_tools n'est pas installé
+    # Fallback si duckduckgo_search n'est pas installé
     search_tool = None
 
 # --- Agent Planificateur (déjà défini) ---
