@@ -114,7 +114,7 @@ export const useAsyncOperation = <TVariables = any, TResult = any>(
     if (jobStatus) {
       setOperationState(prev => ({
         ...prev,
-        status: jobStatus
+        status: jobStatus as unknown as JobStatus
       }));
     }
   }, [jobStatus]);

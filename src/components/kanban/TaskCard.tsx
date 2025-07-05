@@ -63,9 +63,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
   // New async operation hook
   const asyncAgentOperation = useAsyncOperation(
     ({ agentType, context }: { agentType: api.AgentType; context?: string }) => 
-      api.runAgentOnTaskAsync(task.id, agentType, context),
+      api.runAgentOnTaskAsync(String(task.id), agentType, context),
     {
-      invalidateQueries: [['project', projectId]],
+      invalidateQueries: [['project', String(projectId)]],
       onSuccess: (result) => {
         console.log(`Async agent completed for task ${task.id}:`, result);
         // Could show success notification here

@@ -67,7 +67,7 @@ const ProjectPage: React.FC = () => {
       return api.planProjectAsync(project.id, project.description || project.name);
     },
     {
-      invalidateQueries: [['project', projectIdNumber]],
+      invalidateQueries: [['project', String(projectIdNumber)]],
       onSuccess: (result) => {
         console.log(`Async planning completed for project ${project?.id}:`, result);
         // Could show success notification here
@@ -82,7 +82,7 @@ const ProjectPage: React.FC = () => {
   // Helper functions
   const handlePlanProject = () => {
     if (useAsyncPlanning) {
-      asyncPlanningOperation.execute();
+      asyncPlanningOperation.execute({});
     } else {
       planProjectMutation.mutate();
     }

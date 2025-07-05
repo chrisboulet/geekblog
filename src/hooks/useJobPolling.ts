@@ -32,19 +32,19 @@ export const useJobPolling = (
     onError
   } = options;
 
-  return useQuery({
-    queryKey: ['jobStatus', jobId],
-    queryFn: () => {
+  return useQuery<JobStatus, Error>(
+    ['jobStatus', jobId],
+    () => {
       if (!jobId) {
         throw new Error('Job ID is required');
       }
       return jobService.getJobStatus(jobId);
     },
-    enabled: enabled && !!jobId,
-    
-    // Dynamic polling interval based on job status
-    refetchInterval: (query) => {
-      const data = query.state.data as JobStatus | undefined;
+    {
+      enabled: enabled && !!jobId,
+      
+      // Dynamic polling interval based on job status
+      refetchInterval: (data) => {
       
       // Stop polling for final states
       if (!data || jobService.isJobComplete(data)) {
@@ -76,7 +76,7 @@ export const useJobPolling = (
     staleTime: 0,
     
     // Don't cache job status for too long
-    gcTime: 30000, // 30 seconds
+    cacheTime: 30000, // 30 seconds
     
     // Retry configuration for network errors
     retry: (failureCount, error) => {

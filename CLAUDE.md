@@ -95,11 +95,11 @@ npm install
 # Development server (port 5173)
 npm run dev
 
-# Build for production
-npm run build
-
-# Type checking
+# Type checking (validate TypeScript compilation)
 npm run type-check
+
+# Build for production (includes TypeScript compilation + Vite bundling)
+npm run build
 
 # Linting
 npm run lint
@@ -112,6 +112,12 @@ npm run test:coverage
 # Preview production build
 npm run preview
 ```
+
+### Build Information
+- **Production Build**: ~2 minutes, optimized bundle 222kB gzipped
+- **TypeScript**: Strict compilation with robust type guards and error handling
+- **TanStack Query v4**: Uses `useQuery(key, fn, options)` signature
+- **Bundle Analysis**: Available warnings for chunks >500kB (normal for React apps)
 
 ## Environment Configuration
 

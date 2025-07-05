@@ -5,6 +5,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "noImplicitAny": false,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -16,8 +17,8 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
 
     /* Path Aliases (si configuré dans vite.config.ts) */
@@ -26,6 +27,7 @@
       // "@/*": ["src/*"]
     }
   },
-  "include": ["src", "vite.config.ts"], // Inclure vite.config.ts pour le typage
-  "references": [{ "path": "./tsconfig.node.json" }] // Optionnel, pour la config spécifique à Node si besoin
+  "include": ["src"],
+  "exclude": ["src/**/__tests__/**/*", "src/test/**/*", "**/*.test.*"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -113,9 +113,13 @@ const AssemblyView: React.FC<AssemblyViewProps> = ({ project }) => {
             placeholder="Le contenu assemblé ou raffiné apparaîtra ici."
           />
         </div>
-        {refinementMutation.error && (
-           <p className="text-xs text-red-400 mt-2">Erreur: {refinementMutation.error.message}</p>
-        )}
+        {refinementMutation.error ? (
+           <p className="text-xs text-red-400 mt-2">
+             Erreur: {String(refinementMutation.error instanceof Error 
+               ? refinementMutation.error.message 
+               : refinementMutation.error || 'Une erreur inattendue s\'est produite')}
+           </p>
+        ) : null}
       </div>
     </div>
   );

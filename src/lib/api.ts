@@ -9,6 +9,16 @@ import {
 } from '../types/api'; // Ces types devront être créés/ajustés pour correspondre aux schémas Pydantic
 import { JobStatus } from '../types/job';
 
+// Re-export types for easier usage
+export type {
+    Project,
+    ProjectCreate,
+    ProjectUpdate,
+    Task,
+    TaskCreate,
+    TaskUpdate
+} from '../types/api';
+
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1', // L'URL de base de l'API
   headers: {
