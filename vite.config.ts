@@ -15,5 +15,6 @@ export default defineConfig({
   server: {
     port: 5173, // Port par défaut de Vite, peut être changé
     strictPort: true, // Empêche Vite de choisir un autre port s'il est occupé
+    host: '0.0.0.0', // Allow external connections
   }
 })

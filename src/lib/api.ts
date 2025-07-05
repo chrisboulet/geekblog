@@ -32,7 +32,7 @@ const apiClient = axios.create({
 
 // Fonctions pour les Projets
 export const getProjects = async (): Promise<Project[]> => {
-  const response = await apiClient.get('/projects');
+  const response = await apiClient.get('/projects/');
   return response.data;
 };
 
