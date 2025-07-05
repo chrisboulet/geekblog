@@ -1,0 +1,92 @@
+services:
+  # Base de données PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: geekblog_db_prod
+    environment:
+      POSTGRES_DB: geekblogdb
+      POSTGRES_USER: geekblog
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-geekblog_prod_password}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geekblog -d geekblogdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis pour les jobs asynchrones
+  redis:
+    image: redis:7-alpine
+    container_name: geekblog_redis_prod
+    volumes:
+      - redis_data_prod:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend FastAPI
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: geekblog_backend_prod
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://geekblog:${POSTGRES_PASSWORD:-geekblog_prod_password}@db:5432/geekblogdb
+      - REDIS_URL=redis://redis:6379/0
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:80}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Worker Celery
+  celery_worker:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: geekblog_celery_prod
+    command: celery -A app.celery_config worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://geekblog:${POSTGRES_PASSWORD:-geekblog_prod_password}@db:5432/geekblogdb
+      - REDIS_URL=redis://redis:6379/0
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    depends_on:
+      - db
+      - redis
+      - backend
+    restart: unless-stopped
+
+  # Frontend React/Vite (mode production avec nginx)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: geekblog_frontend_prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data_prod:
+  redis_data_prod:
+
+networks:
+  default:
+    name: geekblog_network_prod

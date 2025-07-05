@@ -1,0 +1,20 @@
+# Dockerfile pour le développement frontend (React/Vite avec hot reload)
+FROM node:20-alpine
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers de configuration package
+COPY package*.json ./
+
+# Installer toutes les dépendances (dev + prod)
+RUN npm ci
+
+# Copier le code source
+COPY . .
+
+# Exposer le port Vite
+EXPOSE 5173
+
+# Commande de développement avec hot reload
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

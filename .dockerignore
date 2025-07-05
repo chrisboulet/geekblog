@@ -1,0 +1,66 @@
+# Fichiers Git
+.git
+.gitignore
+
+# Fichiers de développement
+.vscode
+.idea
+*.swp
+*.swo
+
+# Dépendances Node.js (seront installées dans le container)
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environnements Python virtuels
+.venv
+venv/
+env/
+ENV/
+
+# Fichiers de cache Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+.coverage.*
+.cache
+.pytest_cache
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Base de données locale
+*.db
+*.sqlite
+
+# Fichiers temporaires
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore

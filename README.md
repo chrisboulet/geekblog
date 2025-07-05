@@ -22,13 +22,36 @@ GeekBlog est un **centre de commandement de contenu** qui transforme la créatio
 
 ### Prérequis
 
+#### Pour Docker (Recommandé)
+- Docker 20.0+
+- Docker Compose 2.0+
+- Clé API Groq
+
+#### Pour installation manuelle  
 - **Backend**: Python 3.9+, PostgreSQL, Redis
 - **Frontend**: Node.js 16+, npm
 - **IA**: Clé API Groq pour les modèles Llama
 
 ### Installation
 
-#### Backend
+#### 🐳 Option 1 : Docker (Recommandé)
+
+```bash
+# Configuration initiale
+./scripts/setup.sh
+
+# Configurer votre clé API GROQ dans .env
+nano .env  # Modifier GROQ_API_KEY=your_actual_key
+
+# Démarrage complet avec Docker
+./scripts/start-dev.sh
+```
+
+**C'est tout !** L'application est accessible sur http://localhost:5173
+
+#### 🛠️ Option 2 : Installation manuelle
+
+##### Backend
 ```bash
 # Activation de l'environnement virtuel Python
 source .venv/bin/activate  # Linux/macOS
@@ -48,7 +71,7 @@ uvicorn app.main:app --reload
 celery -A app.celery_config worker --loglevel=info
 ```
 
-#### Frontend
+##### Frontend
 ```bash
 # Installation des dépendances
 npm install
@@ -177,6 +200,7 @@ Si vous rencontrez des erreurs TypeScript lors du build :
 
 ## 📚 Documentation
 
+- **[🐳 DOCKER.md](./DOCKER.md)** - Guide complet Docker et déploiement
 - **[PLANNING.md](./PLANNING.md)** - Architecture détaillée et feuille de route
 - **[TASK.md](./TASK.md)** - Suivi des tâches et sprints
 - **[01_MANIFESTE.md](./01_MANIFESTE.md)** - Vision et principes fondamentaux
