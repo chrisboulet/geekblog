@@ -16,8 +16,8 @@ class AsyncJob(Base):
     id = Column(String, primary_key=True)  # Celery task ID
     type = Column(String, nullable=False)  # Type de job: planning, research, writing, finishing
     status = Column(String, default="PENDING")  # PENDING, PROGRESS, SUCCESS, FAILURE, RETRY
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)  # ID du projet associé
-    task_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)  # ID de la tâche associée (pour research/writing)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)  # ID du projet associé
+    task_id = Column(Integer, ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True)  # ID de la tâche associée (pour research/writing)
     
     # Métadonnées du job
     step = Column(String, nullable=True)  # Étape actuelle
@@ -39,5 +39,5 @@ class AsyncJob(Base):
     result_summary = Column(Text, nullable=True)  # Résumé du résultat
     
     # Relations pour workflows
-    workflow_execution_id = Column(String, ForeignKey("workflow_executions.id"), nullable=True)  # FK vers WorkflowExecution
-    parent_job_id = Column(String, ForeignKey("async_jobs.id"), nullable=True)  # FK vers job parent pour sous-tâches
+    workflow_execution_id = Column(String, ForeignKey("workflow_executions.id", ondelete="SET NULL"), nullable=True)  # FK vers WorkflowExecution
+    parent_job_id = Column(String, ForeignKey("async_jobs.id", ondelete="SET NULL"), nullable=True)  # FK vers job parent pour sous-tâches
