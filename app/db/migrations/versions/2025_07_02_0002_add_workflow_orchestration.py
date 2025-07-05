@@ -62,9 +62,11 @@ def upgrade() -> None:
     op.add_column('async_jobs', sa.Column('workflow_execution_id', sa.String(), nullable=True))
     op.add_column('async_jobs', sa.Column('parent_job_id', sa.String(), nullable=True))
     
-    # Add foreign key constraints for async_jobs
-    op.create_foreign_key('fk_async_jobs_workflow', 'async_jobs', 'workflow_executions', ['workflow_execution_id'], ['id'])
-    op.create_foreign_key('fk_async_jobs_parent', 'async_jobs', 'async_jobs', ['parent_job_id'], ['id'])
+    # Add foreign key constraints for async_jobs (skip for SQLite)
+    context = op.get_context()
+    if context.dialect.name != 'sqlite':
+        op.create_foreign_key('fk_async_jobs_workflow', 'async_jobs', 'workflow_executions', ['workflow_execution_id'], ['id'])
+        op.create_foreign_key('fk_async_jobs_parent', 'async_jobs', 'async_jobs', ['parent_job_id'], ['id'])
     
     # Add indexes for async_jobs
     op.create_index('idx_async_jobs_workflow', 'async_jobs', ['workflow_execution_id'], unique=False)
@@ -83,8 +85,12 @@ def downgrade() -> None:
     # Remove indexes and foreign keys from async_jobs
     op.drop_index('idx_async_jobs_parent', table_name='async_jobs')
     op.drop_index('idx_async_jobs_workflow', table_name='async_jobs')
-    op.drop_constraint('fk_async_jobs_parent', 'async_jobs', type_='foreignkey')
-    op.drop_constraint('fk_async_jobs_workflow', 'async_jobs', type_='foreignkey')
+    
+    # Drop foreign key constraints (skip for SQLite)
+    context = op.get_context()
+    if context.dialect.name != 'sqlite':
+        op.drop_constraint('fk_async_jobs_parent', 'async_jobs', type_='foreignkey')
+        op.drop_constraint('fk_async_jobs_workflow', 'async_jobs', type_='foreignkey')
     
     # Remove columns from async_jobs
     op.drop_column('async_jobs', 'parent_job_id')

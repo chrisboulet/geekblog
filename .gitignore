@@ -1,4 +1,225 @@
+# GeekBlog - Content Command Center
+# Full-stack Python/FastAPI + React/TypeScript + IA
+# Generated with Claude Code - https://claude.ai/code
 
+# =============================================================================
+# PYTHON & BACKEND
+# =============================================================================
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# =============================================================================
+# NODE.JS & FRONTEND
+# =============================================================================
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Production builds
+dist/
+build/
+.next/
+out/
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite
+.vite/
+
+# Testing
+coverage/
+.nyc_output
+
+# =============================================================================
+# DATABASES & STORAGE
+# =============================================================================
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL dumps
+*.sql
+
+# Redis dumps
+dump.rdb
+
+# =============================================================================
+# LOGS & TEMPORARY FILES
+# =============================================================================
+
+# Log files
+*.log
+logs/
+celery_worker_logs/
+*.out
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# =============================================================================
+# IDE & EDITORS
+# =============================================================================
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# =============================================================================
+# OPERATING SYSTEM
+# =============================================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# AI & MACHINE LEARNING
+# =============================================================================
+
+# Model files
+*.pkl
+*.joblib
+*.h5
+*.pb
+models/
+checkpoints/
+
+# Data files
+data/
+datasets/
+*.csv
+*.json.gz
+
+# =============================================================================
+# PROJECT SPECIFIC
+# =============================================================================
+
+# Claude Code configuration
+.claude/
+
+# Development notes & plans
+INITIAL.md
+PRPs/
+examples/
+
+# Local configuration
+config.local.py
+.env.local
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Generated files
+static/
+media/
 
 #Ignore vscode AI rules
 .github/copilot-instructions.md

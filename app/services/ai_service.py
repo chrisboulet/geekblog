@@ -1,7 +1,11 @@
 import os
 from typing import Optional # Ajout de l'import Optional
 from crewai import Agent, Task, Crew, Process
-from crewai_tools import DuckDuckGoSearchRun
+try:
+    from crewai_tools import DuckDuckGoSearchRun
+except ImportError:
+    print("Warning: crewai_tools not installed. AI features will be limited.")
+    DuckDuckGoSearchRun = None
 from langchain_groq import ChatGroq
 
 # Configuration du LLM (Groq dans cet exemple)
@@ -18,7 +22,11 @@ except Exception as e:
     llm = None # Mettre à None pour éviter les erreurs si la clé n'est pas là
 
 # Outils
-search_tool = DuckDuckGoSearchRun()
+if DuckDuckGoSearchRun:
+    search_tool = DuckDuckGoSearchRun()
+else:
+    # Fallback si crewai_tools n'est pas installé
+    search_tool = None
 
 # --- Agent Planificateur (déjà défini) ---
 planner_agent = Agent(
@@ -100,7 +108,7 @@ researcher_agent = Agent(
     ),
     verbose=True,
     allow_delegation=False,
-    tools=[search_tool], # Outil de recherche web
+    tools=[search_tool] if search_tool else [], # Outil de recherche web si disponible
     llm=llm
 )
 
@@ -246,7 +254,7 @@ fact_checker_agent = Agent(
     ),
     verbose=True,
     allow_delegation=False,
-    tools=[search_tool],
+    tools=[search_tool] if search_tool else [],
     llm=llm
 )
 

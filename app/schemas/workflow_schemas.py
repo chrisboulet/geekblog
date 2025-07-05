@@ -45,7 +45,7 @@ class WorkflowExecutionCreate(BaseModel):
     options: Optional[Dict[str, Any]] = None
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "project_id": 1,
                 "workflow_type": "full_article",

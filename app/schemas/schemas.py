@@ -23,7 +23,7 @@ class Task(TaskBase):
     updated_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Project Schemas
 class ProjectBase(BaseModel):
@@ -43,4 +43,4 @@ class Project(ProjectBase):
     tasks: List[Task] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True

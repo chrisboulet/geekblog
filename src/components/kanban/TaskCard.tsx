@@ -2,22 +2,45 @@ import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '../../lib/api';
 import { Task as KanbanTaskType } from '../../types/kanban';
-import { MoreHorizontal, Brain, Search, Edit3, Zap } from 'lucide-react'; // Icônes
+import { MoreHorizontal, Brain, Search, Edit3, Zap, GripVertical } from 'lucide-react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { useAsyncOperation } from '../../hooks/useAsyncOperation';
 import JobProgressBar from '../ui/JobProgressBar';
 import JobStatusBadge from '../ui/JobStatusBadge';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface TaskCardProps {
   task: KanbanTaskType;
-  projectId: number | string; // Nécessaire pour invalider la query du projet
-  // onClick?: () => void; // Pour ouvrir une modale de détails
+  projectId: number | string;
+  isDragging?: boolean;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, projectId }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false }) => {
   const queryClient = useQueryClient();
-  const [useAsync, setUseAsync] = useState(true); // Default to async operations
+  const [useAsync, setUseAsync] = useState(true);
+
+  // useSortable hook for drag and drop
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({ 
+    id: String(task.id),
+    data: {
+      type: 'Task',
+      task,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   // Existing sync mutation (preserved for backward compatibility)
   const runAgentMutation = useMutation({
@@ -81,13 +104,28 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId }) => {
 
   return (
     <div
-      className="bg-bg-primary p-3 rounded-lg shadow-md border border-neutral-700/50 hover:border-neural-blue focus-within:border-neural-blue focus-within:ring-1 focus-within:ring-neural-blue transition-colors duration-150 ease-in-out cursor-grab active:cursor-grabbing"
-      // onClick={onClick} // Sera activé plus tard
+      ref={setNodeRef}
+      style={style}
+      className={`bg-bg-primary p-3 rounded-lg shadow-md border border-neutral-700/50 hover:border-neural-blue focus-within:border-neural-blue focus-within:ring-1 focus-within:ring-neural-blue transition-all duration-150 ease-in-out ${
+        isSortableDragging || isDragging 
+          ? 'opacity-50 shadow-2xl scale-105 rotate-3 z-50' 
+          : 'cursor-grab active:cursor-grabbing hover:shadow-lg'
+      }`}
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold text-text-primary text-base leading-tight pr-2 break-words">
-          {task.title}
-        </h3>
+        <div className="flex items-start gap-2 flex-1 min-w-0">
+          <div 
+            {...attributes} 
+            {...listeners}
+            className="text-text-tertiary hover:text-neural-blue transition-colors p-1 cursor-grab active:cursor-grabbing flex-shrink-0"
+            aria-label="Glisser pour déplacer la tâche"
+          >
+            <GripVertical size={16} />
+          </div>
+          <h3 className="font-semibold text-text-primary text-base leading-tight break-words flex-1">
+            {task.title}
+          </h3>
+        </div>
         <DropdownMenuPrimitive.Root>
           <DropdownMenuPrimitive.Trigger asChild>
             <button
