@@ -19,8 +19,13 @@ export type {
     TaskUpdate
 } from '../types/api';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+if (!apiBaseUrl) {
+  throw new Error("VITE_API_BASE_URL is not defined. Please check your environment configuration.");
+}
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1', // L'URL de base de l'API
+  baseURL: apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },

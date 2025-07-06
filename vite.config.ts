@@ -16,5 +16,13 @@ export default defineConfig({
     port: 5173, // Port par défaut de Vite, peut être changé
     strictPort: true, // Empêche Vite de choisir un autre port s'il est occupé
     host: '0.0.0.0', // Allow external connections
+    proxy: {
+      '/api': {
+        target: 'http://backend:8000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path // Keep /api prefix
+      }
+    }
   }
 })
