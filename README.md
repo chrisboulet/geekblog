@@ -10,7 +10,10 @@ GeekBlog est un **centre de commandement de contenu** qui transforme la créatio
 
 ### ✨ Caractéristiques Principales
 
-- **🎮 Interface Kanban Interactive** - Visualisez et gérez votre workflow de création
+- **🧠 Interface Neural Flow** - Visualisation créative avec nœuds neuraux connectés
+- **🎯 Mode Simple/Expert** - Interface adaptative pour débutants et utilisateurs avancés
+- **🗺️ Navigation Intuitive** - Breadcrumbs clairs et basculement fluide entre vues
+- **🎓 Onboarding Guidé** - Tutoriel interactif pour nouveaux utilisateurs
 - **🤖 Agents IA Spécialisés** - Planificateur, Chercheur, Rédacteur, et Équipe de Finition
 - **⚡ Operations Asynchrones** - Interface réactive avec indicateurs de progression en temps réel
 - **🎨 Design "Neural Flow"** - Interface sombre immersive avec effets visuels futuristes
@@ -116,28 +119,40 @@ REDIS_URL=redis://localhost:6379/0
 - **TanStack Query** pour le polling en temps réel et la gestion d'état
 - **Tailwind CSS + Radix UI** pour l'interface "Neural Flow"
 - **dnd-kit** pour les interactions drag-and-drop
+- **Navigation modulaire** avec composants NavigationHeader et ViewSwitcher
+- **Système d'onboarding** avec tutoriel interactif guidé
 
 ---
 
 ## 🎮 Workflow de Création
 
-### 1. Planification Intelligente
+### 1. Première Visite - Onboarding Guidé
+- **Tutoriel interactif** à la première connexion
+- **Mode Simple** activé par défaut pour faciliter l'apprentissage
+- **Navigation progressive** des fonctionnalités essentielles
+
+### 2. Interface Neural Flow
+- **Mode Simple** : Interface épurée avec 2-3 nœuds maximum
+- **Mode Expert** : Canvas complet avec connexions dynamiques et fonctionnalités avancées
+- **Basculement fluide** entre les modes selon votre niveau de confort
+
+### 3. Planification Intelligente
 - Fournissez une idée de projet
 - L'Agent Planificateur génère automatiquement un plan de tâches structuré
-- Visualisation immédiate dans la colonne "À faire" du Kanban
+- **Visualisation en nœuds neuraux** reliés par des connexions intelligentes
 
-### 2. Délégation à la Carte
+### 4. Délégation à la Carte
 - **Mode Asynchrone** : Déléguez avec indicateurs de progression temps réel
 - **Mode Synchrone** : Exécution immédiate pour les tâches rapides
 - Annulation possible à tout moment des opérations en cours
 
-### 3. Agents Spécialisés
+### 5. Agents Spécialisés
 - **Agent Chercheur** : Recherche web et synthèse d'informations
 - **Agent Rédacteur** : Création de contenu basé sur la recherche
 - **Équipe de Finition** : Critique, style, vérification, et correction
 
-### 4. Assemblage et Raffinage
-- Réorganisation des tâches par drag-and-drop
+### 6. Assemblage et Raffinage
+- **Navigation claire** entre Neural Flow et vue Assemblage
 - Lancement du processus de raffinage avec suivi de progression
 - Édition finale dans l'éditeur intégré
 
@@ -227,15 +242,23 @@ Si vous rencontrez des erreurs TypeScript lors du build :
 - Composants UI avec indicateurs de progression
 - Interface responsive pour opérations longues
 
-### ✅ Phase 4 - Production Ready (TERMINÉE)
+### ✅ Phase 4 - Navigation & UX Refonte (TERMINÉE)
+- **Navigation modulaire** avec NavigationHeader et ViewSwitcher
+- **Mode Simple/Expert** pour Neural Flow avec progressive disclosure
+- **Système d'onboarding** avec tutoriel interactif guidé
+- **Affordances visuelles** améliorées pour interactions
+- **Interface simplifiée** pour nouveaux utilisateurs
+
+### ✅ Phase 5 - Production Ready (TERMINÉE)
 - Build TypeScript optimisé et production-ready
 - Configuration robuste avec type guards
 - Bundle optimisé (222kB gzippé, build en 2min)
 
-### 🔮 Phase 5 - Fonctionnalités Avancées (PLANIFIÉE)
+### 🔮 Phase 6 - Fonctionnalités Avancées (PLANIFIÉE)
 - Navigation multi-projets
 - Export et persistance d'articles
 - Templates de prompts personnalisés
+- Tests end-to-end automatisés
 
 ---
 

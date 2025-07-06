@@ -4,6 +4,8 @@ import * as api from '../../lib/api';
 import { Project, Task as ApiTask } from '../../types/api';
 import { Column as KanbanColumnType, Task as KanbanTaskType } from '../../types/kanban';
 import TaskCard from './TaskCard';
+import AddTaskModal from './AddTaskModal';
+import WorkflowGuide from '../workflow/WorkflowGuide';
 import { 
   DndContext, 
   closestCenter, 
@@ -52,11 +54,14 @@ const EmptyColumnDropZone: React.FC<{ columnId: string; isActive: boolean }> = (
 
 interface KanbanBoardProps {
   project: Project; // Accepter le projet complet
+  onStartPlanning?: () => void; // Handler pour démarrer la planification depuis le guide
 }
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ project }) => {
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ project, onStartPlanning }) => {
   const queryClient = useQueryClient();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
+  const [selectedColumnForNewTask, setSelectedColumnForNewTask] = useState<string>('');
 
   // Transformation des tâches du projet en colonnes Kanban (optimisé avec useMemo)
   const kanbanColumns = useMemo<KanbanColumnType[]>(() => {
@@ -188,7 +193,26 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project }) => {
     // Ici on peut ajouter des animations ou feedback visuel
   }, []);
 
+  // Handler pour ouvrir la modal d'ajout de tâche
+  const handleAddTask = useCallback((columnId: string) => {
+    setSelectedColumnForNewTask(columnId);
+    setAddTaskModalOpen(true);
+  }, []);
+
   if (!project) return <p>Aucun projet sélectionné.</p>;
+
+  // Afficher le guide si aucune tâche n'existe
+  const totalTasks = project.tasks?.length || 0;
+  if (totalTasks === 0) {
+    return (
+      <div className="p-8">
+        <WorkflowGuide 
+          projectName={project.name} 
+          onStartPlanning={onStartPlanning || (() => console.log('Planification demandée'))}
+        />
+      </div>
+    );
+  }
 
   return (
     <DndContext 
@@ -198,16 +222,16 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project }) => {
       onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}
     >
-      <div className="flex space-x-4 p-4 overflow-x-auto h-full bg-bg-secondary rounded-lg shadow-lg">
+      <div className="flex space-x-4 p-4 overflow-x-auto h-full neural-card bg-gradient-to-r from-bg-secondary/80 to-bg-primary/80">
         {kanbanColumns.map((column) => (
           <div 
             key={column.id} 
-            className={`bg-bg-primary w-80 min-w-[320px] rounded-lg p-4 shadow-md flex flex-col max-h-full transition-all duration-200 ${
-              activeId && KANBAN_COLUMNS_STATUS_ORDER.includes(String(activeId)) ? 'ring-2 ring-neural-blue' : ''
+            className={`neural-card bg-gradient-to-b from-bg-primary to-bg-secondary w-80 min-w-[320px] p-4 flex flex-col max-h-full transition-all duration-200 ${
+              activeId && KANBAN_COLUMNS_STATUS_ORDER.includes(String(activeId)) ? 'ring-2 ring-neural-blue shadow-neural-glow-blue' : ''
             }`}
             data-column-id={column.id}
           >
-            <h2 className="text-xl font-semibold mb-4 text-neural-pink border-b-2 border-neural-pink pb-2 capitalize">
+            <h2 className="text-xl font-semibold mb-4 neural-text-gradient border-b-2 border-gradient-to-r from-neural-purple to-neural-blue pb-2 capitalize">
               {column.title} ({column.tasks.length})
             </h2>
             <SortableContext items={column.tasks.map(task => String(task.id))} strategy={verticalListSortingStrategy}>
@@ -231,17 +255,21 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project }) => {
               </div>
             </SortableContext>
             <button
-              className="mt-4 text-sm text-neural-blue hover:text-neural-pink transition-colors"
-              onClick={() => {
-                // TODO: Implémenter l'ajout de tâche
-                console.log('Ajouter tâche à', column.id);
-              }}
+              className="mt-4 neural-button bg-neural-purple/20 text-neural-purple border border-neural-purple hover:bg-neural-purple hover:text-white hover:shadow-neural-glow-purple"
+              onClick={() => handleAddTask(column.id)}
             >
               + Ajouter une tâche
             </button>
           </div>
         ))}
       </div>
+      
+      <AddTaskModal
+        isOpen={addTaskModalOpen}
+        onClose={() => setAddTaskModalOpen(false)}
+        projectId={project.id}
+        defaultStatus={selectedColumnForNewTask}
+      />
     </DndContext>
   );
 };

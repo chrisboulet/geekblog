@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Styles de base personnalisés ici, si nécessaire */
+/* Neural Flow Base Styles */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,8 +10,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #111827; /* bg-gray-900 */
-  color: white;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
 }
 
 code {
@@ -19,33 +20,549 @@ code {
     monospace;
 }
 
-/* Définition des variables de couleurs Neural Flow (sera utilisé par Tailwind) */
-:root {
-  --bg-primary: #0D0C10; /* Noir très sombre, exemple */
-  --bg-secondary: #1A181D; /* Gris très sombre, exemple */
-  --bg-glass: rgba(26, 24, 29, 0.7); /* Fond semi-transparent pour glassmorphism */
+/* ===== NEURAL FLOW DESIGN SYSTEM ===== */
 
-  --neural-purple: #8A2BE2; /* Violet */
-  --neural-pink: #FF1493;   /* Rose / Magenta */
-  --neural-blue: #00BFFF;   /* Bleu Ciel Profond */
-
-  --text-primary: #FFFFFF;
-  --text-secondary: #A0A0A0;
-  --text-tertiary: #6B6B6B;
-
-  /* Effets (peuvent être utilisés dans box-shadow par exemple) */
-  --glow-color-purple: rgba(138, 43, 226, 0.5);
-  --glow-color-pink: rgba(255, 20, 147, 0.5);
-  --glow-color-blue: rgba(0, 191, 255, 0.5);
+/* Enhanced Hover States and Affordances */
+.neural-interactive {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
 }
 
-/* Job Progress Bar Animations */
+.neural-interactive:hover {
+  transform: translateY(-1px);
+}
+
+.neural-interactive:active {
+  transform: translateY(0);
+}
+
+.neural-interactive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, transparent, rgba(102, 126, 234, 0.1));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.neural-interactive:hover::before {
+  opacity: 1;
+}
+
+/* Loading State Affordances */
+.neural-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.neural-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(300%); }
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+/* Click Feedback */
+.neural-clickable {
+  position: relative;
+  overflow: hidden;
+}
+
+.neural-clickable:active::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple 0.3s ease-out;
+}
+
+@keyframes ripple {
+  to {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+  }
+}
+
+/* Drag and Drop Affordances */
+.neural-draggable {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.neural-draggable:active,
+.neural-dragging {
+  cursor: grabbing;
+  transform: scale(1.05);
+  box-shadow: var(--neural-glow-lg);
+  z-index: 1000;
+}
+
+.neural-drop-zone {
+  border: 2px dashed rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  background: rgba(102, 126, 234, 0.05);
+  transition: all 0.2s ease;
+}
+
+.neural-drop-zone.active {
+  border-color: var(--neural-blue);
+  background: rgba(102, 126, 234, 0.1);
+  animation: pulse 1s infinite;
+}
+
+/* Focus States for Accessibility */
+.neural-focusable:focus-visible {
+  outline: 2px solid var(--neural-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Success/Error State Affordances */
+.neural-success {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: #10b981 !important;
+}
+
+.neural-error {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+}
+
+.neural-warning {
+  border-color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: #f59e0b !important;
+}
+
+/* ===== COMPOSANTS NEURAL FLOW ===== */
+
+/* Neural Card */
+.neural-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(var(--neural-purple-rgb), 0.3);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+.neural-card:hover {
+  border-color: rgba(var(--neural-purple-rgb), 0.5);
+  box-shadow: var(--glow-md);
+}
+
+/* Neural Buttons */
+.neural-button {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(var(--neural-purple-rgb), 0.5);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+.neural-button:hover {
+  border-color: var(--neural-purple);
+  background: rgba(var(--neural-purple-rgb), 0.1);
+  box-shadow: var(--glow-sm);
+}
+
+.neural-button-primary {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  background: linear-gradient(135deg, var(--neural-purple), var(--neural-pink));
+  color: white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+}
+
+.neural-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-lg);
+}
+
+.neural-button-primary:active {
+  transform: translateY(0);
+}
+
+/* Neural Text Gradient */
+.neural-text-gradient {
+  background: linear-gradient(135deg, var(--neural-purple), var(--neural-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+:root {
+  /* ===== COULEURS ===== */
+  
+  /* Backgrounds */
+  --bg-primary: #050505;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
+  --bg-glass: rgba(10, 10, 10, 0.8);
+  --bg-glass-heavy: rgba(17, 17, 17, 0.95);
+  
+  /* Neural Colors - Couleurs principales */
+  --neural-purple: #667eea;
+  --neural-purple-rgb: 102, 126, 234;
+  --neural-pink: #764ba2;
+  --neural-pink-rgb: 118, 75, 162;
+  --neural-blue: #3b82f6;
+  --neural-blue-rgb: 59, 130, 246;
+  --neural-cyan: #06b6d4;
+  --neural-cyan-rgb: 6, 182, 212;
+  
+  /* Gradients */
+  --gradient-neural: linear-gradient(135deg, var(--neural-purple), var(--neural-pink));
+  --gradient-neural-reverse: linear-gradient(135deg, var(--neural-pink), var(--neural-purple));
+  --gradient-radial: radial-gradient(circle at center, rgba(var(--neural-purple-rgb), 0.1), transparent);
+  
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #606060;
+  --text-disabled: #404040;
+  
+  /* Effects */
+  --glow-sm: 0 0 20px rgba(var(--neural-purple-rgb), 0.5);
+  --glow-md: 0 0 30px rgba(var(--neural-purple-rgb), 0.6);
+  --glow-lg: 0 0 40px rgba(var(--neural-purple-rgb), 0.7);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.8);
+  --shadow-neural: 0 20px 60px rgba(var(--neural-purple-rgb), 0.3);
+  
+  /* Glow colors pour compatibilité */
+  --glow-color-purple: rgba(var(--neural-purple-rgb), 0.5);
+  --glow-color-pink: rgba(var(--neural-pink-rgb), 0.5);
+  --glow-color-blue: rgba(var(--neural-blue-rgb), 0.5);
+
+  /* Variables de compatibilité pour pages existantes */
+  --accent-primary: var(--neural-purple);
+  --accent-secondary: var(--neural-pink);
+  --neural-glow-sm: var(--glow-sm);
+  --neural-glow-md: var(--glow-md);
+  --neural-glow-lg: var(--glow-lg);
+  --neural-shadow-sm: var(--shadow-sm);
+  --neural-shadow-md: var(--shadow-md);
+  --neural-shadow-lg: var(--shadow-lg);
+  --neural-shadow: var(--shadow-neural);
+}
+
+/* ===== ANIMATIONS NEURAL FLOW ===== */
+
+/* Animation principale - Pulse Neural */
+@keyframes neuralPulse {
+  0% {
+    transform: scale(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* Animation des lignes neurales */
+@keyframes neuralLine {
+  0%, 100% { 
+    opacity: 0.3; 
+    transform: scaleX(1);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scaleX(1.1);
+  }
+}
+
+/* Animation des particules flottantes */
+@keyframes particleFloat {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx), var(--ty));
+  }
+}
+
+/* Animation de force de connexion */
+@keyframes connectionStrength {
+  0%, 100% { 
+    width: 60%; 
+    opacity: 0.8; 
+  }
+  50% { 
+    width: 100%; 
+    opacity: 1; 
+  }
+}
+
+/* Animation glow intense */
+@keyframes glowIntense {
+  0%, 100% { 
+    box-shadow: var(--glow-md); 
+  }
+  50% { 
+    box-shadow: var(--glow-lg); 
+  }
+}
+
+/* Animation slide up pour panels */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== NEURAL FLOW COMPONENTS ===== */
+
+/* Neural Background Elements */
+.neural-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.neural-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, var(--neural-purple), transparent);
+  height: 1px;
+  animation: neuralLine 3s infinite;
+}
+
+.neural-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--neural-purple);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat 10s infinite;
+}
+
+/* Neural Pulse Effect */
+.neural-pulse {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--neural-purple), transparent);
+  opacity: 0;
+  animation: neuralPulse 3s infinite;
+  pointer-events: none;
+}
+
+/* Floating Editor */
+.floating-editor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-width: 90%;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(var(--neural-purple-rgb), 0.3);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.floating-editor.expanded {
+  width: 800px;
+  height: 600px;
+}
+
+.floating-editor.minimized {
+  width: 300px;
+  height: auto;
+  padding: 16px;
+}
+
+/* Neural Nodes */
+.neural-node {
+  position: absolute;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(var(--neural-purple-rgb), 0.5);
+  border-radius: 16px;
+  padding: 16px 20px;
+  cursor: move;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  text-align: center;
+  font-size: 14px;
+  user-select: none;
+  z-index: 10;
+}
+
+.neural-node:hover {
+  border-color: var(--neural-purple);
+  box-shadow: var(--glow-md);
+  transform: scale(1.05);
+}
+
+.neural-node.active {
+  background: linear-gradient(135deg, rgba(var(--neural-purple-rgb), 0.2), rgba(var(--neural-pink-rgb), 0.2));
+  border-color: var(--neural-purple);
+  box-shadow: var(--glow-lg);
+  animation: glowIntense 2s infinite;
+}
+
+.neural-node.dragging {
+  z-index: 200;
+  cursor: grabbing;
+  transform: scale(1.1);
+}
+
+/* Node Types */
+.node-type-idea {
+  border-color: var(--neural-blue);
+}
+
+.node-type-category {
+  border-color: var(--neural-pink);
+}
+
+.node-type-tag {
+  border-color: var(--neural-cyan);
+}
+
+/* Connection Strength Indicator */
+.connection-strength {
+  width: 40px;
+  height: 4px;
+  background: rgba(var(--neural-purple-rgb), 0.3);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.connection-strength::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--gradient-neural);
+  border-radius: 2px;
+  animation: connectionStrength 2s infinite;
+}
+
+/* ===== TAILWIND COMPATIBILITY LAYER ===== */
+@layer components {
+  .neural-button {
+    @apply px-4 py-2 rounded-full font-medium transition-all duration-300 ease-out;
+    background: rgba(var(--neural-purple-rgb), 0.1);
+    border: 1px solid rgba(var(--neural-purple-rgb), 0.3);
+    color: var(--text-primary);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .neural-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, var(--neural-purple), transparent);
+    transition: all 0.5s ease;
+    transform: translate(-50%, -50%);
+  }
+  
+  .neural-button:hover::before {
+    width: 200%;
+    height: 200%;
+  }
+  
+  .neural-button:hover {
+    border-color: var(--neural-purple);
+    transform: translateY(-2px);
+    box-shadow: var(--glow-md);
+  }
+  
+  .neural-button-primary {
+    background: var(--gradient-neural);
+    border: none;
+  }
+  
+  .neural-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(var(--neural-purple-rgb), 0.2);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+  }
+  
+  .neural-text-gradient {
+    background: var(--gradient-neural);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .neural-glow-sm {
+    box-shadow: var(--glow-sm);
+  }
+  
+  .neural-glow-md {
+    box-shadow: var(--glow-md);
+  }
+  
+  .neural-glow-lg {
+    box-shadow: var(--glow-lg);
+  }
 }

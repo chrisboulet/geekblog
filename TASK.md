@@ -1,8 +1,8 @@
 # TASK.md - GeekBlog Task Tracking
 
-## 📋 Current Sprint - Phase 3: Frontend Async Adaptation
+## 📋 Current Sprint - Phase 4: Navigation & UX Refonte
 
-### Date: 2025-07-04
+### Date: 2025-07-06
 
 ---
 
@@ -36,22 +36,52 @@
 
 ## 🎯 Active Tasks
 
-### Medium Priority
+### High Priority - Navigation & UX Fixes
 
-- [ ] **Complete Drag-and-Drop Kanban** (2025-07-04)
-  - Finish task reordering functionality
-  - Add visual feedback for drag operations
-  - Test cross-column task movement
+- [x] **NavigationHeader Component** (2025-07-06)
+  - ✅ Created NavigationHeader.tsx with breadcrumbs
+  - ✅ Added clear back navigation to projects
+  - ✅ Implemented project context display
 
-- [ ] **Multi-Project Navigation** (2025-07-04)
-  - Add project selection interface
-  - Implement project switching
-  - Update routing for multiple projects
+- [x] **ViewSwitcher Component** (2025-07-06)
+  - ✅ Created ViewSwitcher.tsx for clean view transitions
+  - ✅ Added Simple/Expert mode toggle for Neural Flow
+  - ✅ Implemented responsive design
 
-- [ ] **Article Export Features** (2025-07-04)
-  - Add markdown export functionality
-  - Implement PDF generation
-  - Create export options menu
+- [x] **ProjectPage Navigation Restructure** (2025-07-06)
+  - ✅ Integrated NavigationHeader and ViewSwitcher
+  - ✅ Simplified complex navigation controls
+  - ✅ Fixed broken navigation flows
+
+- [x] **Simplified Neural Flow Mode** (2025-07-06)
+  - ✅ Created Simple mode with minimal features (max 3 nodes)
+  - ✅ Added progressive feature disclosure
+  - ✅ Implemented beginner-friendly interface with clear instructions
+
+- [x] **Onboarding System** (2025-07-06)
+  - ✅ Created OnboardingOverlay for new users
+  - ✅ Added interactive tutorial system with step-by-step guidance
+  - ✅ Implemented guided first-use experience with localStorage persistence
+
+- [x] **Navigation Architecture Complete** (2025-07-06)
+  - ✅ Created ProjectListPage.tsx for project management
+  - ✅ Updated App.tsx routing with /projects route
+  - ✅ Fixed RootRedirector to redirect to projects list
+  - ✅ Implemented complete navigation flow: Home → Projects → Project → Back
+
+- [x] **Neural Flow Design System Integration** (2025-07-06)
+  - ✅ Standardized CSS variables for compatibility
+  - ✅ Updated all pages to use Neural Flow design system
+  - ✅ Added neural-card, neural-button, neural-text-gradient classes
+  - ✅ Enhanced visual affordances with hover states and interactions
+
+### Medium Priority - COMPLETED
+
+- [x] **Visual Affordances Enhancement** (2025-07-06)
+  - ✅ Added neural-interactive, neural-clickable, neural-focusable classes
+  - ✅ Implemented hover states and interaction hints
+  - ✅ Enhanced drag-and-drop feedback with neural-dragging
+  - ✅ Created clear clickable area indicators with ripple effects
 
 ### Low Priority
 

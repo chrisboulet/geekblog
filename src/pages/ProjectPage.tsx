@@ -2,18 +2,25 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '../lib/api';
-import KanbanBoard from '../components/kanban/KanbanBoard';
+import NavigationHeader from '../components/navigation/NavigationHeader';
+import ViewSwitcher from '../components/navigation/ViewSwitcher';
+import NeuralCanvas from '../components/neural/NeuralCanvas';
+import NeuralBackground from '../components/neural/NeuralBackground';
 import AssemblyView from '../components/assembly/AssemblyView';
+import OnboardingOverlay from '../components/onboarding/OnboardingOverlay';
 import { useAsyncOperation } from '../hooks/useAsyncOperation';
 import JobProgressBar from '../components/ui/JobProgressBar';
 import JobStatusBadge from '../components/ui/JobStatusBadge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import ProjectStatus from '../components/ui/ProjectStatus';
 
-type ViewMode = 'kanban' | 'assembly';
+type ViewMode = 'neural' | 'assembly';
 
 const ProjectPage: React.FC = () => {
-  const [currentView, setCurrentView] = useState<ViewMode>('kanban');
+  const [currentView, setCurrentView] = useState<ViewMode>('neural');
   const [useAsyncPlanning, setUseAsyncPlanning] = useState(true); // Default to async planning
+  const [isSimpleMode, setIsSimpleMode] = useState(true); // Default to simple mode for better UX
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const { projectId } = useParams<{ projectId: string }>();
   
@@ -120,72 +127,109 @@ const ProjectPage: React.FC = () => {
     return <div className="p-8 h-full flex items-center justify-center text-xl text-text-secondary">Projet non trouvé.</div>;
   }
 
+  // Check if this is the user's first visit to show onboarding
+  React.useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('geekblog-onboarding-completed');
+    if (!hasSeenOnboarding && currentView === 'neural') {
+      setShowOnboarding(true);
+    }
+  }, [currentView]);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('geekblog-onboarding-completed', 'true');
+    setShowOnboarding(false);
+  };
+
+  const handleOnboardingSkip = () => {
+    localStorage.setItem('geekblog-onboarding-completed', 'true');
+    setShowOnboarding(false);
+  };
+
   return (
-    <div className="p-4 md:p-8 h-full flex flex-col text-text-primary bg-bg-primary">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-neural-purple truncate">
-          Projet: <span className="text-text-primary">{project.name}</span>
-          <span className="text-sm text-text-tertiary ml-2">(ID: {project.id})</span>
-        </h1>
-        <div className="flex space-x-2 items-center">
-          {/* Planning mode toggle */}
-          <button
-            onClick={() => setUseAsyncPlanning(!useAsyncPlanning)}
-            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 ease-in-out ${
-              useAsyncPlanning 
-                ? 'bg-neural-blue/20 text-neural-blue border border-neural-blue' 
-                : 'bg-neural-purple/20 text-neural-purple border border-neural-purple'
-            }`}
-            title={`Basculer vers le mode ${useAsyncPlanning ? 'synchrone' : 'asynchrone'}`}
-          >
-            {useAsyncPlanning ? 'Async' : 'Sync'}
-          </button>
+    <div className="relative h-full flex flex-col text-text-primary" style={{ background: 'var(--bg-primary)' }}>
+      {/* Neural Background */}
+      <NeuralBackground />
+      
+      {/* Navigation Header */}
+      <NavigationHeader 
+        projectName={project.name}
+        projectId={project.id}
+        currentView={currentView}
+      />
+      
+      {/* Main Content with Neural styling */}
+      <div className="relative z-10 p-4 md:p-8 h-full flex flex-col">
+        {/* Project Info and View Switcher */}
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">
+              <span className="neural-text-gradient">{project.name}</span>
+            </h1>
+            {project.description && (
+              <p className="text-text-secondary italic text-sm md:text-base">{project.description}</p>
+            )}
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+            {/* View Switcher */}
+            <ViewSwitcher 
+              currentView={currentView}
+              onViewChange={setCurrentView}
+              isSimpleMode={isSimpleMode}
+              onToggleSimpleMode={setIsSimpleMode}
+            />
+            
+            {/* AI Planning Controls */}
+            <div className="flex gap-2 items-center">
+              {/* Planning mode toggle */}
+              <button
+                onClick={() => setUseAsyncPlanning(!useAsyncPlanning)}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 ease-in-out ${
+                  useAsyncPlanning 
+                    ? 'bg-neural-blue/20 text-neural-blue border border-neural-blue' 
+                    : 'bg-neural-purple/20 text-neural-purple border border-neural-purple'
+                }`}
+                title={`Basculer vers le mode ${useAsyncPlanning ? 'synchrone' : 'asynchrone'}`}
+              >
+                {useAsyncPlanning ? 'Async' : 'Sync'}
+              </button>
 
-          {/* Main planning button */}
-          <button
-            onClick={handlePlanProject}
-            disabled={isPlanningInProgress}
-            className="px-4 py-2 rounded-md font-semibold bg-neural-blue text-white hover:bg-opacity-80 transition-all duration-150 ease-in-out shadow-neural-glow-blue disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-          >
-            {isPlanningInProgress && <LoadingSpinner size="sm" color="white" />}
-            <span>
-              {isPlanningInProgress 
-                ? (useAsyncPlanning && asyncPlanningOperation.step 
-                    ? asyncPlanningOperation.step 
-                    : 'Planification IA...'
-                  )
-                : "Planifier avec l'IA"
-              }
-            </span>
-          </button>
+              {/* Main planning button */}
+              <button
+                onClick={handlePlanProject}
+                disabled={isPlanningInProgress}
+                className="neural-button-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                {isPlanningInProgress && <LoadingSpinner size="sm" color="white" />}
+                <span>
+                  {isPlanningInProgress 
+                    ? (useAsyncPlanning && asyncPlanningOperation.step 
+                        ? asyncPlanningOperation.step 
+                        : 'Planification IA...'
+                      )
+                    : "Planifier avec l'IA"
+                  }
+                </span>
+              </button>
 
-          {/* Cancel button for async operations */}
-          {useAsyncPlanning && asyncPlanningOperation.jobId && asyncPlanningOperation.isPolling && (
-            <button
-              onClick={() => asyncPlanningOperation.cancel()}
-              className="px-3 py-2 rounded-md font-medium bg-red-500/20 text-red-400 border border-red-500 hover:bg-red-500/30 transition-all duration-150 ease-in-out"
-              title="Annuler la planification"
-            >
-              Annuler
-            </button>
-          )}
-          <button
-            onClick={() => setCurrentView('kanban')}
-            className={`px-4 py-2 rounded-md font-semibold transition-all duration-150 ease-in-out ${currentView === 'kanban' ? 'bg-neural-pink text-white shadow-neural-glow-pink' : 'bg-bg-secondary hover:bg-neural-blue/30'}`}
-          >
-            Vue Kanban
-          </button>
-          <button
-            onClick={() => setCurrentView('assembly')}
-            className={`px-4 py-2 rounded-md font-semibold transition-all duration-150 ease-in-out ${currentView === 'assembly' ? 'bg-neural-pink text-white shadow-neural-glow-pink' : 'bg-bg-secondary hover:bg-neural-blue/30'}`}
-          >
-            Vue Assemblage
-          </button>
+              {/* Cancel button for async operations */}
+              {useAsyncPlanning && asyncPlanningOperation.jobId && asyncPlanningOperation.isPolling && (
+                <button
+                  onClick={() => asyncPlanningOperation.cancel()}
+                  className="px-3 py-2 rounded-md font-medium bg-red-500/20 text-red-400 border border-red-500 hover:bg-red-500/30 transition-all duration-150 ease-in-out"
+                  title="Annuler la planification"
+                >
+                  Annuler
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-      {project.description && (
-        <p className="mb-6 text-text-secondary italic">{project.description}</p>
-      )}
+
+        {/* Project Status Indicator */}
+        <div className="mb-6">
+          <ProjectStatus project={project} />
+        </div>
 
       {/* Async planning progress */}
       {useAsyncPlanning && asyncPlanningOperation.status && (
@@ -216,14 +260,33 @@ const ProjectPage: React.FC = () => {
         </div>
       )}
 
-      <div className="flex-grow overflow-auto">
-        {currentView === 'kanban' && (
-          <KanbanBoard project={project} />
-        )}
-        {currentView === 'assembly' && (
-          <AssemblyView project={project} />
-        )}
+        <div className="flex-grow overflow-hidden">
+          {currentView === 'neural' && (
+            <NeuralCanvas 
+              project={project}
+              isSimpleMode={isSimpleMode}
+              onSaveContent={(content, title) => {
+                console.log('Saving Neural Flow content:', { title, content });
+                // TODO: Implement save to project/task
+              }}
+              onCreateNode={(type, position) => {
+                console.log('Creating Neural Node:', { type, position });
+                // TODO: Implement create task from node
+              }}
+            />
+          )}
+          {currentView === 'assembly' && (
+            <AssemblyView project={project} />
+          )}
+        </div>
       </div>
+
+      {/* Onboarding Overlay */}
+      <OnboardingOverlay
+        isVisible={showOnboarding}
+        onComplete={handleOnboardingComplete}
+        onSkip={handleOnboardingSkip}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Navigate } from 'react-router-dom';
 import { getProjects } from '../lib/api';
 import { Project } from '../types/api';
+import NeuralBackground from '../components/neural/NeuralBackground';
 
 /**
  * Component that intelligently redirects users based on available projects.
@@ -18,9 +19,10 @@ export default function RootRedirector() {
   // Show loading spinner while fetching projects
   if (isLoading) {
     return (
-      <div className="bg-bg-primary min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
+      <div className="min-h-screen flex items-center justify-center relative" style={{ background: 'var(--bg-primary)' }}>
+        <NeuralBackground />
+        <div className="text-center relative z-10">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-neural-purple"></div>
           <p className="mt-4 text-text-primary">Loading your projects...</p>
         </div>
       </div>
@@ -30,10 +32,13 @@ export default function RootRedirector() {
   // Handle error state
   if (isError) {
     return (
-      <div className="bg-bg-primary min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-text-primary">Error loading application data.</p>
-          <p className="text-text-secondary mt-2">Please refresh the page and try again.</p>
+      <div className="min-h-screen flex items-center justify-center relative" style={{ background: 'var(--bg-primary)' }}>
+        <NeuralBackground />
+        <div className="text-center relative z-10">
+          <div className="neural-card p-6 neural-error">
+            <p className="text-lg font-semibold mb-2">Error loading application data</p>
+            <p className="text-sm">Please refresh the page and try again.</p>
+          </div>
         </div>
       </div>
     );
@@ -42,8 +47,8 @@ export default function RootRedirector() {
   // Handle successful fetch
   if (isSuccess) {
     if (projects && projects.length > 0) {
-      // Redirect to the first project in the list
-      return <Navigate to={`/project/${projects[0].id}`} replace />;
+      // Redirect to projects list to let user choose
+      return <Navigate to="/projects" replace />;
     } else {
       // No projects exist, redirect to welcome/onboarding page
       return <Navigate to="/welcome" replace />;

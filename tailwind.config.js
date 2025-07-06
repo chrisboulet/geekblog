@@ -9,21 +9,30 @@ export default {
       colors: {
         'bg-primary': 'var(--bg-primary)',
         'bg-secondary': 'var(--bg-secondary)',
+        'bg-tertiary': 'var(--bg-tertiary)',
         'bg-glass': 'var(--bg-glass)',
+        'bg-glass-heavy': 'var(--bg-glass-heavy)',
         'neural-purple': 'var(--neural-purple)',
         'neural-pink': 'var(--neural-pink)',
         'neural-blue': 'var(--neural-blue)',
+        'neural-cyan': 'var(--neural-cyan)',
         'text-primary': 'var(--text-primary)',
         'text-secondary': 'var(--text-secondary)',
         'text-tertiary': 'var(--text-tertiary)',
+        'text-disabled': 'var(--text-disabled)',
       },
       boxShadow: {
+        'neural-glow-sm': 'var(--glow-sm)',
+        'neural-glow-md': 'var(--glow-md)',
+        'neural-glow-lg': 'var(--glow-lg)',
+        'neural-shadow-sm': 'var(--shadow-sm)',
+        'neural-shadow-md': 'var(--shadow-md)',
+        'neural-shadow-lg': 'var(--shadow-lg)',
+        'neural-shadow': 'var(--shadow-neural)',
+        // Compatibility
         'neural-glow-purple': '0 0 15px 5px var(--glow-color-purple)',
         'neural-glow-pink': '0 0 15px 5px var(--glow-color-pink)',
         'neural-glow-blue': '0 0 15px 5px var(--glow-color-blue)',
-        'neural-md-purple': '0 4px 6px -1px var(--glow-color-purple), 0 2px 4px -2px var(--glow-color-purple)',
-        'neural-md-pink': '0 4px 6px -1px var(--glow-color-pink), 0 2px 4px -2px var(--glow-color-pink)',
-        'neural-md-blue': '0 4px 6px -1px var(--glow-color-blue), 0 2px 4px -2px var(--glow-color-blue)',
       },
       keyframes: {
         pulse: {

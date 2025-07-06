@@ -41,6 +41,8 @@ geekblog/
 │   ├── components/               # React components
 │   │   ├── kanban/              # Kanban board components (TaskCard enhanced)
 │   │   ├── assembly/            # Content assembly interface
+│   │   ├── navigation/          # Navigation components (Header, ViewSwitcher)
+│   │   ├── neural/              # Neural Flow components (Canvas, Nodes)
 │   │   └── ui/                  # Reusable UI components (progress, status)
 │   ├── hooks/                   # Custom React hooks
 │   │   ├── useJobPolling.ts     # TanStack Query polling hook
@@ -77,9 +79,16 @@ geekblog/
 - ✅ Improved UX for long-running AI operations with progress bars
 - ✅ Enhanced TaskCard and ProjectPage with async/sync mode toggles
 - ✅ Neural-themed UI components (JobProgressBar, JobStatusBadge, LoadingSpinner)
-- 🔄 Complete drag-and-drop Kanban functionality (IN PROGRESS)
 
-### 🔮 Phase 4 - Advanced Features (PLANNED)
+### 🔄 Phase 4 - Navigation & UX Refonte (IN PROGRESS)
+- ✅ Navigation infrastructure (NavigationHeader, ViewSwitcher)
+- 🔄 ProjectPage navigation restructure (IN PROGRESS)
+- 🔄 Simplified Neural Flow with Simple/Expert modes
+- 🔄 Onboarding system for new users
+- 🔄 Visual affordances and interaction improvements
+
+### 🔮 Phase 5 - Advanced Features (PLANNED)
+- Complete drag-and-drop Kanban functionality
 - Multi-project navigation and management
 - Article persistence and export capabilities
 - Advanced prompt templating system
