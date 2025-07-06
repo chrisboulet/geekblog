@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Check `TASK.md`** before starting a new task. If the task isn't listed, add it with a brief description and today's date.
 - **Use consistent naming conventions, file structure, and architecture patterns** as described in `PLANNING.md`.
 - **Use venv_linux** (the virtual environment) whenever executing Python commands, including for unit tests.
+- **Use context7 mcp whenever you need to validate the latest docs and code for any library**
 
 ### 🧱 Code Structure & Modularity
 - **Never create a file longer than 400 lines of code.** If a file approaches this limit, refactor by splitting it into modules or helper files.

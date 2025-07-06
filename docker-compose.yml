@@ -91,6 +91,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_BASE_URL=/api/v1
+      - NODE_OPTIONS=--max-old-space-size=4096
     depends_on:
       backend:
         condition: service_healthy
@@ -103,7 +104,8 @@ services:
       - ./tsconfig.node.json:/app/tsconfig.node.json
       - ./tailwind.config.js:/app/tailwind.config.js
       - ./postcss.config.js:/app/postcss.config.js
-      - /app/node_modules
+    mem_limit: 6g
+    memswap_limit: 6g
 
 volumes:
   postgres_data:

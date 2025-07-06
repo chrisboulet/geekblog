@@ -52,6 +52,8 @@ nano .env  # Modifier GROQ_API_KEY=your_actual_key
 
 **C'est tout !** L'application est accessible sur http://localhost:5173
 
+> **Note importante**: Le conteneur frontend nécessite 6GB de RAM pour Tailwind v4 et les dépendances modernes. La configuration Docker Compose est déjà optimisée.
+
 #### 🛠️ Option 2 : Installation manuelle
 
 ##### Backend
@@ -181,8 +183,9 @@ Interface immersive et futuriste évoquant un "cockpit" de commande avec :
 
 ### Stack Technique
 - **Tailwind CSS v4.1.11** : Configuration CSS-first moderne
-- **PostCSS** : Avec plugin @tailwindcss/postcss
+- **PostCSS** : Avec plugin @tailwindcss/postcss (IMPORTANT: utiliser @tailwindcss/postcss et non tailwindcss directement)
 - **Variables CSS** : Toutes les couleurs et espacements dans :root
+- **Configuration Docker** : Frontend optimisé avec 6GB RAM pour éviter les erreurs ENOMEM
 
 ---
 
@@ -215,7 +218,34 @@ npm run lint
 npm run build
 ```
 
-### 🛠️ Résolution de Problèmes Build
+### 🛠️ Résolution de Problèmes
+
+#### Erreurs Docker
+
+**ENOMEM (Out of Memory)**
+```bash
+# Le conteneur frontend nécessite plus de mémoire
+# Solution: Configuration déjà optimisée à 6GB dans docker-compose.yml
+docker-compose restart frontend
+```
+
+**CSS ne se charge pas (Erreur 500)**
+```bash
+# Problème de configuration PostCSS
+# Vérifier postcss.config.js utilise '@tailwindcss/postcss'
+# NON 'tailwindcss' directement
+docker-compose restart frontend
+```
+
+**Page blanche/chargement infini**
+```bash
+# Vider le cache et rebuild
+docker-compose down
+docker-compose build frontend --no-cache
+docker-compose up -d
+```
+
+#### Erreurs TypeScript Build
 
 Si vous rencontrez des erreurs TypeScript lors du build :
 

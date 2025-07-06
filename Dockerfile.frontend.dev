@@ -4,11 +4,14 @@ FROM node:20-alpine
 # Définir le répertoire de travail
 WORKDIR /app
 
+# Augmenter les limites de mémoire pour Node.js
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Copier les fichiers de configuration package
 COPY package*.json ./
 
 # Installer toutes les dépendances (dev + prod)
-RUN npm ci
+RUN npm ci --prefer-offline --no-audit
 
 # Copier le code source
 COPY . .
