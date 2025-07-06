@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Neural Flow Base Styles */
 body {
@@ -503,7 +501,10 @@ code {
 /* ===== TAILWIND COMPATIBILITY LAYER ===== */
 @layer components {
   .neural-button {
-    @apply px-4 py-2 rounded-full font-medium transition-all duration-300 ease-out;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    font-weight: 500;
+    transition: all 300ms ease-out;
     background: rgba(var(--neural-purple-rgb), 0.1);
     border: 1px solid rgba(var(--neural-purple-rgb), 0.3);
     color: var(--text-primary);

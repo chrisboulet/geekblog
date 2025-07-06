@@ -79,6 +79,10 @@ celery -A app.celery_config worker --loglevel=info
 # Installation des dépendances
 npm install
 
+# IMPORTANT : Utilise Tailwind CSS v4.1.11
+# Configuration minimale dans tailwind.config.js
+# Styles dans src/styles/globals.css avec @import "tailwindcss"
+
 # Vérification de la compilation TypeScript
 npm run type-check
 
@@ -165,11 +169,20 @@ Interface immersive et futuriste évoquant un "cockpit" de commande avec :
 - **Palette sombre** avec accents neuraux (violet, bleu, rose)
 - **Effets de lueur** et transparence ("glassmorphism")
 - **Animations fluides** avec feedback visuel continu
+- **Variables CSS personnalisées** pour thème cohérent
 
 ### Composants Clés
 - **JobProgressBar** : Barres de progression avec animations shimmer
 - **JobStatusBadge** : Badges de statut avec couleurs adaptatives
 - **LoadingSpinner** : Spinners avec effets de lueur neural
+- **HomePage** : Page d'accueil avec workflow en 5 étapes
+- **NavigationHeader** : Navigation avec breadcrumbs
+- **ViewSwitcher** : Toggle Simple/Expert mode
+
+### Stack Technique
+- **Tailwind CSS v4.1.11** : Configuration CSS-first moderne
+- **PostCSS** : Avec plugin @tailwindcss/postcss
+- **Variables CSS** : Toutes les couleurs et espacements dans :root
 
 ---
 
