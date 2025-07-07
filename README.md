@@ -157,7 +157,15 @@ REDIS_URL=redis://localhost:6379/0
 - **Agent Rédacteur** : Création de contenu basé sur la recherche
 - **Équipe de Finition** : Critique, style, vérification, et correction
 
-### 6. Assemblage et Raffinage
+### 6. Templates de Blog Authentiques
+- **6 Templates** basés sur l'analyse de 67 articles du blog "Les Geeks à Temps Partiel"
+- **Guide Pratique** : Tutoriels étape par étape avec style accessible
+- **Question Engagement** : Hook → Contexte → Exploration → Synthèse
+- **Comparaison Analyse** : Setup → Options A/B → Verdict → Recommandation
+- **Localisation Québécoise** : 3 niveaux (bas/moyen/élevé) avec expressions authentiques
+- **Personnalisation** : Titre, thème, audience, niveau de québécismes
+
+### 7. Assemblage et Raffinage
 - **Navigation claire** entre Neural Flow et vue Assemblage
 - Lancement du processus de raffinage avec suivi de progression
 - Édition finale dans l'éditeur intégré
@@ -259,6 +267,7 @@ Si vous rencontrez des erreurs TypeScript lors du build :
 ## 📚 Documentation
 
 - **[🐳 DOCKER.md](./DOCKER.md)** - Guide complet Docker et déploiement
+- **[🐳 DOCKER_REVIEW.md](./DOCKER_REVIEW.md)** - Audit complet configuration Docker avec recommandations
 - **[PLANNING.md](./PLANNING.md)** - Architecture détaillée et feuille de route
 - **[TASK.md](./TASK.md)** - Suivi des tâches et sprints
 - **[01_MANIFESTE.md](./01_MANIFESTE.md)** - Vision et principes fondamentaux
@@ -289,10 +298,20 @@ Si vous rencontrez des erreurs TypeScript lors du build :
 - **Navigation modulaire** avec NavigationHeader et ViewSwitcher
 - **Mode Simple/Expert** pour Neural Flow avec progressive disclosure
 - **Système d'onboarding** avec tutoriel interactif guidé
-- **Affordances visuelles** améliorées pour interactions
-- **Interface simplifiée** pour nouveaux utilisateurs
+- **Migration Tailwind CSS v4** avec configuration CSS-first moderne
 
-### ✅ Phase 5 - Production Ready (TERMINÉE)
+### 🚧 Phase 5 - Templates de Blog (EN COURS)
+- **Analyse blog authentique** : 67 articles analysés pour style personnel
+- **6 Templates créés** : Guide Pratique, Question, Comparaison, etc.
+- **Backend API complet** : CRUD templates avec personnalisation
+- **Walking skeleton** : Workflow end-to-end fonctionnel
+- **Architecture améliorée** : Strategy Pattern, exceptions custom, auth layer
+
+### 📅 Phase 6 - Template Gallery UI (PROCHAINE - 2025-07-12)
+- Interface galerie avec cards et filtres
+- Recherche temps réel avec debounce
+- Modal de personnalisation avancé
+- Integration complète avec système existant
 - Build TypeScript optimisé et production-ready
 - Configuration robuste avec type guards
 - Bundle optimisé (222kB gzippé, build en 2min)

@@ -1,0 +1,126 @@
+# docker-compose.override.yml
+# Development overrides - automatically loaded by docker-compose
+# These settings enhance the development experience
+
+services:
+  # Backend with hot reload and debugging
+  backend:
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=DEBUG
+      - DEBUG=true
+      # Development-only auth bypass
+      - DEV_MODE=true
+      - SEED_TEMPLATES=true
+    volumes:
+      # Mount entire app directory for hot reload
+      - ./app:/app/app:cached
+      - ./alembic.ini:/app/alembic.ini:ro
+      # Persist pip cache between rebuilds
+      - pip-cache:/root/.cache/pip
+    ports:
+      - "8000:8000"
+      # Debugger port (for debugpy)
+      - "5678:5678"
+
+  # Frontend with better error display
+  frontend:
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=/api/v1
+      - NODE_OPTIONS=--max-old-space-size=4096
+      # Enable source maps
+      - GENERATE_SOURCEMAP=true
+    volumes:
+      # Cached for better performance on Mac/Windows
+      - ./src:/app/src:cached
+      - ./public:/app/public:cached
+      - ./index.html:/app/index.html:cached
+      - ./vite.config.ts:/app/vite.config.ts:cached
+      - ./tsconfig.json:/app/tsconfig.json:cached
+      - ./tsconfig.node.json:/app/tsconfig.node.json:cached
+      - ./tailwind.config.js:/app/tailwind.config.js:cached
+      - ./postcss.config.js:/app/postcss.config.js:cached
+      - ./package.json:/app/package.json:cached
+      - ./package-lock.json:/app/package-lock.json:cached
+      # Named volume for node_modules
+      - node_modules:/app/node_modules
+    stdin_open: true
+    tty: true
+
+  # Database with query logging
+  db:
+    environment:
+      # Enable query logging in development
+      - POSTGRES_LOG_STATEMENT=all
+      - POSTGRES_LOG_DURATION=on
+    ports:
+      # Expose for local tools (pgAdmin, DBeaver, etc.)
+      - "5432:5432"
+    command: 
+      - "postgres"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "log_duration=on"
+
+  # Redis with persistence disabled for faster development
+  redis:
+    command: redis-server --save ""
+    ports:
+      # Expose for Redis GUI tools
+      - "6379:6379"
+
+  # Celery with debug logging
+  celery_worker:
+    command: celery -A app.celery_config worker --loglevel=debug --concurrency=2
+    environment:
+      - CELERY_TASK_ALWAYS_EAGER=false
+      - LOG_LEVEL=DEBUG
+    volumes:
+      # Mount app code for hot reload
+      - ./app:/app/app:cached
+
+  # Optional: Celery Flower for task monitoring
+  flower:
+    image: mher/flower:latest
+    container_name: geekblog_flower
+    command: celery --broker=redis://redis:6379/0 flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+      - celery_worker
+    profiles:
+      - debug
+
+  # Optional: MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: geekblog_mailhog
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    profiles:
+      - debug
+
+  # Optional: Adminer for database management
+  adminer:
+    image: adminer:latest
+    container_name: geekblog_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+    profiles:
+      - debug
+
+volumes:
+  pip-cache:
+  node_modules:
