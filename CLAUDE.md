@@ -6,8 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Always read `PLANNING.md`** at the start of a new conversation to understand the project's architecture, goals, style, and constraints.
 - **Check `TASK.md`** before starting a new task. If the task isn't listed, add it with a brief description and today's date.
 - **Use consistent naming conventions, file structure, and architecture patterns** as described in `PLANNING.md`.
-- **Use venv_linux** (the virtual environment) whenever executing Python commands, including for unit tests.
+- **Use .venv** (the virtual environment) whenever executing Python commands, including for unit tests.
 - **Use context7 mcp whenever you need to validate the latest docs and code for any library**
+- tu as analysé mon blog et produit des documents pour préserver le résultat de cette analyse.
 
 ### 🧱 Code Structure & Modularity
 - **Never create a file longer than 400 lines of code.** If a file approaches this limit, refactor by splitting it into modules or helper files.
@@ -66,6 +67,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **always use zen planner** to complete your planning tasks with details.
 - **never forget to update the Readme.me, the PLANNING.md and the TASK.md**
 - **remember that this application works under Docker**
+- **Take your time, think deeply, we know this system will take a lot of time to develop. We focus on the current tasks, one at a time and we implement it to perfection.**
 
 ## END of DO NOT MODIFY ##
 [... rest of the file remains unchanged ...]

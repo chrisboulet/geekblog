@@ -21,6 +21,9 @@ RUN pip install --no-cache-dir -r backend_requirements.txt
 COPY app/ ./app/
 COPY alembic.ini .
 
+# S'assurer que les migrations sont copiées (déjà incluses dans app/ mais par sécurité)
+# Les migrations sont dans app/db/migrations/versions/
+
 # Installer postgresql-client pour pg_isready et curl pour health check
 RUN apt-get update && apt-get install -y postgresql-client curl && rm -rf /var/lib/apt/lists/*
 

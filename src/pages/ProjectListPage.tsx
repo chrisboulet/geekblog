@@ -5,12 +5,14 @@ import { getProjects, createProject } from '../lib/api';
 import { Project, ProjectCreate } from '../types/api';
 import NeuralBackground from '../components/neural/NeuralBackground';
 import NavigationHeader from '../components/navigation/NavigationHeader';
+import TemplateSelectionModal from '../components/templates/TemplateSelectionModal';
 
 /**
  * Page listing all projects with navigation and creation options
  */
 const ProjectListPage: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const navigate = useNavigate();
@@ -96,26 +98,20 @@ const ProjectListPage: React.FC = () => {
               <p className="text-text-secondary mb-6">
                 Create your first project to get started with AI-powered content creation.
               </p>
-              <button
-                onClick={handleQuickStart}
-                disabled={createProjectMutation.isPending}
-                className="w-full neural-button-primary neural-interactive neural-clickable neural-focusable mb-3"
-              >
-                {createProjectMutation.isPending ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Creating...
-                  </span>
-                ) : (
-                  <>🚀 Quick Start</>
-                )}
-              </button>
-              <button
-                onClick={() => setIsCreating(true)}
-                className="w-full neural-button neural-interactive neural-clickable neural-focusable"
-              >
-                ⚙️ Custom Project
-              </button>
+              <div className="space-y-3">
+                <button
+                  onClick={handleQuickStart}
+                  className="w-full neural-button-primary neural-interactive neural-clickable neural-focusable"
+                >
+                  🚀 Quick Start
+                </button>
+                <button
+                  onClick={() => setShowTemplateModal(true)}
+                  className="w-full neural-button neural-interactive neural-clickable neural-focusable"
+                >
+                  ⚙️ Use Template
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -141,12 +137,20 @@ const ProjectListPage: React.FC = () => {
               </p>
             </div>
             
-            <button
-              onClick={() => setIsCreating(!isCreating)}
-              className="neural-button-primary neural-interactive neural-clickable neural-focusable"
-            >
-              {isCreating ? '✕ Cancel' : '+ New Project'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleQuickStart}
+                className="neural-button-primary neural-interactive neural-clickable neural-focusable"
+              >
+                🚀 Quick Start
+              </button>
+              <button
+                onClick={() => setShowTemplateModal(true)}
+                className="neural-button neural-interactive neural-clickable neural-focusable"
+              >
+                ⚙️ Template
+              </button>
+            </div>
           </div>
 
           {/* Create Project Form */}
@@ -260,6 +264,16 @@ const ProjectListPage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Template Selection Modal */}
+      <TemplateSelectionModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        onStartFromScratch={() => {
+          setShowTemplateModal(false);
+          setIsCreating(true);
+        }}
+      />
     </div>
   );
 };

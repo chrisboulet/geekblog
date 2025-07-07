@@ -27,6 +27,9 @@ nano .env
 
 # 4. Démarrer en mode développement
 ./scripts/start-dev.sh
+
+# 5. Tester les nouvelles fonctionnalités (Phase 5)
+./scripts/test-docker-migration.sh
 ```
 
 **C'est tout !** L'application est accessible sur http://localhost:5173
@@ -274,3 +277,64 @@ server {
 - **Hot reload** : Activé en mode développement pour backend et frontend
 - **Migrations** : Automatiquement appliquées au démarrage
 - **Scalabilité** : Workers Celery peuvent être scalés avec `docker-compose up --scale celery_worker=3`
+
+---
+
+## 🆕 Phase 5 - Gestion Avancée des Projets
+
+### Nouvelles fonctionnalités intégrées (2025-07-06)
+
+#### Extensions de la base de données
+```sql
+-- Nouvelles colonnes ajoutées à la table 'projects'
+ALTER TABLE projects ADD COLUMN archived BOOLEAN DEFAULT FALSE;
+ALTER TABLE projects ADD COLUMN archived_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE projects ADD COLUMN settings JSON;
+ALTER TABLE projects ADD COLUMN tags VARCHAR;
+```
+
+#### Nouveaux endpoints API disponibles
+```bash
+# Gestion des projets
+POST /api/v1/projects/{id}/archive      # Archiver un projet
+POST /api/v1/projects/{id}/unarchive    # Désarchiver un projet
+POST /api/v1/projects/{id}/duplicate    # Dupliquer un projet
+
+# Paramètres
+GET  /api/v1/projects/{id}/settings     # Récupérer les paramètres
+PUT  /api/v1/projects/{id}/settings     # Mettre à jour les paramètres
+
+# Recherche et filtrage
+GET  /api/v1/projects/filtered          # Projets avec filtres avancés
+GET  /api/v1/projects/tags              # Liste des tags disponibles
+PUT  /api/v1/projects/{id}/tags         # Mettre à jour les tags
+```
+
+#### Test des nouvelles fonctionnalités
+```bash
+# Tester les migrations et endpoints
+./scripts/test-docker-migration.sh
+
+# Vérifier la documentation API mise à jour
+curl http://localhost:8000/docs
+# Voir la section "Project Management" dans Swagger
+```
+
+#### Migrations automatiques
+- **Migration** `2025_07_06_0005_add_project_management_extensions.py`
+- **Exécution automatique** au démarrage des containers
+- **Rollback disponible** avec `alembic downgrade -1`
+
+#### Fonctionnalités disponibles
+✅ **Archivage de projets** - Alternative sûre à la suppression  
+✅ **Paramètres configurables** - Settings JSON par projet  
+✅ **Duplication de projets** - Avec préservation des tâches  
+✅ **Filtrage avancé** - Par statut, tags, pagination  
+✅ **Gestion des tags** - Système de tags CSV  
+✅ **APIs complètes** - Tous les endpoints CRUD étendus
+
+#### Interface utilisateur (à venir)
+🔜 **Menus kebab** - Actions contextuelles sur chaque projet  
+🔜 **Couleurs sémantiques** - Bleu (édition), Rouge (danger), etc.  
+🔜 **Animations** - Rotation hover + fade-in dropdowns  
+🔜 **Templates de projet** - Blog, Documentation, Marketing, Research

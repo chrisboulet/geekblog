@@ -113,3 +113,122 @@ def multiple_tasks(db_session, sample_project) -> list[Task]:
         db_session.refresh(task)
     
     return tasks
+
+
+# ====== NOUVELLES FIXTURES POUR GESTION DE PROJETS ======
+
+@pytest.fixture
+def archived_project(db_session) -> Project:
+    """Projet archivé pour les tests"""
+    project = Project(
+        name="Archived Project",
+        description="A project that has been archived",
+        archived=True,
+        archived_at=db_session.execute("SELECT datetime('now')").scalar()
+    )
+    db_session.add(project)
+    db_session.commit()
+    db_session.refresh(project)
+    return project
+
+
+@pytest.fixture
+def project_with_settings(db_session) -> Project:
+    """Projet avec paramètres configurés pour les tests"""
+    project = Project(
+        name="Project with Settings",
+        description="A project with custom settings",
+        settings={
+            "auto_archive_days": 30,
+            "ai_model_preference": "gpt-4",
+            "notification_enabled": True
+        }
+    )
+    db_session.add(project)
+    db_session.commit()
+    db_session.refresh(project)
+    return project
+
+
+@pytest.fixture
+def project_with_tags(db_session) -> Project:
+    """Projet avec tags pour les tests de filtrage"""
+    project = Project(
+        name="Tagged Project",
+        description="A project with tags",
+        tags="blog,ai,technical"
+    )
+    db_session.add(project)
+    db_session.commit()
+    db_session.refresh(project)
+    return project
+
+
+@pytest.fixture
+def sample_project_with_tasks(db_session) -> Project:
+    """Projet avec plusieurs tâches pour tester la duplication"""
+    project = Project(
+        name="Project with Tasks",
+        description="A project containing multiple tasks"
+    )
+    db_session.add(project)
+    db_session.commit()
+    db_session.refresh(project)
+    
+    # Ajouter des tâches
+    tasks_data = [
+        {"title": "Research", "description": "Gather information", "status": "Terminé"},
+        {"title": "Outline", "description": "Create structure", "status": "En cours"},
+        {"title": "Write", "description": "Write content", "status": "À faire"}
+    ]
+    
+    for i, task_data in enumerate(tasks_data):
+        task = Task(
+            project_id=project.id,
+            title=task_data["title"],
+            description=task_data["description"],
+            status=task_data["status"],
+            order=i+1
+        )
+        db_session.add(task)
+    
+    db_session.commit()
+    db_session.refresh(project)
+    return project
+
+
+@pytest.fixture
+def multiple_projects(db_session) -> list[Project]:
+    """Plusieurs projets pour tester la pagination et le filtrage"""
+    projects = []
+    
+    project_data = [
+        {"name": "Blog Project", "tags": "blog,content"},
+        {"name": "AI Research", "tags": "ai,research"},
+        {"name": "Technical Doc", "tags": "documentation,technical"},
+        {"name": "Marketing Campaign", "tags": "marketing,promotion"},
+        {"name": "Old Project", "archived": True}
+    ]
+    
+    for data in project_data:
+        project = Project(
+            name=data["name"],
+            description=f"Description for {data['name']}",
+            tags=data.get("tags"),
+            archived=data.get("archived", False)
+        )
+        db_session.add(project)
+        projects.append(project)
+    
+    db_session.commit()
+    for project in projects:
+        db_session.refresh(project)
+    
+    return projects
+
+
+# Alias pour compatibilité avec les anciens tests
+@pytest.fixture
+def db(db_session):
+    """Alias pour db_session pour compatibilité"""
+    return db_session

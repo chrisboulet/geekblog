@@ -10,11 +10,27 @@ from app.exceptions import (
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
-def create_project(db: Session, project: schemas.ProjectCreate) -> models.Project:
+def create_project(db: Session, project: schemas.ProjectCreate, commit: bool = True) -> models.Project:
+    """
+    Create a new project.
+    
+    Args:
+        db: Database session
+        project: Project data to create
+        commit: Whether to commit the transaction (default True)
+    
+    Returns:
+        Created project instance
+    """
     db_project = models.Project(name=project.name, description=project.description)
     db.add(db_project)
-    db.commit()
-    db.refresh(db_project)
+    
+    if commit:
+        db.commit()
+        db.refresh(db_project)
+    else:
+        db.flush()  # Get ID without committing
+    
     return db_project
 
 def get_project(db: Session, project_id: int) -> Optional[models.Project]:

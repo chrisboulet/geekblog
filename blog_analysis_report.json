@@ -1,0 +1,286 @@
+{
+  "blog_info": {
+    "total_posts": 67,
+    "date_range": {
+      "earliest": "Fri, 07 Oct 2016 18:22:09 +0000",
+      "latest": "Wed, 29 May 2013 15:43:33 +0000"
+    },
+    "avg_post_length": 3944.0746268656717,
+    "avg_word_count": 612.1194029850747
+  },
+  "categories": {
+    "total_unique": 11,
+    "most_common": {
+      "Divers": 44,
+      "Opinion": 21,
+      "Discussion": 10,
+      "VideoGeek": 7,
+      "Informaticien": 5,
+      "En feu !": 4,
+      "nouvelle": 3,
+      "Série : Véhicules autonomes": 3,
+      "alerte": 1,
+      "Sécurité informatique": 1,
+      "Tesla": 1
+    },
+    "frequency_distribution": {
+      "Discussion": 10,
+      "Opinion": 21,
+      "VideoGeek": 7,
+      "Divers": 44,
+      "Informaticien": 5,
+      "En feu !": 4,
+      "alerte": 1,
+      "nouvelle": 3,
+      "Sécurité informatique": 1,
+      "Tesla": 1,
+      "Série : Véhicules autonomes": 3
+    }
+  },
+  "tags": {
+    "total_unique": 76,
+    "most_common": {
+      "Quebec": 10,
+      "Tesla": 8,
+      "sécurité": 7,
+      "francais": 3,
+      "xbox": 3,
+      "TI": 3,
+      "Jeux": 2,
+      "gadget": 2,
+      "chrome": 2,
+      "web": 2,
+      "blog": 1,
+      "is": 1,
+      "new": 1,
+      "start": 1,
+      "logiciel edition vidéo": 1,
+      "Général": 1,
+      "Nouvelles": 1,
+      "#fail": 1,
+      "coffre-fort virtuel": 1,
+      "AE": 1,
+      "Consultation": 1,
+      "informaticien": 1,
+      "Montréal": 1,
+      "Phone": 1,
+      "film": 1,
+      "star trek": 1,
+      "accessoires": 1,
+      "local": 1,
+      "lunettes": 1,
+      "ps4": 1
+    },
+    "frequency_distribution": {
+      "blog": 1,
+      "francais": 3,
+      "is": 1,
+      "new": 1,
+      "start": 1,
+      "xbox": 3,
+      "logiciel edition vidéo": 1,
+      "Général": 1,
+      "Nouvelles": 1,
+      "#fail": 1,
+      "coffre-fort virtuel": 1,
+      "Quebec": 10,
+      "AE": 1,
+      "Consultation": 1,
+      "informaticien": 1,
+      "TI": 3,
+      "Montréal": 1,
+      "Phone": 1,
+      "film": 1,
+      "star trek": 1,
+      "accessoires": 1,
+      "local": 1,
+      "lunettes": 1,
+      "Jeux": 2,
+      "ps4": 1,
+      "gadget": 2,
+      "google": 1,
+      "maps": 1,
+      "mobile": 1,
+      "Edward Snowden": 1,
+      "Foreign Intelligence Surveillance Act": 1,
+      "NSA": 1,
+      "United States": 1,
+      "outils": 1,
+      "présentation": 1,
+      "projecteur": 1,
+      "gta v": 1,
+      "vigilence": 1,
+      "violence": 1,
+      "GTA": 1,
+      "mature": 1,
+      "parent": 1,
+      "audio": 1,
+      "audiobook": 1,
+      "divertissement": 1,
+      "e-book": 1,
+      "kindle": 1,
+      "lecture": 1,
+      "livre": 1,
+      "browsing": 1,
+      "chrome": 2,
+      "sécurité": 7,
+      "web": 2,
+      "iPhone ios app sécurité": 1,
+      "couverture": 1,
+      "olympiques": 1,
+      "android": 1,
+      "flash": 1,
+      "Tesla": 8,
+      "véhicule électrique": 1,
+      "Opinion": 1,
+      "transport": 1,
+      "2024 Tesla event": 1,
+      "August 8": 1,
+      "autonomous ride-sharing": 1,
+      "Elon Musk": 1,
+      "Full Self-Driving system": 1,
+      "self-driving car": 1,
+      "Tesla autonomous vehicle Secondary Keywords: self-driving car": 1,
+      "Tesla event": 1,
+      "Tesla Model 2": 1,
+      "Tesla robotaxi": 1,
+      "ai": 1,
+      "électricité": 1,
+      "hydro-quebec": 1,
+      "solaire": 1
+    }
+  },
+  "title_patterns": {
+    "questions": [
+      "Un petit sondage ? Xbox One ou PS4 ?",
+      "Soyons Équitables !",
+      "Avez-vous les bons outils ?",
+      "Le BYOD c'est quoi ? Est-ce pour vous ?",
+      "La couverture olympique",
+      "Windows 10… oui ou non?",
+      "Comment se protéger du virus MMS sous Android",
+      "Expliquer la gestion de projet",
+      "Les mots de passe... quel cauchemar !",
+      "Le surface pro 4, est-il recommandé ?",
+      "Comment relancer mon blog?",
+      "Pourquoi utiliser les conversations secrètes dans Facebook Messenger ?",
+      "Facebook Workplace : un réseau social pour l'entreprise : POURQUOI ?",
+      "Un accident grave en Tesla ? Besoin de couper l'électricité ?",
+      "La conduite autonome arrive ! Êtes-vous prêts ?",
+      "La Transition Énergétique, un Défi d'Innovation et d'Adaptation",
+      "Quand le Cybertruck de Tesla réinvente la catégorie",
+      "Le Guide du Voyageur pour la Collaboration: Une proposition humoristique du travail collaboratif au 21e siècle",
+      "L'IA qui raisonne : sommes-nous à l'aube d'une révolution ?",
+      "Robotaxis Tesla: Une Révolution Économique pour le Québec",
+      "Robotaxis en hiver québécois: Défis technologiques et opportunités d'innovation",
+      "Révolution énergétique au Québec : Pourquoi le solaire urbain surclasse l'hydroélectricité"
+    ],
+    "how_to": [
+      "Le Guide du Voyageur pour la Collaboration: Une proposition humoristique du travail collaboratif au 21e siècle"
+    ],
+    "reviews": [
+      "Comparaison Geek vs Nerd",
+      "Véhicules Autonomes vs. Tramway à Québec: Analyse des Avantages et Inconvénients pour la Mobilité Urbaine",
+      "Tesla's Next-Generation Robotaxi: Unveiling and Technological Advancements - a preview of 8/8 2024"
+    ],
+    "news": [
+      "La nouvelle XBOX",
+      "De la technologie pure à la tech alimentaire : Une nouvelle recette professionnelle !"
+    ],
+    "opinions": [],
+    "tutorials": [],
+    "lists": [],
+    "series": [
+      "Episode 3 - Le coffre fort virtuel"
+    ]
+  },
+  "content_analysis": {
+    "avg_paragraphs": 17.597014925373134,
+    "avg_sentences": 69.80597014925372,
+    "avg_words": 717.1940298507462,
+    "avg_sentence_length": 11.2966552801217,
+    "avg_links": 2.985074626865672,
+    "avg_images": 0.5671641791044776,
+    "avg_code_blocks": 0.0,
+    "avg_lists": 1.5970149253731343,
+    "avg_headers": 2.582089552238806
+  },
+  "writing_style": {
+    "avg_personal_pronouns": 0.03368653368712702,
+    "avg_questions": 0.008176145150889633,
+    "avg_exclamations": 0.012203257000649913,
+    "avg_tech_terms": 0.008252004655540919,
+    "avg_informal": 0.003482297079402628,
+    "avg_geek_slang": 0.03878547354257885
+  },
+  "sample_posts": [
+    {
+      "title": "Le début d'un nouveau Blog",
+      "content": "En fait c'est par nécessité que je démarre un Blog. Je souhaite utiliser cette plateforme pour résumer par écrit certaines des informations importantes provenant de mes chroniques vidéos [youtube=http://youtube.com/chrisboulet] ... Bref un moyen de supporter mon travail.",
+      "pub_date": "Tue, 21 May 2013 17:52:24 +0000",
+      "categories": [
+        "Discussion",
+        "Opinion"
+      ],
+      "tags": [
+        "blog",
+        "francais",
+        "is",
+        "new",
+        "start"
+      ],
+      "content_length": 271,
+      "word_count": 37
+    },
+    {
+      "title": "La nouvelle XBOX",
+      "content": "Et oui une nouvelle XBOX est lancée aujourd'hui... Plus de détails à venir !",
+      "pub_date": "Tue, 21 May 2013 17:55:36 +0000",
+      "categories": [
+        "VideoGeek"
+      ],
+      "tags": [
+        "xbox"
+      ],
+      "content_length": 76,
+      "word_count": 14
+    },
+    {
+      "title": "Les abonnements",
+      "content": "Oui s'abonner c'est pratique. Pour tout le monde ! Pour vous, ainsi vous pouvez savoir qu'il y a de l'activité sur mes sites, mais aussi pour moi afin de voir que j'ai des clients. De plus, cela m'aide à générer du trafic. Je ne vous le cacherai pas, plus il y aura de trafic sur mes sites, plus je serai entraîné par la machine et je produirai plus de contenu. Si vous êtes peu nombreux à vous abonner, le message est clair, je ne suis pas intéressant (ou vous avez peur des SPAM). Je ne vous spammerai pas ! si vous voyez un message plus d'une fois sur Twitter, FaceBook, Google+ ou LinkedIn, c'est que je fais de la promotion, simplement. Alors, ABONNEZ-VOUS ! sur ma page http://youtube.com/chrisboulet et aussi sur mon Blog à http://legeekatempspartiel.wordpress.com/ et faites passer le mot ! je vous en remercie à l'avance...",
+      "pub_date": "Tue, 21 May 2013 19:48:16 +0000",
+      "categories": [
+        "VideoGeek"
+      ],
+      "tags": [],
+      "content_length": 832,
+      "word_count": 147
+    },
+    {
+      "title": "Un outil de production vidéo",
+      "content": "Quel outil choisir ? Je veux des suggestions ? Si vous en avez utilisé dans les derniers mois j'apprécierais vos commentaires. Je vais faire des recherches et des expériences mais pour le moment ceux que j'ai utilisé ne me plaisent pas. Pour le moment j'ai bien aimé celui de Youtube, complètement en ligne et efficace, mais il manque de possibilités pour les ajouts de textes et autres bebelles visuelles. Je veux pouvoir monter un look uniforme que je réutiliserai chaque fois, je veux pouvoir enregistrer ma voix par dessus un autre vidéo ou par dessus une session de navigation ou d'utilisation d'un logiciel... Et je veux pas payer 300$. J'ai l'ordinateur super puissant avec Windows 8, et il me manque un outil et ensuite viendra le talent. Écrivez-moi ! chrisboulet _a_commercial_ gmail.com",
+      "pub_date": "Wed, 22 May 2013 13:59:12 +0000",
+      "categories": [
+        "Discussion"
+      ],
+      "tags": [
+        "logiciel edition vidéo"
+      ],
+      "content_length": 797,
+      "word_count": 132
+    },
+    {
+      "title": "Un vent de fraicheur",
+      "content": "Oui avec le retour du beau temps l'envie m'as pris de délaisser le style \"vieux professeur\" pour mes vidéos et d'essayer un genre plus amical, amusant et décontracté. J'ai donc repris ma vidéo sur la Xbox ONE et je suis en train de la revoir complètement. Aussi je suis à la recherche de sujets de discussions et surtout des interlocuteurs, si vous avez des suggestions je vous écoute et si vous-mêmes souhaitez discuter avec moi contactez-moi !",
+      "pub_date": "Wed, 29 May 2013 12:24:14 +0000",
+      "categories": [
+        "VideoGeek"
+      ],
+      "tags": [
+        "Général"
+      ],
+      "content_length": 445,
+      "word_count": 77
+    }
+  ]
+}
