@@ -7,6 +7,12 @@ interface NavigationHeaderProps {
   currentView?: 'neural' | 'assembly';
 }
 
+interface Breadcrumb {
+  label: string;
+  onClick?: () => void;
+  isActive: boolean;
+}
+
 const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   projectName,
   projectId,
@@ -25,8 +31,8 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
     }
   };
 
-  const getBreadcrumbs = () => {
-    const breadcrumbs = [
+  const getBreadcrumbs = (): Breadcrumb[] => {
+    const breadcrumbs: Breadcrumb[] = [
       { label: 'Projects', onClick: handleBackToProjects, isActive: false }
     ];
 
@@ -96,7 +102,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .navigation-header {
           background: var(--bg-secondary);
           border-bottom: 1px solid rgba(102, 126, 234, 0.2);

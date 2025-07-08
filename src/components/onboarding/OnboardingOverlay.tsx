@@ -216,7 +216,7 @@ const OnboardingOverlay: React.FC<OnboardingOverlayProps> = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .onboarding-overlay {
           position: fixed;
           top: 0;

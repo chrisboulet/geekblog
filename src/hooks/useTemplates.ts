@@ -23,6 +23,7 @@ export const templateKeys = {
  * Hook to fetch all templates with optional filters
  */
 export function useTemplates(params?: {
+  search?: string;
   category?: string;
   difficulty?: string;
   tone?: string;
@@ -32,7 +33,7 @@ export function useTemplates(params?: {
     queryKey: templateKeys.list(params),
     queryFn: () => TemplateService.getTemplates(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
   });
 }
 

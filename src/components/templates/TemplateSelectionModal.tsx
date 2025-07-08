@@ -1,12 +1,13 @@
 /**
- * Template Selection Modal - Walking Skeleton Implementation
- * Minimal modal for template selection triggered from ProjectListPage
+ * Template Selection Modal - Enhanced Implementation
+ * Modal for template selection with integrated TemplateGallery
  */
 
 import React, { useState } from 'react';
-import { useTemplates, useCreateProjectFromTemplate } from '../../hooks/useTemplates';
+import { useCreateProjectFromTemplate } from '../../hooks/useTemplates';
 import { Template, TemplateCustomization } from '../../types/templates';
 import { useNavigate } from 'react-router-dom';
+import TemplateGallery from './TemplateGallery';
 
 interface TemplateSelectionModalProps {
   isOpen: boolean;
@@ -23,9 +24,6 @@ const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
   const [showCustomization, setShowCustomization] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch templates
-  const { data: templates, isLoading, isError } = useTemplates({ active_only: true });
-  
   // Project creation mutation
   const createProjectMutation = useCreateProjectFromTemplate();
 
@@ -48,98 +46,41 @@ const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
     });
   };
 
+  const handleBackToGallery = () => {
+    setShowCustomization(false);
+    setSelectedTemplate(null);
+  };
+
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="neural-card max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {!showCustomization ? (
-          // Template Selection View
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold neural-text-gradient">
-                Choose a Template
-              </h2>
-              <button
-                onClick={onClose}
-                className="text-text-secondary hover:text-text-primary transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            {isLoading && (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neural-purple"></div>
-                <p className="mt-2 text-text-secondary">Loading templates...</p>
-              </div>
-            )}
-
-            {isError && (
-              <div className="text-center py-8 neural-error">
-                <p>Failed to load templates. Please try again.</p>
-              </div>
-            )}
-
-            {templates && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {/* Start from Scratch Option */}
-                <div
-                  className="neural-card neural-interactive neural-clickable p-4 cursor-pointer border-2 border-dashed border-neural-purple/30"
-                  onClick={onStartFromScratch}
-                >
-                  <div className="text-center">
-                    <div className="text-2xl mb-2">⚙️</div>
-                    <h3 className="font-semibold text-text-primary mb-2">
-                      Start from Scratch
-                    </h3>
-                    <p className="text-sm text-text-secondary">
-                      Create a blank project with custom tasks
-                    </p>
-                  </div>
-                </div>
-
-                {/* Template Cards */}
-                {templates.map((template) => (
-                  <div
-                    key={template.id}
-                    className="neural-card neural-interactive neural-clickable p-4 cursor-pointer"
-                    onClick={() => handleTemplateSelect(template)}
-                  >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">{template.icon}</div>
-                      <h3 className="font-semibold text-text-primary mb-2">
-                        {template.name}
-                      </h3>
-                      <p className="text-sm text-text-secondary mb-3">
-                        {template.description}
-                      </p>
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="bg-neural-purple/20 text-neural-purple px-2 py-1 rounded">
-                          {template.difficulty}
-                        </span>
-                        <span className="text-text-tertiary">
-                          {template.estimated_duration}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          // Customization View (will be moved to separate component later)
+  // Show customization view if template is selected
+  if (showCustomization && selectedTemplate) {
+    return (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="neural-card max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <CustomizationView
-            template={selectedTemplate!}
-            onBack={() => setShowCustomization(false)}
+            template={selectedTemplate}
+            onBack={handleBackToGallery}
             onClose={onClose}
             onCreate={handleCreateProject}
             isCreating={createProjectMutation.isPending}
           />
-        )}
+        </div>
       </div>
-    </div>
+    );
+  }
+
+  // Show template gallery
+  return (
+    <TemplateGallery
+      isOpen={isOpen}
+      onClose={onClose}
+      onTemplateSelect={handleTemplateSelect}
+      onStartFromScratch={onStartFromScratch}
+      selectedTemplateId={selectedTemplate?.id}
+      title="Choose a Template"
+      showStartFromScratch={true}
+    />
   );
 };
 

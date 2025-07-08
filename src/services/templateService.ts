@@ -3,7 +3,7 @@
  * Handles all template-related API calls with proper typing
  */
 
-import { api } from '../lib/api';
+import apiClient from '../lib/api';
 import { Template, ProjectFromTemplate, TemplateStats } from '../types/templates';
 import { Project } from '../types/types';
 
@@ -12,6 +12,7 @@ export class TemplateService {
    * Fetch all templates with optional filters
    */
   static async getTemplates(params?: {
+    search?: string;
     category?: string;
     difficulty?: string;
     tone?: string;
@@ -19,6 +20,7 @@ export class TemplateService {
   }): Promise<Template[]> {
     const searchParams = new URLSearchParams();
     
+    if (params?.search) searchParams.append('search', params.search);
     if (params?.category) searchParams.append('category', params.category);
     if (params?.difficulty) searchParams.append('difficulty', params.difficulty);
     if (params?.tone) searchParams.append('tone', params.tone);
@@ -29,7 +31,7 @@ export class TemplateService {
     const queryString = searchParams.toString();
     const url = `/templates${queryString ? `?${queryString}` : ''}`;
     
-    const response = await api.get<Template[]>(url);
+    const response = await apiClient.get<Template[]>(url);
     return response.data;
   }
 
@@ -37,7 +39,7 @@ export class TemplateService {
    * Fetch a specific template by ID
    */
   static async getTemplate(id: number): Promise<Template> {
-    const response = await api.get<Template>(`/templates/${id}`);
+    const response = await apiClient.get<Template>(`/templates/${id}`);
     return response.data;
   }
 
@@ -45,7 +47,7 @@ export class TemplateService {
    * Fetch a template by slug
    */
   static async getTemplateBySlug(slug: string): Promise<Template> {
-    const response = await api.get<Template>(`/templates/slug/${slug}`);
+    const response = await apiClient.get<Template>(`/templates/slug/${slug}`);
     return response.data;
   }
 
@@ -53,7 +55,7 @@ export class TemplateService {
    * Get all template categories
    */
   static async getTemplateCategories(): Promise<string[]> {
-    const response = await api.get<string[]>('/templates/categories');
+    const response = await apiClient.get<string[]>('/templates/categories');
     return response.data;
   }
 
@@ -61,7 +63,7 @@ export class TemplateService {
    * Get template statistics
    */
   static async getTemplateStats(): Promise<TemplateStats> {
-    const response = await api.get<TemplateStats>('/templates/stats');
+    const response = await apiClient.get<TemplateStats>('/templates/stats');
     return response.data;
   }
 
@@ -71,7 +73,7 @@ export class TemplateService {
   static async createProjectFromTemplate(
     request: ProjectFromTemplate
   ): Promise<Project> {
-    const response = await api.post<Project>('/templates/projects/from-template', request);
+    const response = await apiClient.post<Project>('/templates/projects/from-template', request);
     return response.data;
   }
 
@@ -100,7 +102,7 @@ export class TemplateService {
       }
     };
     
-    const response = await api.post<Array<{ title: string; description: string }>>(
+    const response = await apiClient.post<Array<{ title: string; description: string }>>(
       '/templates/preview-tasks',
       requestBody
     );

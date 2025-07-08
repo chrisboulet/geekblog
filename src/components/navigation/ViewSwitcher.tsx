@@ -65,7 +65,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .view-switcher {
           display: flex;
           align-items: center;
