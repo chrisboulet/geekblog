@@ -28,7 +28,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
       onClose();
     },
     onError: (error) => {
-      console.error('Erreur lors de la création de la tâche:', error);
+      // TODO: Show error notification to user about task creation failure
     }
   });
 

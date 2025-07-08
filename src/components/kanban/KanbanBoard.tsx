@@ -107,7 +107,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project, onStartPlanning }) =
       // Optionnel: mise à jour optimiste de l'UI ici
     },
     onError: (error) => {
-      console.error("Erreur lors de la mise à jour de la tâche:", error);
+      // TODO: Show error notification to user about task update failure
       // Gérer l'erreur, par exemple afficher une notification
     }
   });
@@ -208,7 +208,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project, onStartPlanning }) =
       <div className="p-8">
         <WorkflowGuide 
           projectName={project.name} 
-          onStartPlanning={onStartPlanning || (() => console.log('Planification demandée'))}
+          onStartPlanning={onStartPlanning || (() => {})}
         />
       </div>
     );

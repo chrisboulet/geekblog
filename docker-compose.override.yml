@@ -29,7 +29,7 @@ services:
   frontend:
     environment:
       - NODE_ENV=development
-      - VITE_API_BASE_URL=/api/v1
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
       - NODE_OPTIONS=--max-old-space-size=4096
       # Enable source maps
       - GENERATE_SOURCEMAP=true

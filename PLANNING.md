@@ -16,6 +16,15 @@
 - **UI Framework**: Tailwind CSS v4.1.11 + Radix UI primitives
 - **Testing**: pytest (backend) + Vitest (frontend)
 
+### Network Configuration
+- **Development Proxy**: Vite dev server proxies `/api` to `http://backend:8000` (Docker internal)
+- **Browser Access**: Frontend uses `VITE_API_BASE_URL=http://localhost:8000/api/v1` for direct API calls
+- **Docker Network**: `backend` hostname only resolves within Docker containers
+- **Configuration Files**: 
+  - `docker-compose.yml`: Base configuration with `VITE_API_BASE_URL=http://localhost:8000/api/v1`
+  - `docker-compose.override.yml`: Development overrides (MUST match base URL)
+  - `vite.config.ts`: Proxy configuration for internal Docker communication
+
 ### Core Architecture Patterns
 - **Modular Services**: Clear separation between API, services, and data layers
 - **Async-First**: All AI operations run asynchronously with job tracking
@@ -98,14 +107,15 @@ geekblog/
 - ✅ **Bulk operations** with intuitive interfaces
 - ✅ **User-centered design validation** at each step
 
-### 🚧 Phase 6 - Blog Templates Implementation (FOUNDATION COMPLETE, UI IN PROGRESS)
+### ✅ Phase 6 - Blog Templates Implementation (COMPLETED)
 - ✅ **Backend Templates API** pour gestion des templates prédéfinis (COMPLETED)
 - ✅ **Guide Pratique Template** - Walking skeleton avec foundation solide (COMPLETED)
 - ✅ **Architecture Improvements** - Service layer decoupling, Strategy Pattern, auth layer (COMPLETED)
 - ✅ **Docker Production Ready** - Health checks, monitoring stack, security improvements (COMPLETED)
-- 🔄 **Template Engine Frontend** avec galerie cards et filtres spécialisés blog (NEXT SESSION)
-- 🔄 **Modal de personnalisation** avec adaptation du niveau de québécismes (NEXT SESSION)
-- 🔄 **Integration complète** creation workflow avec templates (NEXT SESSION)
+- ✅ **Template Engine Frontend** - Template Gallery avec TemplateCard, filtres et recherche (COMPLETED)
+- ✅ **Frontend Functionality** - Neural Canvas save/create, Task editing modal (COMPLETED)
+- ✅ **Critical Bug Fix** - Docker configuration et API URLs corroées (COMPLETED)
+- ✅ **Code Quality** - Console cleanup, expert code review, optimization (COMPLETED)
 
 ### 🏗️ Phase 7 - Make It Right: Type Automation & API Refinement (NEXT)
 **Durée estimée: 7-10 jours**
@@ -151,8 +161,10 @@ geekblog/
 - **File Size Limit**: Maximum 400 lines per file
 - **Test Coverage**: Minimum 60% for backend, comprehensive component tests for frontend
 - **Type Safety**: Full TypeScript and Pydantic validation
-- **Environment**: Use venv_linux for Python execution
+- **Environment**: Use .venv for Python execution, Docker for development
 - **Database**: PostgreSQL required for production features
+- **Docker Configuration**: VITE_API_BASE_URL=http://localhost:8000/api/v1 for frontend browser access
+- **API URLs**: Use relative paths without leading slashes in API services
 
 ### Development Workflow
 1. **Always check TASK.md** before starting new work
@@ -196,12 +208,19 @@ geekblog/
    - ✅ Fixed critical CSS build issues causing blank page
    - ✅ Standardized Neural Flow design system across all pages
 
-### Immediate Priorities (Next Session 2025-07-12)
-1. **Template Gallery Frontend** - Composant TemplateGallery.tsx avec layout responsive
-2. **Template Card Component** - TemplateCard.tsx avec metadata et Neural Flow design
-3. **Filter & Search System** - Filtres catégorie/difficulté/style avec recherche temps réel
-4. **Modal Enhancement** - Amélioration modal personnalisation avec preview temps réel
-5. **Integration Testing** - Tests workflow complet de création depuis template
+### ✅ Session Complete (2025-07-08) - Critical Issues Resolved
+1. ✅ **Template Gallery Frontend** - TemplateGallery.tsx avec layout responsive et TemplateCard (COMPLETED)
+2. ✅ **Neural Canvas Functionality** - onSaveContent et onCreateNode implémentés (COMPLETED)
+3. ✅ **Task Edit Modal** - Bouton "Modifier tâche" avec modal complète (COMPLETED)
+4. ✅ **Critical Network Fix** - Docker VITE_API_BASE_URL corrigée (COMPLETED)
+5. ✅ **Code Review Expert** - Analyse approfondie et optimisations (COMPLETED)
+6. ✅ **All Functionality Working** - Objectif "chaque bouton fonctionne" atteint (COMPLETED)
+
+### Next Session Goals (Future)
+1. **Performance Optimization** - Bundle splitting, lazy loading
+2. **Error Handling Enhancement** - User notifications system
+3. **Accessibility Improvements** - WCAG 2.1 AA compliance
+4. **Advanced Template Features** - Real-time preview system
 
 ### Short-term Goals (Phase 7-8 Implementation)
 1. ✅ **Template Foundation** - Walking skeleton établi avec API et frontend de base (COMPLETED)

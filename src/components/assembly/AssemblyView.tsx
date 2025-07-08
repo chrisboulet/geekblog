@@ -42,7 +42,7 @@ const AssemblyView: React.FC<AssemblyViewProps> = ({ project }) => {
       setRefinedContent(data);
       // Optionnel: Invalider des queries si le raffinage affecte d'autres données du projet
       // queryClient.invalidateQueries({ queryKey: ['project', project.id] });
-      console.log("Raffinage IA terminé.");
+      // TODO: Show success notification to user about refinement completion
     },
     onError: (error) => {
       console.error("Erreur lors du raffinage IA:", error);

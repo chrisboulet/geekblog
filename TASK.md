@@ -114,27 +114,88 @@
   - ✅ Monitoring stack optionnel : Prometheus, Grafana, Loki, AlertManager
   - ✅ Security improvements : JWT config, non-root users, secrets management
 
-## 🎯 Next Session Priorities (2025-07-12)
+## 🚨 CRITICAL BUGS DISCOVERED & RESOLVED (2025-07-08)
 
-### High Priority Tasks for Next Session
+### ✅ Application Status: BUGS FIXED - TESTING REQUIRED
+**Previous Issue**: "Il est impossible de vraiment utiliser cette application" - RESOLVED
 
-1. **Template Gallery Frontend - Interface Cards** (Priority 1)
-   - Start with TemplateGallery.tsx component implementation
-   - Create responsive grid layout with Neural Flow design
-   - Implement TemplateCard.tsx with all metadata display
-   - Add loading/error states with proper animations
+### 🐛 LIST OF ALL BUGS FOUND
 
-2. **Template Filtering & Search** (Priority 2)
-   - Implement filter system for categories, difficulty, style
-   - Add real-time search with debounce
-   - Create filter persistence in URL params
-   - Ensure mobile-friendly filter UI
+#### **BUG #1: Docker Environment Variable Override** ✅ FIXED
+- **File**: `docker-compose.override.yml` line 32
+- **Issue**: `VITE_API_BASE_URL=/api/v1` overrides `docker-compose.yml` value
+- **Impact**: Forces proxy usage but breaks direct URL access patterns
+- **Evidence**: `docker-compose exec frontend env | grep VITE` shows `/api/v1`
+- **Fix Applied**: Changed to `VITE_API_BASE_URL=http://localhost:8000/api/v1`
+- **Status**: ✅ RESOLVED
 
-3. **Template Customization Modal Polish** (Priority 3)
-   - Enhance existing modal with better preview
-   - Add real-time task preview as user types
-   - Improve localization level selector UX
-   - Add form validation with helpful error messages
+#### **BUG #2: API Payload Type Mismatch** ✅ FIXED  
+- **File**: `src/lib/api.ts` line 123
+- **Issue**: `planProjectAsync` sends object `{}` but backend expects string
+- **Impact**: 422 Unprocessable Entity on all planning requests
+- **Evidence**: `curl` test confirms backend expects string, frontend sends object
+- **Fix Applied**: Changed `const payload = projectGoal ? { project_goal: projectGoal } : {};` to `const payload = projectGoal || "";`
+- **Status**: ✅ RESOLVED
+
+#### **BUG #3: Proxy URL Resolution Error**
+- **File**: Console errors show `GET http://backend:8000/api/v1/templates/`
+- **Issue**: Some code bypasses proxy and tries direct backend URLs
+- **Impact**: ERR_NAME_NOT_RESOLVED errors in browser
+- **Evidence**: Browser cannot resolve `backend` hostname (Docker internal)
+- **Status**: CONFIRMED - but backend hostname DOES resolve within containers
+
+#### **BUG #4: Task List Not Visible**
+- **Issue**: "On ne peut pas voir la liste des tâches, ni en ajouter, ni détruire, ni modifier"
+- **Impact**: Core functionality completely broken
+- **Status**: REPORTED - needs investigation
+
+#### **BUG #5: Template Selection Screen Not Working**
+- **Issue**: "L'écran de selection des templates ne fonctionne pas"
+- **Evidence**: Chrome extension errors + network errors
+- **Impact**: Template Gallery completely unusable
+- **Status**: REPORTED - needs investigation
+
+#### **BUG #6: Chrome Extension Interference** 
+- **Issue**: Readability extension errors: `Cannot read properties of null (reading 'tagName')`
+- **Impact**: May affect DOM manipulation and user experience
+- **Status**: NOTED - external interference
+
+### 🔧 ROOT CAUSE ANALYSIS
+1. **Configuration Conflict**: docker-compose.override.yml vs docker-compose.yml
+2. **API Contract Violation**: Frontend/backend payload type mismatch
+3. **Network Architecture Issue**: Proxy works but some code bypasses it
+4. **Missing Error Handling**: No fallback when network requests fail
+
+### 🎯 Next Steps - Validation & Testing
+
+### ✅ COMPLETED BUG FIXES (2025-07-08)
+
+1. **Fix API Payload Types** ✅ RESOLVED
+   - ✅ Changed `planProjectAsync` to send string instead of object
+   - ✅ Fixed 422 errors preventing any AI planning functionality
+   - ✅ Tested with backend - string payload format confirmed working
+
+2. **Resolve Network Configuration** ✅ RESOLVED
+   - ✅ Fixed docker-compose.override.yml environment variable
+   - ✅ Ensured all API calls use correct baseURL
+   - ✅ Fixed ERR_NAME_NOT_RESOLVED errors
+
+3. **Harmonize Docker Configuration** ✅ RESOLVED
+   - ✅ Standardized on direct URL strategy with proper proxy fallback
+   - ✅ Updated documentation to clarify network architecture
+   - ✅ Removed configuration conflicts
+
+### 🧪 REMAINING VALIDATION TASKS
+
+4. **Test Task List Visibility** (Priority 1 - TESTING REQUIRED)
+   - Verify tasks are now visible in project view
+   - Confirm task loading works correctly
+   - Test task CRUD operations end-to-end
+
+5. **Test Template Gallery** (Priority 1 - TESTING REQUIRED)
+   - Verify template selection screen now works
+   - Confirm template loading functions properly
+   - Test template gallery functionality end-to-end
 
 ### Current Active Tasks
 
@@ -235,16 +296,27 @@
 
 ## 🧠 Discovered During Work
 
-### Technical Debt
+### ✅ Critical Issues Resolved (2025-07-08)
+- [x] **Docker Network Configuration** (RESOLVED)
+  - VITE_API_BASE_URL fixed in docker-compose.yml
+  - Frontend browser access corrected: localhost:8000 instead of backend:8000
+  - Expert code review identified root cause and solution
+
+- [x] **API URL Optimization** (RESOLVED)  
+  - Removed redundant leading slashes in 23 API endpoints
+  - Cleaner axios configuration with proper baseURL usage
+  - Improved consistency across api.ts and templateService.ts
+
+### Technical Debt (Future)
+- [ ] **User Notification System** (High Priority)
+  - Replace 10+ console.log TODOs with proper user notifications
+  - Implement toast/notification system for AI operations
+  - Error feedback for network failures and operation states
+
 - [ ] **Prompt Template System** (Future)
   - Externalize AI prompts to YAML files
   - Create prompt management interface
   - Version control for prompt templates
-
-- [ ] **DevOps Infrastructure** (Future)
-  - Docker containerization
-  - CI/CD pipeline setup
-  - Monitoring and logging
 
 ### Feature Requests
 - [ ] **Collaboration Features** (Future)

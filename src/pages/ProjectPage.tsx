@@ -27,6 +27,7 @@ const ProjectPage: React.FC = () => {
   // Convertir l'ID en nombre et valider
   const projectIdNumber = projectId ? parseInt(projectId, 10) : null;
   
+  // Validation early return MUST be before any hooks
   if (!projectIdNumber || isNaN(projectIdNumber)) {
     return (
       <div className="p-8 h-full flex items-center justify-center text-xl text-red-500">
@@ -34,11 +35,11 @@ const ProjectPage: React.FC = () => {
       </div>
     );
   }
-
-  // Récupérer les données du projet
+  
+  // Récupérer les données du projet - Safe now that projectIdNumber is validated
   const { data: project, isLoading: isLoadingProject, error: projectError, refetch: refetchProject } = useQuery({
     queryKey: ['project', projectIdNumber],
-    queryFn: () => api.getProject(projectIdNumber),
+    queryFn: () => api.getProject(projectIdNumber), // No need for ! assertion anymore
     enabled: !!projectIdNumber,
   });
 
@@ -58,10 +59,10 @@ const ProjectPage: React.FC = () => {
       // ou queryClient.invalidateQueries({ queryKey: ['project', updatedProjectData.id] }); pour forcer un refetch complet
       // Cela mettra à jour l'UI avec les nouvelles tâches.
       // On pourrait aussi afficher une notification de succès.
-      console.log("Planification IA terminée, projet mis à jour:", updatedProjectData);
+      // TODO: Show success notification to user about planning completion
     },
     onError: (error) => {
-      console.error("Erreur lors de la planification IA:", error);
+      // TODO: Show error notification to user about planning failure
       // Afficher une notification d'erreur à l'utilisateur.
       // L'erreur est déjà gérée pour l'affichage dans le JSX.
     },
@@ -76,15 +77,41 @@ const ProjectPage: React.FC = () => {
     {
       invalidateQueries: [['project', String(projectIdNumber)]],
       onSuccess: (result) => {
-        console.log(`Async planning completed for project ${project?.id}:`, result);
+        // TODO: Show success notification to user about async planning completion
         // Could show success notification here
       },
       onError: (error) => {
-        console.error(`Async planning failed for project ${project?.id}:`, error);
+        // TODO: Show error notification to user about async planning failure
         // Could show error notification here
       }
     }
   );
+
+  // Check if this is the user's first visit to show onboarding - MOVED HERE before conditional returns
+  React.useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('geekblog-onboarding-completed');
+    if (!hasSeenOnboarding && currentView === 'neural') {
+      setShowOnboarding(true);
+    }
+  }, [currentView]);
+
+  // Mutation for updating project
+  const updateProjectMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: api.ProjectUpdate }) => 
+      api.updateProject(id, data),
+    onSuccess: (updatedProject) => {
+      queryClient.setQueryData(['project', updatedProject.id], updatedProject);
+    },
+  });
+
+  // Mutation for creating tasks
+  const createTaskMutation = useMutation({
+    mutationFn: (taskData: api.TaskCreate) => api.createTask(taskData),
+    onSuccess: () => {
+      // Invalidate project query to refetch with new tasks
+      queryClient.invalidateQueries({ queryKey: ['project', projectIdNumber] });
+    },
+  });
 
   // Helper functions
   const handlePlanProject = () => {
@@ -95,6 +122,32 @@ const ProjectPage: React.FC = () => {
     }
   };
 
+  const handleSaveContent = (content: string, title: string) => {
+    if (!project) return;
+    
+    // Update project description with the neural flow content
+    const updatedDescription = `${title ? title + '\n\n' : ''}${content}`;
+    updateProjectMutation.mutate({
+      id: project.id,
+      data: { description: updatedDescription }
+    });
+  };
+
+  const handleCreateNode = (type: 'idea' | 'category' | 'tag', position: { x: number; y: number }) => {
+    if (!project) return;
+
+    // Create a new task based on the node type
+    const taskTitle = type === 'idea' ? 'New Idea' : 
+                     type === 'category' ? 'New Category' : 'New Tag';
+    
+    createTaskMutation.mutate({
+      project_id: project.id,
+      title: taskTitle,
+      description: `Created from Neural Canvas at position ${position.x}, ${position.y}`,
+      status: 'pending'
+    });
+  };
+
   // Determine which operation is currently active
   const isPlanningInProgress = useAsyncPlanning 
     ? asyncPlanningOperation.isExecuting 
@@ -103,6 +156,8 @@ const ProjectPage: React.FC = () => {
   const planningError = useAsyncPlanning 
     ? asyncPlanningOperation.error 
     : (planProjectMutation.error instanceof Error ? planProjectMutation.error.message : null);
+
+  // Early returns for loading states
 
   if (isLoadingProject) {
     return (
@@ -126,14 +181,6 @@ const ProjectPage: React.FC = () => {
   if (!project) {
     return <div className="p-8 h-full flex items-center justify-center text-xl text-text-secondary">Projet non trouvé.</div>;
   }
-
-  // Check if this is the user's first visit to show onboarding
-  React.useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem('geekblog-onboarding-completed');
-    if (!hasSeenOnboarding && currentView === 'neural') {
-      setShowOnboarding(true);
-    }
-  }, [currentView]);
 
   const handleOnboardingComplete = () => {
     localStorage.setItem('geekblog-onboarding-completed', 'true');
@@ -265,14 +312,8 @@ const ProjectPage: React.FC = () => {
             <NeuralCanvas 
               project={project}
               isSimpleMode={isSimpleMode}
-              onSaveContent={(content, title) => {
-                console.log('Saving Neural Flow content:', { title, content });
-                // TODO: Implement save to project/task
-              }}
-              onCreateNode={(type, position) => {
-                console.log('Creating Neural Node:', { type, position });
-                // TODO: Implement create task from node
-              }}
+              onSaveContent={handleSaveContent}
+              onCreateNode={handleCreateNode}
             />
           )}
           {currentView === 'assembly' && (

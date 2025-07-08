@@ -10,7 +10,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<RootRedirector />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/projects" element={<ProjectListPage />} />
         <Route path="/project/:projectId" element={<ProjectPage />} />
         <Route path="/welcome" element={<NoProjectsPage />} />

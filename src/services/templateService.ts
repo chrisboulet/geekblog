@@ -29,7 +29,7 @@ export class TemplateService {
     }
 
     const queryString = searchParams.toString();
-    const url = `/templates${queryString ? `?${queryString}` : ''}`;
+    const url = `templates${queryString ? `?${queryString}` : ''}`;
     
     const response = await apiClient.get<Template[]>(url);
     return response.data;
@@ -39,7 +39,7 @@ export class TemplateService {
    * Fetch a specific template by ID
    */
   static async getTemplate(id: number): Promise<Template> {
-    const response = await apiClient.get<Template>(`/templates/${id}`);
+    const response = await apiClient.get<Template>(`templates/${id}`);
     return response.data;
   }
 
@@ -47,7 +47,7 @@ export class TemplateService {
    * Fetch a template by slug
    */
   static async getTemplateBySlug(slug: string): Promise<Template> {
-    const response = await apiClient.get<Template>(`/templates/slug/${slug}`);
+    const response = await apiClient.get<Template>(`templates/slug/${slug}`);
     return response.data;
   }
 
@@ -55,7 +55,7 @@ export class TemplateService {
    * Get all template categories
    */
   static async getTemplateCategories(): Promise<string[]> {
-    const response = await apiClient.get<string[]>('/templates/categories');
+    const response = await apiClient.get<string[]>('templates/categories');
     return response.data;
   }
 
@@ -63,7 +63,7 @@ export class TemplateService {
    * Get template statistics
    */
   static async getTemplateStats(): Promise<TemplateStats> {
-    const response = await apiClient.get<TemplateStats>('/templates/stats');
+    const response = await apiClient.get<TemplateStats>('templates/stats');
     return response.data;
   }
 
@@ -73,7 +73,7 @@ export class TemplateService {
   static async createProjectFromTemplate(
     request: ProjectFromTemplate
   ): Promise<Project> {
-    const response = await apiClient.post<Project>('/templates/projects/from-template', request);
+    const response = await apiClient.post<Project>('templates/projects/from-template', request);
     return response.data;
   }
 
@@ -103,7 +103,7 @@ export class TemplateService {
     };
     
     const response = await apiClient.post<Array<{ title: string; description: string }>>(
-      '/templates/preview-tasks',
+      'templates/preview-tasks',
       requestBody
     );
     return response.data;

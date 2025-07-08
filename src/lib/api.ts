@@ -37,60 +37,60 @@ const apiClient = axios.create({
 
 // Fonctions pour les Projets
 export const getProjects = async (): Promise<Project[]> => {
-  const response = await apiClient.get('/projects/');
+  const response = await apiClient.get('projects/');
   return response.data;
 };
 
 export const getProject = async (projectId: number | string): Promise<Project> => {
-  const response = await apiClient.get(`/projects/${projectId}`);
+  const response = await apiClient.get(`projects/${projectId}`);
   return response.data;
 };
 
 export const createProject = async (projectData: ProjectCreate): Promise<Project> => {
-  const response = await apiClient.post('/projects', projectData);
+  const response = await apiClient.post('projects', projectData);
   return response.data;
 };
 
 export const updateProject = async (projectId: number | string, projectData: ProjectUpdate): Promise<Project> => {
-  const response = await apiClient.put(`/projects/${projectId}`, projectData);
+  const response = await apiClient.put(`projects/${projectId}`, projectData);
   return response.data;
 };
 
 export const deleteProject = async (projectId: number | string): Promise<Project> => {
-  const response = await apiClient.delete(`/projects/${projectId}`);
+  const response = await apiClient.delete(`projects/${projectId}`);
   return response.data;
 };
 
 // Fonction pour la Planification IA de Projet
 export const planProject = async (projectId: number | string, projectGoal?: string): Promise<Project> => {
-  const payload = projectGoal ? { project_goal: projectGoal } : {};
-  const response = await apiClient.post(`/projects/${projectId}/plan`, payload);
+  const payload = projectGoal || "";
+  const response = await apiClient.post(`projects/${projectId}/plan`, payload);
   return response.data;
 };
 
 // Fonctions pour les Tâches
 export const getTasksByProject = async (projectId: number | string): Promise<Task[]> => {
-  const response = await apiClient.get(`/tasks/project/${projectId}`);
+  const response = await apiClient.get(`tasks/project/${projectId}`);
   return response.data;
 };
 
 export const getTask = async (taskId: number | string): Promise<Task> => {
-  const response = await apiClient.get(`/tasks/${taskId}`);
+  const response = await apiClient.get(`tasks/${taskId}`);
   return response.data;
 };
 
 export const createTask = async (taskData: TaskCreate): Promise<Task> => {
-  const response = await apiClient.post('/tasks', taskData);
+  const response = await apiClient.post('tasks', taskData);
   return response.data;
 };
 
 export const updateTask = async (taskId: number | string, taskData: TaskUpdate): Promise<Task> => {
-  const response = await apiClient.put(`/tasks/${taskId}`, taskData);
+  const response = await apiClient.put(`tasks/${taskId}`, taskData);
   return response.data;
 };
 
 export const deleteTask = async (taskId: number | string): Promise<Task> => {
-  const response = await apiClient.delete(`/tasks/${taskId}`);
+  const response = await apiClient.delete(`tasks/${taskId}`);
   return response.data;
 };
 
@@ -103,14 +103,14 @@ export const runAgentOnTask = async (
   context?: string
 ): Promise<Task> => {
   const payload = { agent_type: agentType, context: context };
-  const response = await apiClient.post(`/tasks/${taskId}/run-agent`, payload);
+  const response = await apiClient.post(`tasks/${taskId}/run-agent`, payload);
   return response.data;
 };
 
 // Fonction pour lancer le Crew de Finition
 export const runFinishingCrew = async (projectId: number | string, rawContent: string): Promise<string> => {
   const payload = { raw_content: rawContent };
-  const response = await apiClient.post(`/projects/${projectId}/assemble`, payload);
+  const response = await apiClient.post(`projects/${projectId}/assemble`, payload);
   // La réponse est directement le texte raffiné (string), pas un objet JSON Task ou Project
   return response.data;
 };
@@ -120,15 +120,15 @@ export const runFinishingCrew = async (projectId: number | string, rawContent: s
 
 // Async version of project planning
 export const planProjectAsync = async (projectId: number | string, projectGoal?: string): Promise<JobStatus> => {
-  const payload = projectGoal ? { project_goal: projectGoal } : {};
-  const response = await apiClient.post(`/projects/${projectId}/plan-async`, payload);
+  const payload = projectGoal || "";
+  const response = await apiClient.post(`projects/${projectId}/plan-async`, payload);
   return response.data;
 };
 
 // Async version of project content assembly/finishing
 export const assembleProjectAsync = async (projectId: number | string, rawContent: string): Promise<JobStatus> => {
   const payload = { raw_content: rawContent };
-  const response = await apiClient.post(`/projects/${projectId}/assemble-async`, payload);
+  const response = await apiClient.post(`projects/${projectId}/assemble-async`, payload);
   return response.data;
 };
 
@@ -139,7 +139,7 @@ export const runAgentOnTaskAsync = async (
   context?: string
 ): Promise<JobStatus> => {
   const payload = { agent_type: agentType, context: context };
-  const response = await apiClient.post(`/tasks/${taskId}/run-agent-async`, payload);
+  const response = await apiClient.post(`tasks/${taskId}/run-agent-async`, payload);
   return response.data;
 };
 

@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '../../lib/api';
 import { Task as KanbanTaskType } from '../../types/kanban';
-import { MoreHorizontal, Brain, Search, Edit3, Zap, GripVertical } from 'lucide-react';
+import { MoreHorizontal, Brain, Search, Edit3, Zap, GripVertical, Save, X } from 'lucide-react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useAsyncOperation } from '../../hooks/useAsyncOperation';
 import JobProgressBar from '../ui/JobProgressBar';
 import JobStatusBadge from '../ui/JobStatusBadge';
@@ -20,6 +21,9 @@ interface TaskCardProps {
 const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false }) => {
   const queryClient = useQueryClient();
   const [useAsync, setUseAsync] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState(task.title);
+  const [editDescription, setEditDescription] = useState(task.description || '');
 
   // useSortable hook for drag and drop
   const {
@@ -51,11 +55,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
     onSuccess: (updatedTaskData) => {
       // Mettre à jour la query du projet pour refléter les changements dans la tâche
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
-      console.log(`Agent ${updatedTaskData.status} sur tâche ${updatedTaskData.id} terminé, résultat:`, updatedTaskData.description);
+      // TODO: Show success notification to user about agent completion
       // Idéalement, afficher une notification
     },
     onError: (error, variables) => {
-      console.error(`Erreur lors de l'exécution de l'agent ${variables.agentType} sur la tâche ${task.id}:`, error);
+      // TODO: Show error notification to user about agent failure
       // Afficher une notification d'erreur
     },
   });
@@ -67,15 +71,29 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
     {
       invalidateQueries: [['project', String(projectId)]],
       onSuccess: (result) => {
-        console.log(`Async agent completed for task ${task.id}:`, result);
+        // TODO: Show success notification to user about async agent completion
         // Could show success notification here
       },
       onError: (error) => {
-        console.error(`Async agent failed for task ${task.id}:`, error);
+        // TODO: Show error notification to user about async agent failure
         // Could show error notification here
       }
     }
   );
+
+  // Task update mutation
+  const updateTaskMutation = useMutation({
+    mutationFn: (updatedData: api.TaskUpdate) => api.updateTask(task.id, updatedData),
+    onSuccess: (updatedTask) => {
+      // Update the project query to reflect changes
+      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+      setIsEditModalOpen(false);
+      // Task updated successfully
+    },
+    onError: (error) => {
+      // TODO: Show error notification to user about task update failure
+    },
+  });
 
   const handleDelegateToAI = (agentType: api.AgentType, forceSync = false) => {
     // Pour le chercheur, le contexte pourrait être vide ou des instructions spécifiques.
@@ -91,6 +109,26 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
     } else {
       runAgentMutation.mutate({ agentType, context: contextForAgent });
     }
+  };
+
+  const handleEditTask = () => {
+    setEditTitle(task.title);
+    setEditDescription(task.description || '');
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    const updatedData: api.TaskUpdate = {
+      title: editTitle.trim(),
+      description: editDescription.trim() || null,
+    };
+    updateTaskMutation.mutate(updatedData);
+  };
+
+  const handleCancelEdit = () => {
+    setEditTitle(task.title);
+    setEditDescription(task.description || '');
+    setIsEditModalOpen(false);
   };
 
   // Determine which operation is currently active
@@ -143,7 +181,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
             >
               <DropdownMenuPrimitive.Item
                 className="flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-blue/30 outline-none cursor-pointer"
-                onClick={() => console.log('Modifier la tâche (non implémenté)', task.id)}
+                onClick={handleEditTask}
               >
                 <Edit3 size={14} className="mr-2 text-neural-blue" /> Modifier la tâche
               </DropdownMenuPrimitive.Item>
@@ -253,6 +291,69 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
       )}
       
       {/* <div className="text-xs text-text-tertiary">ID: {task.id}</div> */}
+
+      {/* Edit Task Modal */}
+      <DialogPrimitive.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Overlay className="fixed inset-0 bg-black/50 z-50" />
+          <DialogPrimitive.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-bg-primary border border-neutral-700 rounded-lg shadow-xl p-6 w-full max-w-md z-50">
+            <DialogPrimitive.Title className="text-lg font-semibold text-text-primary mb-4">
+              Modifier la tâche
+            </DialogPrimitive.Title>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  Titre
+                </label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full px-3 py-2 bg-bg-secondary border border-neutral-600 rounded-md text-text-primary focus:border-neural-blue focus:ring-1 focus:ring-neural-blue outline-none"
+                  placeholder="Titre de la tâche"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 bg-bg-secondary border border-neutral-600 rounded-md text-text-primary focus:border-neural-blue focus:ring-1 focus:ring-neural-blue outline-none resize-none"
+                  placeholder="Description de la tâche (optionnel)"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={handleCancelEdit}
+                disabled={updateTaskMutation.isPending}
+                className="px-4 py-2 text-sm font-medium text-text-secondary border border-neutral-600 rounded-md hover:bg-bg-secondary transition-colors"
+              >
+                <X size={16} className="inline mr-1" />
+                Annuler
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={updateTaskMutation.isPending || !editTitle.trim()}
+                className="px-4 py-2 text-sm font-medium bg-neural-blue text-white rounded-md hover:bg-neural-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              >
+                {updateTaskMutation.isPending ? (
+                  <LoadingSpinner size="sm" color="white" />
+                ) : (
+                  <Save size={16} className="mr-1" />
+                )}
+                Sauvegarder
+              </button>
+            </div>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </div>
   );
 };
