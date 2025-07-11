@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean, JSON
+from sqlalchemy import Column, Integer, BigInteger, String, Text, ForeignKey, DateTime, Boolean, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.config import Base
@@ -32,7 +32,7 @@ class Task(Base):
     title = Column(String, index=True, nullable=False)
     description = Column(Text, nullable=True) # Contenu de la tâche, éditable
     status = Column(String, default="À faire", nullable=False) # Ex: "À faire", "En cours", "Révision", "Terminé"
-    order = Column(Integer, default=0) # Pour l'assemblage
+    order = Column(BigInteger, default=0) # Pour l'assemblage
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
