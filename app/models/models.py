@@ -21,6 +21,10 @@ class Project(Base):
     archived_at = Column(DateTime(timezone=True), nullable=True)
     settings = Column(JSON, nullable=True)
     tags = Column(String, nullable=True)  # Format CSV pour simplicité
+    
+    # Planification IA
+    planning_status = Column(String, default="NOT_STARTED", nullable=False)  # NOT_STARTED|IN_PROGRESS|COMPLETED|FAILED
+    planning_job_id = Column(String, nullable=True)  # Pour le suivi des jobs async
 
     tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
 
@@ -35,6 +39,10 @@ class Task(Base):
     order = Column(BigInteger, default=0) # Pour l'assemblage
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Suivi IA
+    created_by_ai = Column(Boolean, default=False, nullable=False)
+    last_updated_by_ai_at = Column(DateTime(timezone=True), nullable=True)
 
     project = relationship("Project", back_populates="tasks")
 

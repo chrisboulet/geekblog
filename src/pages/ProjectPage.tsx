@@ -15,6 +15,7 @@ import JobStatusBadge from '../components/ui/JobStatusBadge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ProjectStatus from '../components/ui/ProjectStatus';
 import TaskCreateButton from '../components/task/TaskCreateButton';
+import { useToastActions } from '../components/ui/Toast';
 
 type ViewMode = 'neural' | 'assembly' | 'tasks';
 
@@ -24,6 +25,7 @@ const ProjectPage: React.FC = () => {
   const [isSimpleMode, setIsSimpleMode] = useState(true); // Default to simple mode for better UX
   const [showOnboarding, setShowOnboarding] = useState(false);
   const queryClient = useQueryClient();
+  const toast = useToastActions();
   const { projectId } = useParams<{ projectId: string }>();
   
   // Convertir l'ID en nombre et valider
@@ -117,11 +119,13 @@ const ProjectPage: React.FC = () => {
 
   // Helper functions
   const handlePlanProject = () => {
-    if (useAsyncPlanning) {
-      asyncPlanningOperation.execute({});
-    } else {
-      planProjectMutation.mutate();
-    }
+    // Redirect to new integrated planning interface
+    setCurrentView('tasks');
+    
+    // Show informative message about the new planning interface
+    setTimeout(() => {
+      toast.info('🚀 Nouvelle interface de planification ! Utilisez le bouton "Planifier avec IA" ci-dessus pour bénéficier de la planification intelligente améliorée.');
+    }, 500);
   };
 
   const handleSaveContent = (content: string, title: string) => {
@@ -233,47 +237,24 @@ const ProjectPage: React.FC = () => {
             
             {/* AI Planning Controls */}
             <div className="flex gap-2 items-center">
-              {/* Planning mode toggle */}
-              <button
-                onClick={() => setUseAsyncPlanning(!useAsyncPlanning)}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 ease-in-out ${
-                  useAsyncPlanning 
-                    ? 'bg-neural-blue/20 text-neural-blue border border-neural-blue' 
-                    : 'bg-neural-purple/20 text-neural-purple border border-neural-purple'
-                }`}
-                title={`Basculer vers le mode ${useAsyncPlanning ? 'synchrone' : 'asynchrone'}`}
-              >
-                {useAsyncPlanning ? 'Async' : 'Sync'}
-              </button>
+              {/* New interface indicator */}
+              <div className="px-3 py-2 bg-green-400/20 text-green-400 border border-green-400/50 rounded-md text-sm font-medium">
+                ✨ Interface Améliorée
+              </div>
 
-              {/* Main planning button */}
+              {/* Main planning button - redirects to new interface */}
               <button
                 onClick={handlePlanProject}
-                disabled={isPlanningInProgress}
-                className="neural-button-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                className="neural-button-primary flex items-center space-x-2"
+                title="Accéder à la nouvelle interface de planification intelligente"
               >
-                {isPlanningInProgress && <LoadingSpinner size="sm" color="white" />}
-                <span>
-                  {isPlanningInProgress 
-                    ? (useAsyncPlanning && asyncPlanningOperation.step 
-                        ? asyncPlanningOperation.step 
-                        : 'Planification IA...'
-                      )
-                    : "Planifier avec l'IA"
-                  }
-                </span>
+                <span>🚀 Nouvelle Planification IA</span>
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
               </button>
 
-              {/* Cancel button for async operations */}
-              {useAsyncPlanning && asyncPlanningOperation.jobId && asyncPlanningOperation.isPolling && (
-                <button
-                  onClick={() => asyncPlanningOperation.cancel()}
-                  className="px-3 py-2 rounded-md font-medium bg-red-500/20 text-red-400 border border-red-500 hover:bg-red-500/30 transition-all duration-150 ease-in-out"
-                  title="Annuler la planification"
-                >
-                  Annuler
-                </button>
-              )}
+              {/* Cancel button no longer needed with new integrated interface */}
             </div>
           </div>
         </div>

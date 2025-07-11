@@ -15,7 +15,9 @@ GeekBlog est un **centre de commandement de contenu** qui transforme la créatio
 - **🎯 Mode Simple/Expert** - Interface adaptative pour débutants et utilisateurs avancés
 - **🗺️ Navigation Intuitive** - Breadcrumbs clairs et basculement fluide entre vues
 - **🎓 Onboarding Guidé** - Tutoriel interactif pour nouveaux utilisateurs
-- **🤖 Agents IA Spécialisés** - Planificateur, Chercheur, Rédacteur, et Équipe de Finition
+- **🤖 Planification IA Intégrée** - Interface contextuelle intelligente avec stratégie de merge
+- **💡 Assistant Contextuel** - Suggestions intelligentes basées sur l'état du projet
+- **✨ Agents IA Spécialisés** - Planificateur, Chercheur, Rédacteur, et Équipe de Finition
 - **⚡ Operations Asynchrones** - Interface réactive avec indicateurs de progression en temps réel
 - **🎨 Design "Neural Flow"** - Interface sombre immersive avec effets visuels futuristes
 - **🔄 Workflow Hybride** - Bascule entre mode synchrone et asynchrone selon vos besoins
@@ -155,10 +157,12 @@ REDIS_URL=redis://localhost:6379/0
 - **Mode Expert** : Canvas complet avec connexions dynamiques et fonctionnalités avancées
 - **Basculement fluide** entre les modes selon votre niveau de confort
 
-### 4. Planification Intelligente
-- Fournissez une idée de projet
-- L'Agent Planificateur génère automatiquement un plan de tâches structuré
-- **Visualisation en nœuds neuraux** reliés par des connexions intelligentes
+### 4. Planification IA Intégrée & Contextuelle
+- **Interface intelligente** qui s'adapte à l'état de votre projet
+- **Stratégie de merge** : L'IA enrichit vos tâches existantes sans les supprimer
+- **Assistant contextuel** avec suggestions basées sur l'analyse du projet
+- **Badges visuels** pour identifier les tâches créées ou enrichies par l'IA
+- **Migration fluide** depuis l'ancienne interface vers la nouvelle expérience
 
 ### 5. Délégation à la Carte
 - **Mode Asynchrone** : Déléguez avec indicateurs de progression temps réel
@@ -345,6 +349,16 @@ Si vous rencontrez des erreurs TypeScript lors du build :
 - ✅ **Integration complète** : Tous composants intégrés dans pages principales
 - ✅ **TypeScript strict** : Zero errors avec compound component patterns
 - ✅ **Application fully functional** : Plus d'obstacles à l'utilisation de base
+
+### ✅ Phase 8 - AI Planning Workflow Integration (2025-07-11)
+- ✅ **Backend - Merge Strategy** : Logique IA améliorée pour enrichir sans supprimer
+- ✅ **Database Schema** : Champs planning_status, created_by_ai, last_updated_by_ai_at
+- ✅ **API Enhancement** : Schemas mis à jour avec tracking IA complet
+- ✅ **TaskListHeader** : Interface contextuelle intelligente pour planification
+- ✅ **ContextualAssistant** : Suggestions basées sur l'analyse du projet
+- ✅ **Visual Feedback** : Badges AI (🤖 Créée par IA, ✨ Enrichie par IA)
+- ✅ **Migration UX** : Redirection fluide depuis anciens boutons vers nouvelle interface
+- ✅ **TypeScript & Testing** : Zero erreurs compilation, validation complète
 
 ### 🔮 Future Enhancements (PLANNED)
 - User notification system (remplacer console.log TODOs)

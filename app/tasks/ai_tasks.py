@@ -29,7 +29,7 @@ def get_db() -> Session:
 @celery_app.task(bind=True, base=JobAwareTask, name="app.tasks.ai_tasks.planning_task")
 def planning_task(self, project_id: int, project_goal: str, workflow_execution_id: Optional[str] = None) -> dict:
     """
-    Tâche asynchrone pour la planification IA d'un projet
+    Tâche asynchrone pour la planification IA d'un projet avec stratégie de merge
     
     Args:
         project_id: ID du projet à planifier
@@ -49,6 +49,18 @@ def planning_task(self, project_id: int, project_goal: str, workflow_execution_i
             }
         )
         
+        # Récupérer le projet et mettre à jour son statut de planification
+        with get_db() as db:
+            project = project_service.get_project(db, project_id)
+            if not project:
+                raise ValueError(f"Projet {project_id} non trouvé")
+            
+            # Mettre à jour le statut de planification du projet
+            project.planning_status = "IN_PROGRESS"
+            project.planning_job_id = self.request.id
+            db.add(project)
+            db.commit()
+        
         # Vérifier que le LLM est configuré
         if not ai_service.llm:
             raise ValueError("Service IA non configuré (GROQ_API_KEY manquant)")
@@ -67,6 +79,14 @@ def planning_task(self, project_id: int, project_goal: str, workflow_execution_i
         task_titles = ai_service.run_planning_crew(project_goal)
         
         if not task_titles:
+            # Mettre à jour le statut en échec
+            with get_db() as db:
+                project = project_service.get_project(db, project_id)
+                if project:
+                    project.planning_status = "FAILED"
+                    db.add(project)
+                    db.commit()
+            
             return {
                 'success': False,
                 'message': 'L\'IA n\'a généré aucune tâche',
@@ -77,75 +97,158 @@ def planning_task(self, project_id: int, project_goal: str, workflow_execution_i
         self.update_state_with_db(
             state='PROGRESS',
             meta={
-                'step': 'Création des tâches en base', 
-                'progress': 70,
-                'status_message': f'Création de {len(task_titles)} tâches en base de données'
+                'step': 'Analyse et merge des tâches', 
+                'progress': 60,
+                'status_message': f'Analyse de {len(task_titles)} tâches IA et merge avec l\'existant'
             }
         )
         
-        # Créer les tâches en base de données
+        # Implémenter la stratégie de merge avec les tâches existantes
         with get_db() as db:
-            # Vérifier que le projet existe
+            from datetime import datetime
+            from difflib import SequenceMatcher
+            
+            # Récupérer le projet avec ses tâches
             project = project_service.get_project(db, project_id)
-            if not project:
-                raise ValueError(f"Projet {project_id} non trouvé")
+            existing_tasks = project.tasks
             
-            # Créer les tâches
+            def similarity(a, b):
+                """Calcule la similarité entre deux titres de tâches"""
+                return SequenceMatcher(None, a.lower(), b.lower()).ratio()
+            
             created_tasks = []
-            order_start = len(project.tasks)
+            enhanced_tasks = []
             
-            for i, title in enumerate(task_titles):
-                task_create = TaskCreate(
-                    title=title,
-                    project_id=project_id,
-                    status="À faire",
-                    order=order_start + i
-                )
-                created_task = task_service.create_task(db, task_create)
-                created_tasks.append({
-                    'id': created_task.id,
-                    'title': created_task.title,
-                    'status': created_task.status
-                })
+            # Pour chaque tâche générée par l'IA
+            for ai_task_title in task_titles:
+                # Chercher une tâche existante similaire (seuil de 70%)
+                best_match = None
+                best_similarity = 0.0
+                
+                for existing_task in existing_tasks:
+                    sim = similarity(ai_task_title, existing_task.title)
+                    if sim > best_similarity and sim >= 0.7:  # Seuil de similarité
+                        best_similarity = sim
+                        best_match = existing_task
+                
+                if best_match:
+                    # Enrichir la tâche existante
+                    if not best_match.description:
+                        best_match.description = f"Planification IA: {ai_task_title}"
+                    else:
+                        best_match.description += f"\n\n[IA - {datetime.utcnow().strftime('%Y-%m-%d')}]: {ai_task_title}"
+                    
+                    best_match.last_updated_by_ai_at = datetime.utcnow()
+                    db.add(best_match)
+                    
+                    enhanced_tasks.append({
+                        'id': best_match.id,
+                        'title': best_match.title,
+                        'status': best_match.status,
+                        'action': 'enhanced'
+                    })
+                else:
+                    # Créer une nouvelle tâche
+                    order_start = max([t.order for t in existing_tasks] + [0]) + 1
+                    task_create = TaskCreate(
+                        title=ai_task_title,
+                        project_id=project_id,
+                        status="À faire",
+                        order=order_start + len(created_tasks)
+                    )
+                    new_task = task_service.create_task(db, task_create)
+                    
+                    # Marquer comme créée par l'IA
+                    new_task.created_by_ai = True
+                    new_task.last_updated_by_ai_at = datetime.utcnow()
+                    db.add(new_task)
+                    
+                    created_tasks.append({
+                        'id': new_task.id,
+                        'title': new_task.title,
+                        'status': new_task.status,
+                        'action': 'created'
+                    })
+            
+            # Mettre à jour le statut
+            self.update_state_with_db(
+                state='PROGRESS',
+                meta={
+                    'step': 'Finalisation de la planification', 
+                    'progress': 90,
+                    'status_message': f'Merge terminé: {len(created_tasks)} créées, {len(enhanced_tasks)} enrichies'
+                }
+            )
             
             # Sauvegarder le résultat de planification dans TaskOutput si dans un workflow
-            if workflow_execution_id and created_tasks:
-                planning_content = f"Planification générale:\n{project_goal}\n\nTâches créées:\n"
-                planning_content += "\n".join([f"- {task['title']}" for task in created_tasks])
+            if workflow_execution_id and (created_tasks or enhanced_tasks):
+                planning_content = f"Planification générale:\n{project_goal}\n\n"
                 
-                # Utiliser la première tâche créée comme référence
+                if created_tasks:
+                    planning_content += f"Tâches créées ({len(created_tasks)}):\n"
+                    planning_content += "\n".join([f"- {task['title']}" for task in created_tasks])
+                    planning_content += "\n\n"
+                
+                if enhanced_tasks:
+                    planning_content += f"Tâches enrichies ({len(enhanced_tasks)}):\n"
+                    planning_content += "\n".join([f"- {task['title']}" for task in enhanced_tasks])
+                
+                # Utiliser la première tâche comme référence
+                reference_task_id = (created_tasks + enhanced_tasks)[0]['id']
                 output_service.save_task_output(
                     db=db,
-                    task_id=created_tasks[0]['id'],
+                    task_id=reference_task_id,
                     output_type=TaskOutputType.PLANNING,
                     content=planning_content,
                     workflow_execution_id=workflow_execution_id,
                     metadata={
                         "planning_goal": project_goal,
                         "tasks_created": len(created_tasks),
-                        "task_titles": task_titles
+                        "tasks_enhanced": len(enhanced_tasks),
+                        "ai_task_titles": task_titles,
+                        "merge_strategy": "enhance_and_create"
                     }
                 )
             
-            # Mettre à jour le statut final
+            # Mettre à jour le statut final du projet
+            project.planning_status = "COMPLETED"
+            db.add(project)
+            db.commit()
+            
+            # Mettre à jour le statut final de la tâche
             self.update_state_with_db(
                 state='PROGRESS',
                 meta={
                     'step': 'Finalisation', 
                     'progress': 100,
-                    'status_message': f'Planification terminée: {len(created_tasks)} tâches créées'
+                    'status_message': f'Planification terminée: {len(created_tasks)} créées, {len(enhanced_tasks)} enrichies'
                 }
             )
             
+            all_tasks = created_tasks + enhanced_tasks
             return {
                 'success': True,
-                'message': f'{len(task_titles)} tâches créées avec succès',
+                'message': f'Planification terminée: {len(created_tasks)} tâches créées, {len(enhanced_tasks)} tâches enrichies',
                 'task_titles': task_titles,
                 'created_tasks': created_tasks,
+                'enhanced_tasks': enhanced_tasks,
+                'total_tasks_affected': len(all_tasks),
                 'workflow_execution_id': workflow_execution_id
             }
             
     except Exception as e:
+        # En cas d'erreur, mettre le statut du projet en échec
+        try:
+            with get_db() as db:
+                project = project_service.get_project(db, project_id)
+                if project:
+                    project.planning_status = "FAILED"
+                    project.planning_job_id = None
+                    db.add(project)
+                    db.commit()
+        except:
+            pass  # Ne pas faire échouer la tâche à cause d'une erreur de nettoyage
+        
         # JobAwareTask gère automatiquement l'état d'échec
         raise
 

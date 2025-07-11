@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 interface NavigationHeaderProps {
   projectName?: string;
   projectId?: number;
-  currentView?: 'neural' | 'assembly';
+  currentView?: 'neural' | 'assembly' | 'tasks';
 }
 
 interface Breadcrumb {

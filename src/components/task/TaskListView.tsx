@@ -3,7 +3,10 @@ import { Project, Task as ApiTask } from '../../types/api';
 import EditableTaskTitle from './EditableTaskTitle';
 import TaskEditModal from './TaskEditModal';
 import TaskCreateButton from './TaskCreateButton';
+import TaskListHeader from './TaskListHeader';
+import ContextualAssistant from './ContextualAssistant';
 import { useToastActions } from '../ui/Toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface TaskListViewProps {
   project: Project;
@@ -16,6 +19,44 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
   const [sortBy, setSortBy] = useState<'created' | 'updated' | 'title' | 'status' | 'order'>('updated');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const toast = useToastActions();
+  const queryClient = useQueryClient();
+
+  // Handler pour rafraîchir les données après la planification IA
+  const handlePlanningComplete = () => {
+    // Invalider les caches pour forcer le rechargement
+    queryClient.invalidateQueries({ queryKey: ['projects'] });
+    queryClient.invalidateQueries({ queryKey: ['projects', project.id.toString()] });
+  };
+
+  // Handler pour les suggestions de l'assistant contextuel
+  const handleAssistantSuggestion = (suggestion: any) => {
+    switch (suggestion.type) {
+      case 'planning':
+        toast.info('💡 Utilisez le bouton "Planifier avec IA" ci-dessus pour démarrer la planification intelligente.');
+        break;
+      case 'research':
+        if (suggestion.id === 'research-empty-tasks') {
+          const emptyTasks = project.tasks.filter(task => !task.description || task.description.trim() === '');
+          if (emptyTasks.length > 0) {
+            toast.info(`🔍 Sélectionnez une tâche vide et utilisez l'ongent "Recherche" pour l'enrichir automatiquement.`);
+          }
+        } else {
+          toast.info('🔍 Utilisez l\'agent de recherche sur les tâches en cours pour accélérer leur progression.');
+        }
+        break;
+      case 'writing':
+        toast.info('✍️ Les tâches avec recherche terminée peuvent être rédigées avec l\'agent "Rédaction".');
+        break;
+      case 'organization':
+        toast.info('📋 Utilisez les contrôles de tri et de filtre pour mieux organiser vos tâches.');
+        break;
+      case 'completion':
+        toast.success('🎉 Félicitations ! Toutes vos tâches sont terminées. Vous pouvez maintenant assembler le contenu final.');
+        break;
+      default:
+        toast.info('💡 Suggestion notée ! Consultez la documentation pour plus d\'aide.');
+    }
+  };
 
   // Get unique statuses for filter dropdown
   const availableStatuses = useMemo(() => {
@@ -56,8 +97,8 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
           break;
         case 'updated':
         default:
-          aValue = new Date(a.updated_at);
-          bValue = new Date(b.updated_at);
+          aValue = new Date(a.updated_at || a.created_at);
+          bValue = new Date(b.updated_at || b.created_at);
           break;
       }
       
@@ -93,7 +134,8 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
@@ -105,6 +147,18 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
 
   return (
     <div className="h-full flex flex-col bg-bg-secondary rounded-lg shadow-lg">
+      {/* AI Planning Header */}
+      <TaskListHeader 
+        project={project} 
+        onPlanningComplete={handlePlanningComplete}
+      />
+      
+      {/* Contextual Assistant */}
+      <ContextualAssistant 
+        project={project}
+        onSuggestionClick={handleAssistantSuggestion}
+      />
+      
       {/* Header with controls */}
       <div className="p-4 border-b border-neutral-700">
         <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
@@ -196,6 +250,19 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
                         {task.status || 'Undefined'}
                       </span>
                       
+                      {/* AI badges */}
+                      {task.created_by_ai && (
+                        <span className="px-2 py-1 bg-neural-blue/20 text-neural-blue rounded-full text-xs font-medium flex items-center gap-1">
+                          🤖 Créée par IA
+                        </span>
+                      )}
+                      
+                      {task.last_updated_by_ai_at && (
+                        <span className="px-2 py-1 bg-neural-purple/20 text-neural-purple rounded-full text-xs font-medium flex items-center gap-1">
+                          ✨ Enrichie par IA
+                        </span>
+                      )}
+                      
                       {task.order !== undefined && task.order > 0 && (
                         <span className="text-neural-pink">
                           Ordre: {task.order}
@@ -209,6 +276,12 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
                       <span>
                         Modifié: {formatDate(task.updated_at)}
                       </span>
+                      
+                      {task.last_updated_by_ai_at && (
+                        <span className="text-neural-purple text-xs">
+                          IA: {formatDate(task.last_updated_by_ai_at)}
+                        </span>
+                      )}
                     </div>
                     
                     {/* Task description preview */}

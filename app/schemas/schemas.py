@@ -15,12 +15,20 @@ class TaskCreate(TaskBase):
 class TaskUpdate(TaskBase):
     title: Optional[str] = None
     project_id: Optional[int] = None # Au cas où on voudrait changer le projet d'une tâche, peu probable
+    
+    # Suivi IA (pour usage interne)
+    created_by_ai: Optional[bool] = None
+    last_updated_by_ai_at: Optional[datetime] = None
 
 class Task(TaskBase):
     id: int
     project_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    
+    # Suivi IA
+    created_by_ai: bool = False
+    last_updated_by_ai_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -36,6 +44,10 @@ class ProjectCreate(ProjectBase):
 class ProjectUpdate(ProjectBase):
     name: Optional[str] = None
     tags: Optional[str] = None
+    
+    # Planification IA (pour usage interne)
+    planning_status: Optional[str] = None
+    planning_job_id: Optional[str] = None
 
 # Nouveaux schémas pour gestion avancée des projets
 class ProjectSettingsBase(BaseModel):
@@ -68,6 +80,11 @@ class ProjectWithExtensions(ProjectBase):
     archived_at: Optional[datetime] = None
     settings: Optional[Dict[str, Any]] = None
     tags: Optional[str] = None
+    
+    # Planification IA
+    planning_status: str = "NOT_STARTED"
+    planning_job_id: Optional[str] = None
+    
     tasks: List[Task] = []
 
     class Config:
@@ -78,6 +95,11 @@ class Project(ProjectBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    
+    # Planification IA
+    planning_status: str = "NOT_STARTED"  # NOT_STARTED|IN_PROGRESS|COMPLETED|FAILED
+    planning_job_id: Optional[str] = None
+    
     tasks: List[Task] = []
 
     class Config:
