@@ -10,6 +10,7 @@ GeekBlog est un **centre de commandement de contenu** qui transforme la créatio
 
 ### ✨ Caractéristiques Principales
 
+- **✅ Gestion Complète Projets & Tâches** - CRUD complet avec édition en place, menus actions, notifications
 - **🧠 Interface Neural Flow** - Visualisation créative avec nœuds neuraux connectés
 - **🎯 Mode Simple/Expert** - Interface adaptative pour débutants et utilisateurs avancés
 - **🗺️ Navigation Intuitive** - Breadcrumbs clairs et basculement fluide entre vues
@@ -52,7 +53,7 @@ nano .env  # Modifier GROQ_API_KEY=your_actual_key
 
 **C'est tout !** L'application est accessible sur http://localhost:5173
 
-> **✅ STATUS: FULLY FUNCTIONAL** - Tous les boutons et fonctionnalités opérationnels après correction critique Docker
+> **✅ STATUS: PLEINEMENT FONCTIONNELLE** - Interface CRUD complète pour gestion projets/tâches, toutes fonctionnalités opérationnelles
 
 > **Note importante**: Le conteneur frontend nécessite 6GB de RAM pour Tailwind v4 et les dépendances modernes. La configuration Docker Compose est déjà optimisée.
 
@@ -126,6 +127,9 @@ REDIS_URL=redis://localhost:6379/0
 - **React 18** avec hooks personnalisés pour la gestion async
 - **TanStack Query** pour le polling en temps réel et la gestion d'état
 - **Tailwind CSS + Radix UI** pour l'interface "Neural Flow"
+- **Radix Primitives** pour composants accessibles (Modal, DropdownMenu, Dialog)
+- **Mutations optimistes** avec rollback automatique sur erreur
+- **Toast notifications** pour feedback utilisateur temps réel
 - **dnd-kit** pour les interactions drag-and-drop
 - **Navigation modulaire** avec composants NavigationHeader et ViewSwitcher
 - **Système d'onboarding** avec tutoriel interactif guidé
@@ -134,32 +138,39 @@ REDIS_URL=redis://localhost:6379/0
 
 ## 🎮 Workflow de Création
 
-### 1. Première Visite - Onboarding Guidé
-- **Tutoriel interactif** à la première connexion
-- **Mode Simple** activé par défaut pour faciliter l'apprentissage
-- **Navigation progressive** des fonctionnalités essentielles
+### 1. Gestion de Projets Intuitive
+- **Création projets** : Bouton "New Project" avec modal personnalisé
+- **Édition en place** : Double-clic sur noms projets pour édition immédiate
+- **Menu actions** : Kebab menu avec Edit, Duplicate, Archive, Delete
+- **Navigation fluide** : Liste projets → Page projet avec breadcrumbs
 
-### 2. Interface Neural Flow
+### 2. Gestion de Tâches Complète
+- **Création tâches** : Bouton "Add Task" dans l'interface projet
+- **Édition rapide** : Double-clic titres tâches pour édition en place
+- **Modal complète** : Édition titre, description, statut avec validation
+- **Suppression sécurisée** : Confirmation avant suppression avec feedback
+
+### 3. Interface Neural Flow
 - **Mode Simple** : Interface épurée avec 2-3 nœuds maximum
 - **Mode Expert** : Canvas complet avec connexions dynamiques et fonctionnalités avancées
 - **Basculement fluide** entre les modes selon votre niveau de confort
 
-### 3. Planification Intelligente
+### 4. Planification Intelligente
 - Fournissez une idée de projet
 - L'Agent Planificateur génère automatiquement un plan de tâches structuré
 - **Visualisation en nœuds neuraux** reliés par des connexions intelligentes
 
-### 4. Délégation à la Carte
+### 5. Délégation à la Carte
 - **Mode Asynchrone** : Déléguez avec indicateurs de progression temps réel
 - **Mode Synchrone** : Exécution immédiate pour les tâches rapides
 - Annulation possible à tout moment des opérations en cours
 
-### 5. Agents Spécialisés
+### 6. Agents Spécialisés
 - **Agent Chercheur** : Recherche web et synthèse d'informations
 - **Agent Rédacteur** : Création de contenu basé sur la recherche
 - **Équipe de Finition** : Critique, style, vérification, et correction
 
-### 6. Templates de Blog Authentiques
+### 7. Templates de Blog Authentiques
 - **6 Templates** basés sur l'analyse de 67 articles du blog "Les Geeks à Temps Partiel"
 - **Guide Pratique** : Tutoriels étape par étape avec style accessible
 - **Question Engagement** : Hook → Contexte → Exploration → Synthèse
@@ -167,7 +178,7 @@ REDIS_URL=redis://localhost:6379/0
 - **Localisation Québécoise** : 3 niveaux (bas/moyen/élevé) avec expressions authentiques
 - **Personnalisation** : Titre, thème, audience, niveau de québécismes
 
-### 7. Assemblage et Raffinage
+### 8. Assemblage et Raffinage
 - **Navigation claire** entre Neural Flow et vue Assemblage
 - Lancement du processus de raffinage avec suivi de progression
 - Édition finale dans l'éditeur intégré
@@ -325,6 +336,15 @@ Si vous rencontrez des erreurs TypeScript lors du build :
 - ✅ **Expert Code Review** : Analyse approfondie et optimisations appliquées
 - ✅ **All Buttons Working** : Chaque fonctionnalité existante opérationnelle
 - ✅ **Build TypeScript optimisé** : Production-ready avec type guards
+
+### ✅ Phase 7 - Basic CRUD Implementation (2025-07-11)
+- ✅ **UI Primitives** : Modal, DropdownMenu, ConfirmDialog, Toast avec Radix
+- ✅ **Mutation Hooks** : Optimistic updates avec rollback automatique
+- ✅ **Project CRUD** : Create, edit, delete avec actions menu et modals
+- ✅ **Task CRUD** : Create, edit-in-place, full edit modal, delete
+- ✅ **Integration complète** : Tous composants intégrés dans pages principales
+- ✅ **TypeScript strict** : Zero errors avec compound component patterns
+- ✅ **Application fully functional** : Plus d'obstacles à l'utilisation de base
 
 ### 🔮 Future Enhancements (PLANNED)
 - User notification system (remplacer console.log TODOs)

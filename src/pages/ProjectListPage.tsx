@@ -6,6 +6,8 @@ import { Project, ProjectCreate } from '../types/api';
 import NeuralBackground from '../components/neural/NeuralBackground';
 import NavigationHeader from '../components/navigation/NavigationHeader';
 import TemplateSelectionModal from '../components/templates/TemplateSelectionModal';
+import ProjectCreateModal from '../components/project/ProjectCreateModal';
+import ProjectActionsMenu from '../components/project/ProjectActionsMenu';
 
 /**
  * Page listing all projects with navigation and creation options
@@ -13,6 +15,7 @@ import TemplateSelectionModal from '../components/templates/TemplateSelectionMod
 const ProjectListPage: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const navigate = useNavigate();
@@ -100,8 +103,14 @@ const ProjectListPage: React.FC = () => {
               </p>
               <div className="space-y-3">
                 <button
-                  onClick={handleQuickStart}
+                  onClick={() => setShowCreateModal(true)}
                   className="w-full neural-button-primary neural-interactive neural-clickable neural-focusable"
+                >
+                  ✨ New Project
+                </button>
+                <button
+                  onClick={handleQuickStart}
+                  className="w-full neural-button neural-interactive neural-clickable neural-focusable"
                 >
                   🚀 Quick Start
                 </button>
@@ -139,8 +148,14 @@ const ProjectListPage: React.FC = () => {
             
             <div className="flex gap-2">
               <button
-                onClick={handleQuickStart}
+                onClick={() => setShowCreateModal(true)}
                 className="neural-button-primary neural-interactive neural-clickable neural-focusable"
+              >
+                ✨ New Project
+              </button>
+              <button
+                onClick={handleQuickStart}
+                className="neural-button neural-interactive neural-clickable neural-focusable"
               >
                 🚀 Quick Start
               </button>
@@ -233,16 +248,24 @@ const ProjectListPage: React.FC = () => {
             {projects?.map((project) => (
               <div
                 key={project.id}
-                className="neural-card neural-interactive neural-clickable p-6 cursor-pointer"
+                className="neural-card neural-interactive neural-clickable p-6 cursor-pointer relative group"
                 onClick={() => navigate(`/project/${project.id}`)}
               >
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-semibold text-text-primary truncate">
                     {project.name}
                   </h3>
-                  <span className="text-xs text-text-tertiary bg-bg-secondary px-2 py-1 rounded">
-                    ID: {project.id}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-text-tertiary bg-bg-secondary px-2 py-1 rounded">
+                      ID: {project.id}
+                    </span>
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <ProjectActionsMenu project={project} />
+                    </div>
+                  </div>
                 </div>
                 
                 {project.description && (
@@ -264,6 +287,12 @@ const ProjectListPage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Project Create Modal */}
+      <ProjectCreateModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
 
       {/* Template Selection Modal */}
       <TemplateSelectionModal

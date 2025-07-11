@@ -1,6 +1,6 @@
 import React from 'react';
 
-type ViewMode = 'neural' | 'assembly';
+type ViewMode = 'neural' | 'assembly' | 'tasks';
 
 interface ViewSwitcherProps {
   currentView: ViewMode;
@@ -21,6 +21,12 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
       label: 'Neural Flow',
       icon: '🧠',
       description: 'Interface de création avec connexions visuelles'
+    },
+    {
+      id: 'tasks' as ViewMode,
+      label: 'Tâches',
+      icon: '📋',
+      description: 'Gestion complète des tâches du projet'
     },
     {
       id: 'assembly' as ViewMode,

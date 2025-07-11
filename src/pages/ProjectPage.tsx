@@ -7,14 +7,16 @@ import ViewSwitcher from '../components/navigation/ViewSwitcher';
 import NeuralCanvas from '../components/neural/NeuralCanvas';
 import NeuralBackground from '../components/neural/NeuralBackground';
 import AssemblyView from '../components/assembly/AssemblyView';
+import TaskListView from '../components/task/TaskListView';
 import OnboardingOverlay from '../components/onboarding/OnboardingOverlay';
 import { useAsyncOperation } from '../hooks/useAsyncOperation';
 import JobProgressBar from '../components/ui/JobProgressBar';
 import JobStatusBadge from '../components/ui/JobStatusBadge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ProjectStatus from '../components/ui/ProjectStatus';
+import TaskCreateButton from '../components/task/TaskCreateButton';
 
-type ViewMode = 'neural' | 'assembly';
+type ViewMode = 'neural' | 'assembly' | 'tasks';
 
 const ProjectPage: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>('neural');
@@ -218,6 +220,9 @@ const ProjectPage: React.FC = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+            {/* Task Management */}
+            <TaskCreateButton projectId={projectIdNumber} />
+            
             {/* View Switcher */}
             <ViewSwitcher 
               currentView={currentView}
@@ -315,6 +320,9 @@ const ProjectPage: React.FC = () => {
               onSaveContent={handleSaveContent}
               onCreateNode={handleCreateNode}
             />
+          )}
+          {currentView === 'tasks' && (
+            <TaskListView project={project} />
           )}
           {currentView === 'assembly' && (
             <AssemblyView project={project} />
