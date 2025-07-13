@@ -4,6 +4,7 @@ import Modal from '../ui/Modal';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { useUpdateTask } from '../../hooks/mutations/useUpdateTask';
 import { useDeleteTask } from '../../hooks/mutations/useDeleteTask';
+import { validateTitle, validateDescription, sanitizeInput, VALIDATION_LIMITS } from '../../utils/validation';
 
 interface TaskEditModalProps {
   task: Task;
@@ -20,6 +21,8 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
   const [description, setDescription] = useState(task.description || '');
   const [status, setStatus] = useState(task.status || 'pending');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
 
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
@@ -30,13 +33,37 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
       setTitle(task.title);
       setDescription(task.description || '');
       setStatus(task.status || 'pending');
+      setTitleError(null);
+      setDescriptionError(null);
     }
   }, [task, isOpen]);
+
+  // Validation handlers with sanitization
+  const handleTitleChange = (value: string) => {
+    const sanitized = sanitizeInput(value);
+    setTitle(sanitized);
+    setTitleError(validateTitle(sanitized));
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    const sanitized = sanitizeInput(value);
+    setDescription(sanitized);
+    setDescriptionError(validateDescription(sanitized));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim()) return;
+    // Validate before submit
+    const titleValidationError = validateTitle(title);
+    const descriptionValidationError = validateDescription(description);
+
+    setTitleError(titleValidationError);
+    setDescriptionError(descriptionValidationError);
+
+    if (titleValidationError || descriptionValidationError) {
+      return;
+    }
 
     // OPTIMIZATION: Only send changed fields (partial update)
     const updates: { title?: string; description?: string; status?: string } = {};
@@ -118,12 +145,19 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                   type="text"
                   id="taskTitle"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-bg-secondary border border-neural-blue/30 rounded-md text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-blue focus:border-neural-blue neural-focusable transition-all"
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  className={`w-full px-3 py-2 bg-bg-secondary border ${titleError ? 'border-red-500' : 'border-neural-blue/30'} rounded-md text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-blue focus:border-neural-blue neural-focusable transition-all`}
                   placeholder="Enter task title..."
+                  maxLength={VALIDATION_LIMITS.TITLE_MAX_LENGTH}
                   required
                   autoFocus
                 />
+                {titleError && (
+                  <p className="mt-1 text-sm text-red-400">{titleError}</p>
+                )}
+                <p className="mt-1 text-xs text-text-secondary">
+                  {title.length}/{VALIDATION_LIMITS.TITLE_MAX_LENGTH} caractères
+                </p>
               </div>
 
               <div>
@@ -136,11 +170,18 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                 <textarea
                   id="taskDescription"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 bg-bg-secondary border border-neural-blue/30 rounded-md text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-blue focus:border-neural-blue neural-focusable transition-all resize-none"
+                  onChange={(e) => handleDescriptionChange(e.target.value)}
+                  className={`w-full px-3 py-2 bg-bg-secondary border ${descriptionError ? 'border-red-500' : 'border-neural-blue/30'} rounded-md text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-blue focus:border-neural-blue neural-focusable transition-all resize-none`}
                   placeholder="Optional task description..."
+                  maxLength={VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH}
                   rows={3}
                 />
+                {descriptionError && (
+                  <p className="mt-1 text-sm text-red-400">{descriptionError}</p>
+                )}
+                <p className="mt-1 text-xs text-text-secondary">
+                  {description.length}/{VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH} caractères
+                </p>
               </div>
 
               <div>
