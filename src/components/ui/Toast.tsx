@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import * as ToastPrimitive from '@radix-ui/react-toast';
+import { NOTIFICATION_CONSTANTS } from '../../utils/constants';
 
 interface Toast {
   id: string;
@@ -36,7 +37,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     const newToast: Toast = {
       ...toast,
       id,
-      duration: toast.duration ?? 5000,
+      duration: toast.duration ?? NOTIFICATION_CONSTANTS.TOAST_DURATION.NORMAL,
     };
 
     setToasts(prev => [...prev, newToast]);
