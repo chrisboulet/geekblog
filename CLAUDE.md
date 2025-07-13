@@ -3,7 +3,12 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 ## DO NOT MODIFY THIS SECTION ##
 ### 🔄 Project Awareness & Context
+- **OBLIGATOIRE**: Lire `METHOD_TASK.md` au début de chaque session pour comprendre la méthode de gestion structurée
 - **Always read `PLANNING.md`** at the start of a new conversation to understand the project's architecture, goals, style, and constraints.
+- **WORKFLOW QUOTIDIEN**:
+  1. Consulter `NEXT_TASKS.md` pour les actions immédiates (5-10 items max)
+  2. Vérifier `TASK.md` pour les statuts actuels des tâches générales
+  3. Référencer `MITIGATION_PLAN.md` pour les phases de mitigation en cours
 - **Check `TASK.md`** before starting a new task. If the task isn't listed, add it with a brief description and today's date.
 - **Use consistent naming conventions, file structure, and architecture patterns** as described in `PLANNING.md`.
 - **Use .venv** (the virtual environment) whenever executing Python commands, including for unit tests.
@@ -31,8 +36,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - 1 failure case
 
 ### ✅ Task Completion
+- **GESTION STRUCTURÉE**: Suivre la méthode définie dans `METHOD_TASK.md`
 - **Mark completed tasks in `TASK.md`** immediately after finishing them.
+- **Mettre à jour `NEXT_TASKS.md`** quotidiennement avec les prochaines actions immédiates
+- **Documenter dans `HISTORY.md`** les changements majeurs et leçons apprises
 - Add new sub-tasks or TODOs discovered during development to `TASK.md` under a "Discovered During Work" section.
+- **RÉFÉRENCES**: Toujours référencer les sections spécifiques des plans (ex: MITIGATION_PLAN.md#phase-1-action-1.1)
 
 ### 📎 Style & Conventions
 - **Use Python** as the primary language.

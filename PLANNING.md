@@ -156,6 +156,65 @@ geekblog/
   - [ ] Performance optimization
   - [ ] Developer experience improvements
 
+### 🛠️ Code Quality Mitigation Plan (Parallel Track - Started 2025-07-13)
+
+**Déclencheur**: Code review Grok-4 révélant 23 problèmes (4 critiques, 5 élevés, 14 moyens/faibles)
+**Objectif**: Résoudre problèmes performance + architecture + qualité sans casser UX existante
+**Méthode**: 7 phases séquentielles parallèles au développement Phase 8
+**Référence complète**: MITIGATION_PLAN.md pour détails techniques
+**Gestion**: METHOD_TASK.md workflow structuré avec TASK.md et NEXT_TASKS.md
+
+#### Architecture Dual-Track
+```
+DÉVELOPPEMENT FONCTIONNEL    |    CODE QUALITY MITIGATION
+Phase 8 (TypeScript Auto)    |    M1-M7 (Performance + Polish)
+- Type generation            |    - CSS-in-JS extraction
+- Template system            |    - Styling standardization
+- API service enhancement    |    - Security hardening
+```
+
+#### M1 - Performance Critique 🔴 (Semaine 1 - SETUP IN PROGRESS)
+- **Problème**: NavigationHeader.tsx CSS-in-JS (121 lignes rechargées à chaque render)
+- **Solution**: Extraction vers CSS Modules + optimisation responsive
+- **Target**: +50% vitesse render, aucune régression visuelle
+- **Actions**: Baseline perf → Backup → Extraction → Tests validation
+
+#### M2 - Standardisation Styling 🟠 (Semaine 1-2)
+- **Problème**: HomePage.tsx styles inline + approches inconsistantes
+- **Solution**: CSS Modules cohérents + conventions documentées
+- **Target**: Architecture styling unifiée et réutilisable
+
+#### M3 - Sécurité Locale 🟡 (Semaine 2)
+- **Problème**: CORS permissif + validation input limitée
+- **Solution**: Configuration CORS stricte + sanitisation XSS basique
+- **Target**: Protection adaptée environnement développement local
+
+#### M4 - Automatisation Types 🟡 (Semaine 2)
+- **Problème**: Types manuels vs génération automatique disponible
+- **Solution**: Pipeline génération SQLAlchemy → TypeScript + validation
+- **Target**: Synchronisation types automatique + pré-commit hooks
+
+#### M5 - Polish Final 🟢 (Semaine 3)
+- **Problème**: Messages FR/EN mixés + patterns validation dispersés
+- **Solution**: Interface 100% français + validation centralisée
+- **Target**: Cohérence linguistique + patterns réutilisables
+
+#### M6 - Testing & Validation 🟢 (Semaine 3)
+- **Objectif**: Garantir qualité + performance + aucune régression
+- **Méthodes**: Baseline perf + tests visuels + TypeScript strict
+- **Target**: Métriques amélioration mesurables + validation UX
+
+#### M7 - Documentation & Maintien 🟢 (Semaine 3)
+- **Objectif**: Pérenniser améliorations + guides développement futurs
+- **Livrables**: Standards documentés + monitoring automatisé
+- **Target**: Processus qualité durable + prévention régression
+
+#### Métriques de Succès Global
+- **Performance**: CSS-in-JS → CSS Modules (+50% render NavigationHeader)
+- **Maintenabilité**: Standards styling documentés + types automatiques
+- **Robustesse**: CORS configuré + validation input cohérente F/B
+- **Qualité**: Interface français + constantes centralisées + tests
+
 ### 🎨 Phase 9 - Make It Robust: Error States & UX Polish (FINAL)
 **Durée estimée: 10-13 jours**
 
@@ -253,7 +312,55 @@ geekblog/
 5. ✅ **Application Usability** - Users can now perform all essential content management operations
 6. ✅ **Documentation Updated** - README, TASK, PLANNING synchronized with implementation
 
-### Current Goals & Priorities (2025-07-12)
+### Current Goals & Priorities (2025-07-13)
+
+#### ✅ Completed - UX Transformation (2025-07-13)
+1. **Homepage UX Overhaul with Grok-4 Analysis**
+   - ✅ Replaced confusing identical buttons with 3 distinct actions (Create/View/Templates)
+   - ✅ Implemented interactive workflow with expandable cards and smooth transitions
+   - ✅ Added comprehensive accessibility improvements (aria-labels, semantic navigation)
+   - ✅ Fixed navigation logic and breadcrumbs system with null-safety
+   - ✅ Identified and resolved critical edge cases with Grok-4 analysis (error handling, layout shifts)
+   - ✅ Smooth CSS transitions (0.3s ease) and comprehensive error handling for robust UX
+   - ✅ **Grok-4 Expert Analysis**: Leveraged advanced AI capabilities for deeper UX insights and edge case identification
+
+#### 🚨 DUAL-TRACK ACTIVE - Development + Code Quality (2025-07-13)
+
+**ARCHITECTURE PARALLÈLE:**
+```
+TRACK 1: DÉVELOPPEMENT FONCTIONNEL   |   TRACK 2: CODE QUALITY MITIGATION
+Phase 8 - TypeScript Automation      |   M1-M7 - Performance + Polish
+┣━ 8.1 Type generation (IN PROGRESS) |   ┣━ M1 CSS Performance (SETUP)
+┣━ 8.2 Template system enhancement   |   ┣━ M2-M3 Styling + Security
+┗━ 8.3 API service refactoring       |   ┗━ M4-M7 Types + Polish
+```
+
+1. **Code Review Complet avec Grok-4** ✅ COMPLETED ANALYSIS
+   - ✅ Analyse systématique révélant 23 problèmes (4 critiques, 5 élevés, 14 moyens/faibles)
+   - ✅ Identification problèmes performance, architecture, sécurité et qualité code
+   - ✅ Plan structuré de mitigation en 7 phases séquentielles (M1-M7)
+   - ✅ Setup nouvelle méthode de gestion des tâches avec documentation complète
+   - ✅ **PLANNING.md updated** avec section Code Quality Mitigation Plan intégrée
+
+2. **Status Dual-Track Actuel** (SESSION 2025-07-13)
+   - 🔄 **Track 1**: Phase 8.1 TypeScript Automation (développement fonctionnel continue)
+   - 🚧 **Track 2**: M1 Performance Critique SETUP IN PROGRESS
+     - ✅ Documentation METHOD_TASK.md + MITIGATION_PLAN.md + NEXT_TASKS.md
+     - ✅ TASK.md section mitigation intégrée avec tracking détaillé
+     - ✅ PLANNING.md dual-track architecture documentée
+     - ⏳ Baseline performance NavigationHeader.tsx (prochaine action)
+
+3. **Problèmes Critiques M1 - Performance** 🔴 NEXT IMMEDIATE ACTIONS
+   - 🎯 **CSS-in-JS NavigationHeader**: 121 lignes rechargées à chaque render
+   - 🎯 **Target M1**: Extraction → CSS Modules + 50% amélioration performance
+   - 🎯 **Actions immédiates**: Baseline perf → Backup → Extraction → Validation
+
+4. **Méthode de Gestion Structurée** ✅ OPERATIONAL
+   - 📄 **METHOD_TASK.md**: Workflow quotidien établi
+   - 📄 **MITIGATION_PLAN.md**: Détails techniques 7 phases M1-M7
+   - 📄 **TASK.md**: Tracking status avec sections développement + mitigation
+   - 📄 **NEXT_TASKS.md**: Actions immédiates (5-10 items max) mis à jour
+   - 📄 **PLANNING.md**: Architecture dual-track intégrée (CE DOCUMENT)
 
 #### Active Development - Phase 8
 1. **TypeScript Automation Foundation**
