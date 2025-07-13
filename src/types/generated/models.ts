@@ -1,6 +1,6 @@
 // AUTO-GENERATED - DO NOT EDIT
 // Generated from SQLAlchemy models by scripts/generate_types.py
-// Last generated: 2025-07-12T16:58:49.216302
+// Last generated: 2025-07-13T16:31:13.381515
 
 
 // TypeScript interfaces generated from SQLAlchemy models
@@ -21,7 +21,7 @@ export interface Project {
   archived_at: string | null;
   settings: Record<string, unknown> | null;
   tags: string | null;
-  planning_status: string;
+  planning_status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
   planning_job_id: string | null;
   tasks?: Task[];
   workflow_executions?: WorkflowExecution[];
@@ -35,7 +35,7 @@ export interface Task {
   id: number;
   title: string;
   description: string | null;
-  status: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'archived';
   order: number | null;
   created_at: string | null;
   updated_at: string | null;
@@ -79,7 +79,7 @@ export interface WorkflowExecution {
   /** Max length: 13 */
   workflow_type: unknown;
   /** Max length: 9 */
-  status: unknown;
+  status: 'pending' | 'in_progress' | 'completed' | 'archived';
   current_step: Record<string, unknown> | null;
   total_steps: number | null;
   workflow_metadata: Record<string, unknown> | null;
@@ -116,7 +116,7 @@ export interface TaskOutput {
 export interface AsyncJob {
   id: string;
   type: string;
-  status: string | null;
+  status: 'pending' | 'in_progress' | 'completed' | 'archived' | null;
   step: string | null;
   progress: unknown | null;
   status_message: string | null;

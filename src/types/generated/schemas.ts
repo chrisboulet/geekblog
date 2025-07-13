@@ -1,6 +1,6 @@
 // AUTO-GENERATED - DO NOT EDIT
 // Generated from SQLAlchemy models by scripts/generate_types.py
-// Last generated: 2025-07-12T16:58:49.229076
+// Last generated: 2025-07-13T16:31:13.399717
 
 
 import { z } from 'zod';
@@ -23,7 +23,7 @@ export const ProjectSchema = z.object({
   archived_at: z.string().datetime().nullable(),
   settings: z.record(z.string(), z.unknown()).nullable(),
   tags: z.string().nullable(),
-  planning_status: z.string(),
+  planning_status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'FAILED']),
   planning_job_id: z.string().nullable(),
 });
 
@@ -37,7 +37,7 @@ export const TaskSchema = z.object({
   id: z.number().int(),
   title: z.string(),
   description: z.string().nullable(),
-  status: z.string(),
+  status: z.enum(['pending', 'in_progress', 'completed', 'archived']),
   order: z.number().int().nullable(),
   created_at: z.string().datetime().nullable(),
   updated_at: z.string().datetime().nullable(),
@@ -83,7 +83,7 @@ export const WorkflowExecutionSchema = z.object({
   // Max length: 13
   workflow_type: z.unknown(),
   // Max length: 9
-  status: z.unknown(),
+  status: z.enum(['pending', 'in_progress', 'completed', 'archived']),
   current_step: z.record(z.string(), z.unknown()).nullable(),
   total_steps: z.number().int().nullable(),
   workflow_metadata: z.record(z.string(), z.unknown()).nullable(),
@@ -119,7 +119,7 @@ export type TaskOutputInput = z.infer<typeof TaskOutputSchema>;
 export const AsyncJobSchema = z.object({
   id: z.string(),
   type: z.string(),
-  status: z.string().nullable(),
+  status: z.enum(['pending', 'in_progress', 'completed', 'archived']).nullable(),
   step: z.string().nullable(),
   progress: z.unknown().nullable(),
   status_message: z.string().nullable(),

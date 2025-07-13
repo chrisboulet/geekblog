@@ -20,18 +20,19 @@ from typing import List, Any
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from sqlalchemy.orm import class_mapper
-from sqlalchemy.inspection import inspect as sqlalchemy_inspect
+# SQLAlchemy imports (after path modification) # noqa: E402
+from sqlalchemy.inspection import inspect as sqlalchemy_inspect  # noqa: E402
+from sqlalchemy.orm import class_mapper  # noqa: E402
 
-# Import our type mapping utilities
-from scripts.type_mappings import (
-    get_typescript_type,
-    get_zod_schema,
-    should_include_column,
-    get_relationship_type,
+# Import our type mapping utilities # noqa: E402
+from scripts.type_mappings import (  # noqa: E402
     FILE_HEADER,
     INTERFACE_COMMENT,
     SCHEMA_COMMENT,
+    get_relationship_type,
+    get_typescript_type,
+    get_zod_schema,
+    should_include_column,
 )
 
 
@@ -88,7 +89,9 @@ def generate_typescript_interface(model_class) -> str:
             continue
 
         column_name = column.name
-        column_type = get_typescript_type(column.type, nullable=column.nullable)
+        column_type = get_typescript_type(
+            column.type, nullable=column.nullable, column_name=column_name
+        )
 
         # Add column comment if it has documentation
         if hasattr(column, "comment") and column.comment:
@@ -135,7 +138,9 @@ def generate_zod_schema(model_class) -> str:
             continue
 
         column_name = column.name
-        zod_type = get_zod_schema(column.type, nullable=column.nullable)
+        zod_type = get_zod_schema(
+            column.type, nullable=column.nullable, column_name=column_name
+        )
 
         # Add validation comment if needed
         if hasattr(column.type, "length") and column.type.length:

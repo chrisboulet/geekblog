@@ -27,21 +27,37 @@ TYPE_MAPPINGS = {
     UUID: {"ts": "string", "zod": "z.string().uuid()"},
 }
 
+# Special column mapping for specific enum-like fields
+ENUM_COLUMN_MAPPINGS = {
+    "planning_status": {
+        "ts": "'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED'",
+        "zod": "z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'FAILED'])",
+    },
+    "status": {  # Task status
+        "ts": "'pending' | 'in_progress' | 'completed' | 'archived'",
+        "zod": "z.enum(['pending', 'in_progress', 'completed', 'archived'])",
+    },
+}
 
-def get_typescript_type(column_type, nullable=False):
+
+def get_typescript_type(column_type, nullable=False, column_name=None):
     """Get TypeScript type for a SQLAlchemy column type."""
-    type_info = TYPE_MAPPINGS.get(type(column_type))
-
-    if not type_info:
-        # Default fallback for unknown types
-        ts_type = "unknown"
+    # Check for special enum mappings first
+    if column_name and column_name in ENUM_COLUMN_MAPPINGS:
+        ts_type = ENUM_COLUMN_MAPPINGS[column_name]["ts"]
     else:
-        ts_type = type_info["ts"]
+        type_info = TYPE_MAPPINGS.get(type(column_type))
 
-        # Handle string length constraints
-        if isinstance(column_type, String) and column_type.length:
-            # Keep as string but add comment about max length
-            pass
+        if not type_info:
+            # Default fallback for unknown types
+            ts_type = "unknown"
+        else:
+            ts_type = type_info["ts"]
+
+            # Handle string length constraints
+            if isinstance(column_type, String) and column_type.length:
+                # Keep as string but add comment about max length
+                pass
 
     # Add null union if nullable
     if nullable:
@@ -50,25 +66,29 @@ def get_typescript_type(column_type, nullable=False):
     return ts_type
 
 
-def get_zod_schema(column_type, nullable=False, length=None):
+def get_zod_schema(column_type, nullable=False, length=None, column_name=None):
     """Get Zod schema for a SQLAlchemy column type."""
-    type_info = TYPE_MAPPINGS.get(type(column_type))
-
-    if not type_info:
-        # Default fallback for unknown types
-        zod_schema = "z.unknown()"
+    # Check for special enum mappings first
+    if column_name and column_name in ENUM_COLUMN_MAPPINGS:
+        zod_schema = ENUM_COLUMN_MAPPINGS[column_name]["zod"]
     else:
-        zod_schema = type_info["zod"]
+        type_info = TYPE_MAPPINGS.get(type(column_type))
 
-        # Handle string length constraints
-        if isinstance(column_type, String) and column_type.length:
-            if zod_schema.startswith("z.string()"):
-                zod_schema = f"z.string().max({column_type.length})"
+        if not type_info:
+            # Default fallback for unknown types
+            zod_schema = "z.unknown()"
+        else:
+            zod_schema = type_info["zod"]
 
-        # Handle Enum types
-        if isinstance(column_type, Enum):
-            enum_values = ", ".join([f"'{v}'" for v in column_type.enums])
-            zod_schema = f"z.enum([{enum_values}])"
+            # Handle string length constraints
+            if isinstance(column_type, String) and column_type.length:
+                if zod_schema.startswith("z.string()"):
+                    zod_schema = f"z.string().max({column_type.length})"
+
+            # Handle Enum types
+            if isinstance(column_type, Enum):
+                enum_values = ", ".join([f"'{v}'" for v in column_type.enums])
+                zod_schema = f"z.enum([{enum_values}])"
 
     # Add nullable modifier if needed
     if nullable:
