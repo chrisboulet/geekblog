@@ -1,0 +1,178 @@
+/* HomePage.module.css */
+/* Extracted from HomePage.tsx inline styles for performance optimization */
+/* Preserves Neural Flow CSS variables and responsive design */
+
+/* Main Container - ligne 80-83 */
+.homeContainer {
+  background: var(--bg-primary, #050505);
+  color: var(--text-primary, #ffffff);
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hero Section Styles - lignes 104, 111 */
+.heroTitle {
+  color: var(--text-primary, #ffffff);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.heroDescription {
+  color: var(--text-secondary, #a0a0a0);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  margin-bottom: 2rem;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Button Styles - ligne 138 */
+.templateButton {
+  border-color: var(--neural-cyan);
+}
+
+/* Section Titles - lignes 155, 267 */
+.sectionTitle {
+  color: var(--text-primary, #ffffff);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Section Descriptions - lignes 161, 273 */
+.sectionDescription {
+  color: var(--text-secondary, #a0a0a0);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+/* Workflow Card Interactive - lignes 178-182 */
+.workflowCard {
+  min-height: 200px;
+  transition: min-height 0.3s ease, border-color 0.3s ease;
+}
+
+.workflowCard.expanded {
+  min-height: 320px;
+  border-color: var(--neural-purple);
+}
+
+/* Step Number - lignes 188-189 */
+.stepNumber {
+  background: var(--gradient-neural, linear-gradient(135deg, #667eea, #764ba2));
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+  color: white;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+/* Step Description - ligne 208 */
+.stepDescription {
+  color: var(--text-secondary, #a0a0a0);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* Expanded Details - ligne 216 */
+.expandedDetails {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Feature Text - ligne 223 */
+.featureText {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+/* Click Indicator - ligne 231 */
+.clickIndicator {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 0.5rem;
+}
+
+/* Workflow Arrow - ligne 244 */
+.workflowArrow {
+  color: var(--neural-purple, #667eea);
+}
+
+/* CTA Titles - ligne 267 */
+.ctaTitle {
+  color: var(--text-primary, #ffffff);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* CTA Description - ligne 273 */
+.ctaDescription {
+  color: var(--text-secondary, #a0a0a0);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  margin-bottom: 2rem;
+}
+
+/* Responsive Design - Desktop first approach matching Tailwind patterns */
+@media (min-width: 768px) {
+  .heroTitle {
+    font-size: 1.875rem;
+  }
+
+  .sectionTitle {
+    font-size: 2.25rem;
+  }
+
+  .ctaTitle {
+    font-size: 1.875rem;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 767px) {
+  .heroTitle {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .heroDescription {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .sectionDescription {
+    font-size: 1rem;
+  }
+
+  .workflowCard {
+    min-height: 180px;
+  }
+
+  .workflowCard.expanded {
+    min-height: 300px;
+  }
+
+  .ctaTitle {
+    font-size: 1.25rem;
+  }
+
+  .ctaDescription {
+    font-size: 1rem;
+  }
+}

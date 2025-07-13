@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import styles from '../../styles/components/HomePage.module.css';
 
 interface WorkflowStep {
   id: number;
@@ -75,13 +76,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div
-      className="min-h-screen relative flex flex-col"
-      style={{
-        background: 'var(--bg-primary, #050505)',
-        color: 'var(--text-primary, #ffffff)'
-      }}
-    >
+    <div className={styles.homeContainer}>
 
       {/* Content Container */}
       <div className="relative z-10 flex-1 flex flex-col">
@@ -99,17 +94,11 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Hero Content */}
-            <h2
-              className="text-2xl md:text-3xl font-semibold mb-6"
-              style={{ color: 'var(--text-primary, #ffffff)' }}
-            >
+            <h2 className={`${styles.heroTitle} text-2xl md:text-3xl font-semibold mb-6`}>
               Votre Assistant de Création de Contenu
             </h2>
 
-            <p
-              className="text-lg md:text-xl mb-8 max-w-2xl mx-auto"
-              style={{ color: 'var(--text-secondary, #a0a0a0)' }}
-            >
+            <p className={`${styles.heroDescription} text-lg md:text-xl mb-8 max-w-2xl mx-auto`}>
               Transformez vos idées en articles de qualité grâce à l'intelligence artificielle.
               Une plateforme qui combine créativité humaine et IA pour créer du contenu exceptionnel.
             </p>
@@ -134,8 +123,7 @@ const HomePage: React.FC = () => {
 
               <button
                 onClick={() => handleUserAction('templates')}
-                className="neural-button text-lg px-8 py-4 rounded-xl font-semibold border-neural-cyan"
-                style={{ borderColor: 'var(--neural-cyan)' }}
+                className={`${styles.templateButton} neural-button text-lg px-8 py-4 rounded-xl font-semibold border-neural-cyan`}
                 aria-label="Explorer les templates disponibles"
               >
                 📋 Explorer les Templates
@@ -150,16 +138,10 @@ const HomePage: React.FC = () => {
 
             {/* Section Title */}
             <div className="text-center mb-12">
-              <h3
-                className="text-3xl md:text-4xl font-bold mb-4"
-                style={{ color: 'var(--text-primary, #ffffff)' }}
-              >
+              <h3 className={`${styles.sectionTitle} text-3xl md:text-4xl font-bold mb-4`}>
                 Comment ça fonctionne ?
               </h3>
-              <p
-                className="text-lg"
-                style={{ color: 'var(--text-secondary, #a0a0a0)' }}
-              >
+              <p className={`${styles.sectionDescription} text-lg`}>
                 Un processus simple en 5 étapes pour créer du contenu de qualité
               </p>
             </div>
@@ -171,24 +153,14 @@ const HomePage: React.FC = () => {
 
                   {/* Step Card */}
                   <div
-                    className={`neural-card p-6 text-center neural-interactive cursor-pointer transition-all duration-300 ${
-                      selectedStep === step.id ? 'border-neural-purple bg-opacity-20' : ''
+                    className={`neural-card p-6 text-center neural-interactive cursor-pointer transition-all duration-300 ${styles.workflowCard} ${
+                      selectedStep === step.id ? 'border-neural-purple bg-opacity-20 ' + styles.expanded : ''
                     }`}
                     onClick={() => setSelectedStep(selectedStep === step.id ? null : step.id)}
-                    style={{
-                      minHeight: selectedStep === step.id ? '320px' : '200px',
-                      borderColor: selectedStep === step.id ? 'var(--neural-purple)' : undefined,
-                      transition: 'min-height 0.3s ease, border-color 0.3s ease'
-                    }}
                   >
 
                     {/* Step Number */}
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg"
-                      style={{
-                        background: 'var(--gradient-neural, linear-gradient(135deg, #667eea, #764ba2))'
-                      }}
-                    >
+                    <div className={styles.stepNumber}>
                       {step.id}
                     </div>
 
@@ -203,24 +175,21 @@ const HomePage: React.FC = () => {
                     </h4>
 
                     {/* Description */}
-                    <p
-                      className="text-sm mb-4"
-                      style={{ color: 'var(--text-secondary, #a0a0a0)' }}
-                    >
+                    <p className={`${styles.stepDescription} text-sm mb-4`}>
                       {step.description}
                     </p>
 
                     {/* Expanded Details */}
                     {selectedStep === step.id && (
                       <div className="mt-4 pt-4 border-t border-neural-purple border-opacity-30 text-left">
-                        <p className="text-sm mb-3" style={{ color: 'var(--text-primary)' }}>
+                        <p className={`${styles.expandedDetails} text-sm mb-3`}>
                           {step.details}
                         </p>
                         <div className="space-y-1">
                           {step.features.map((feature, idx) => (
                             <div key={idx} className="flex items-center text-xs">
                               <span className="text-neural-cyan mr-2">✓</span>
-                              <span style={{ color: 'var(--text-secondary)' }}>{feature}</span>
+                              <span className={styles.featureText}>{feature}</span>
                             </div>
                           ))}
                         </div>
@@ -228,7 +197,7 @@ const HomePage: React.FC = () => {
                     )}
 
                     {/* Click indicator */}
-                    <div className="mt-2 text-xs opacity-70" style={{ color: 'var(--text-tertiary)' }}>
+                    <div className={`${styles.clickIndicator} mt-2 text-xs opacity-70`}>
                       {selectedStep === step.id ? '▲ Cliquez pour réduire' : '▼ Cliquez pour en savoir plus'}
                     </div>
                   </div>
@@ -241,7 +210,7 @@ const HomePage: React.FC = () => {
                         height="24"
                         viewBox="0 0 24 24"
                         fill="none"
-                        style={{ color: 'var(--neural-purple, #667eea)' }}
+                        className={styles.workflowArrow}
                       >
                         <path
                           d="M9 18l6-6-6-6"
@@ -262,16 +231,10 @@ const HomePage: React.FC = () => {
         {/* Bottom CTA */}
         <section className="px-6 py-16 text-center">
           <div className="max-w-2xl mx-auto">
-            <h3
-              className="text-2xl md:text-3xl font-bold mb-4"
-              style={{ color: 'var(--text-primary, #ffffff)' }}
-            >
+            <h3 className={`${styles.ctaTitle} text-2xl md:text-3xl font-bold mb-4`}>
               Prêt à créer du contenu exceptionnel ?
             </h3>
-            <p
-              className="text-lg mb-8"
-              style={{ color: 'var(--text-secondary, #a0a0a0)' }}
-            >
+            <p className={`${styles.ctaDescription} text-lg mb-8`}>
               Rejoignez les créateurs qui utilisent l'IA pour amplifier leur créativité
             </p>
 
