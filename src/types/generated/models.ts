@@ -1,6 +1,6 @@
 // AUTO-GENERATED - DO NOT EDIT
 // Generated from SQLAlchemy models by scripts/generate_types.py
-// Last generated: 2025-07-13T16:31:13.381515
+// Last generated: 2025-07-13T16:52:50.935399
 
 
 // TypeScript interfaces generated from SQLAlchemy models

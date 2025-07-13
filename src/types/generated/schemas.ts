@@ -1,6 +1,6 @@
 // AUTO-GENERATED - DO NOT EDIT
 // Generated from SQLAlchemy models by scripts/generate_types.py
-// Last generated: 2025-07-13T16:31:13.399717
+// Last generated: 2025-07-13T16:52:50.946131
 
 
 import { z } from 'zod';

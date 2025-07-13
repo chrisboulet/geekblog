@@ -16,24 +16,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Any
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
-# SQLAlchemy imports (after path modification) # noqa: E402
-from sqlalchemy.inspection import inspect as sqlalchemy_inspect  # noqa: E402
-from sqlalchemy.orm import class_mapper  # noqa: E402
-
-# Import our type mapping utilities # noqa: E402
-from scripts.type_mappings import (  # noqa: E402
-    FILE_HEADER,
-    INTERFACE_COMMENT,
-    SCHEMA_COMMENT,
-    get_relationship_type,
-    get_typescript_type,
-    get_zod_schema,
-    should_include_column,
-)
+def setup_path():
+    """Add project root to path for imports."""
+    project_root = Path(__file__).parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
 
 def discover_sqlalchemy_models():
@@ -67,6 +55,16 @@ def discover_sqlalchemy_models():
 
 def generate_typescript_interface(model_class) -> str:
     """Generate TypeScript interface from SQLAlchemy model."""
+    # Import here to avoid module-level import order issues
+    from sqlalchemy.inspection import inspect as sqlalchemy_inspect
+    from sqlalchemy.orm import class_mapper
+    from scripts.type_mappings import (
+        INTERFACE_COMMENT,
+        get_relationship_type,
+        get_typescript_type,
+        should_include_column,
+    )
+
     model_name = model_class.__name__
     table_name = model_class.__tablename__
 
@@ -119,6 +117,14 @@ def generate_typescript_interface(model_class) -> str:
 
 def generate_zod_schema(model_class) -> str:
     """Generate Zod validation schema from SQLAlchemy model."""
+    # Import here to avoid module-level import order issues
+    from sqlalchemy.orm import class_mapper
+    from scripts.type_mappings import (
+        SCHEMA_COMMENT,
+        get_zod_schema,
+        should_include_column,
+    )
+
     model_name = model_class.__name__
     table_name = model_class.__tablename__
 
@@ -162,6 +168,7 @@ def generate_zod_schema(model_class) -> str:
 
 def ensure_output_directory():
     """Create the output directory if it doesn't exist."""
+    project_root = Path(__file__).parent.parent
     output_dir = project_root / "src" / "types" / "generated"
     output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
@@ -169,6 +176,9 @@ def ensure_output_directory():
 
 def write_typescript_interfaces(models: List[Any], output_dir: Path):
     """Generate and write TypeScript interface file."""
+    # Import here to avoid module-level import order issues
+    from scripts.type_mappings import FILE_HEADER
+
     timestamp = datetime.now().isoformat()
 
     # Generate file header
@@ -197,6 +207,9 @@ def write_typescript_interfaces(models: List[Any], output_dir: Path):
 
 def write_zod_schemas(models: List[Any], output_dir: Path):
     """Generate and write Zod schema file."""
+    # Import here to avoid module-level import order issues
+    from scripts.type_mappings import FILE_HEADER
+
     timestamp = datetime.now().isoformat()
 
     # Generate file header
@@ -237,7 +250,8 @@ def main():
     """Main type generation function."""
     print("🚀 Starting TypeScript type generation...")
 
-    # Discover SQLAlchemy models
+    # Setup path and discover SQLAlchemy models
+    setup_path()
     models = discover_sqlalchemy_models()
 
     if not models:
