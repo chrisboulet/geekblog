@@ -21,6 +21,10 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
   const handleBackToProjects = () => {
     navigate('/projects');
   };
@@ -32,9 +36,21 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   };
 
   const getBreadcrumbs = (): Breadcrumb[] => {
-    const breadcrumbs: Breadcrumb[] = [
-      { label: 'Projects', onClick: handleBackToProjects, isActive: false }
-    ];
+    const breadcrumbs: Breadcrumb[] = [];
+
+    // Show Home only when not on home page
+    if (location.pathname !== '/') {
+      breadcrumbs.push(
+        { label: 'Accueil', onClick: handleBackToHome, isActive: false }
+      );
+    }
+
+    // Show Projects when on project pages
+    if (location.pathname.startsWith('/project') || (projectName ?? false)) {
+      breadcrumbs.push(
+        { label: 'Projets', onClick: handleBackToProjects, isActive: false }
+      );
+    }
 
     if (projectName && projectId) {
       breadcrumbs.push({
@@ -62,9 +78,9 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
         {/* Logo and Home */}
         <div className="nav-brand">
           <button
-            onClick={handleBackToProjects}
+            onClick={handleBackToHome}
             className="nav-home-btn neural-interactive neural-clickable neural-focusable"
-            title="Retour aux projets"
+            title="Retour à l'accueil"
           >
             <span className="brand-icon">🧠</span>
             <span className="brand-text">GeekBlog</span>
@@ -72,7 +88,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
         </div>
 
         {/* Breadcrumbs */}
-        <div className="nav-breadcrumbs">
+        <nav className="nav-breadcrumbs" aria-label="breadcrumbs">
           {breadcrumbs.map((crumb, index) => (
             <React.Fragment key={index}>
               {index > 0 && (
@@ -92,7 +108,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
               </button>
             </React.Fragment>
           ))}
-        </div>
+        </nav>
 
         {/* Project Info */}
         {projectId && (

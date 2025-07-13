@@ -131,7 +131,7 @@ L'analyse du blog de Christian Boulet révèle un modèle reproductible de créa
 
 Cette approche permettra à GeekBlog de proposer une expérience de création unique, combinant :
 - **Expertise technique** accessible
-- **Authenticité personnelle** 
+- **Authenticité personnelle**
 - **Engagement communautaire**
 - **Identité culturelle** forte
 

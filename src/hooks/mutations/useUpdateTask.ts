@@ -14,7 +14,7 @@ export const useUpdateTask = () => {
   const toast = useToastActions();
 
   return useMutation({
-    mutationFn: ({ taskId, data }: UpdateTaskPayload) => 
+    mutationFn: ({ taskId, data }: UpdateTaskPayload) =>
       api.updateTask(taskId, data),
 
     // CRITICAL: Optimistic update pattern
@@ -26,7 +26,7 @@ export const useUpdateTask = () => {
       }
 
       // Snapshot the previous values
-      const previousProject = projectId ? 
+      const previousProject = projectId ?
         queryClient.getQueryData<Project>(['project', projectId]) : null;
 
       // Optimistically update the task within the project
@@ -48,7 +48,7 @@ export const useUpdateTask = () => {
       if (context?.previousProject && projectId) {
         queryClient.setQueryData(['project', projectId], context.previousProject);
       }
-      
+
       toast.error('Failed to update task. Please try again.');
     },
 

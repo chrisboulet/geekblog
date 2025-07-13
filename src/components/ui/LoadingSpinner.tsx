@@ -37,7 +37,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={`inline-flex items-center ${className}`}
       role="status"
       aria-label={label}
@@ -110,7 +110,7 @@ export const GlowLoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={`inline-flex items-center ${className}`}
       role="status"
       aria-label={label}

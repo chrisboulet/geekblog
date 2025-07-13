@@ -33,7 +33,7 @@ GeekBlog est un **centre de commandement de contenu** qui transforme la créatio
 - Docker Compose 2.0+
 - Clé API Groq
 
-#### Pour installation manuelle  
+#### Pour installation manuelle
 - **Backend**: Python 3.9+, PostgreSQL, Redis
 - **Frontend**: Node.js 16+, npm
 - **IA**: Clé API Groq pour les modèles Llama

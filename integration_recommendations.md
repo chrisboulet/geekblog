@@ -136,30 +136,30 @@ import re
 from .base_template_service import BaseTemplateService
 
 class BouletTemplateService(BaseTemplateService):
-    
+
     BOULET_EXPRESSIONS = [
         "en fait", "bref", "du coup", "écrivez-moi",
         "je vous écoute", "plus de détails à venir"
     ]
-    
+
     QUEBEC_KEYWORDS = [
         "québec", "montréal", "hydro-québec", "saq", "caisse populaire",
         "dépanneur", "cégep", "chum", "université de montréal",
         "université laval", "uqam"
     ]
-    
+
     def analyze_boulet_style(self, content: str) -> Dict:
         """Analyse le contenu selon les critères du style Boulet."""
         words = content.lower().split()
         total_words = len(words)
-        
+
         # Calcul des métriques
         personal_pronouns = self._count_personal_pronouns(content)
         questions = content.count('?')
         exclamations = content.count('!')
         boulet_expressions = sum(1 for expr in self.BOULET_EXPRESSIONS if expr in content.lower())
         quebec_references = sum(1 for keyword in self.QUEBEC_KEYWORDS if keyword in content.lower())
-        
+
         return {
             "boulet_score": self._calculate_boulet_score(
                 personal_pronouns, questions, boulet_expressions, quebec_references, total_words
@@ -169,7 +169,7 @@ class BouletTemplateService(BaseTemplateService):
             "quebec_context": quebec_references > 0,
             "suggestions": self._generate_style_suggestions(content)
         }
-    
+
     def generate_title_suggestions(self, topic: str, template_type: str) -> List[str]:
         """Génère des suggestions de titres style Boulet."""
         templates = {
@@ -191,7 +191,7 @@ class BouletTemplateService(BaseTemplateService):
             ]
         }
         return templates.get(template_type, [])
-    
+
     def suggest_content_structure(self, template_type: str) -> Dict:
         """Suggère une structure de contenu selon le template."""
         structures = {
@@ -226,32 +226,32 @@ export const BouletStyleAssistant = ({ content, topic, onSuggestionApply }) => {
   const { analyzeStyle, generateSuggestions } = useBouletTemplates();
   const [analysis, setAnalysis] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
-  
+
   useEffect(() => {
     if (content) {
       analyzeStyle(content).then(setAnalysis);
     }
   }, [content]);
-  
+
   useEffect(() => {
     if (topic) {
       generateSuggestions(topic, 'question_engagement').then(setSuggestions);
     }
   }, [topic]);
-  
+
   return (
     <div className="boulet-assistant">
       <div className="style-score">
         <h3>Score Style Boulet</h3>
         <div className="score-bar">
-          <div 
-            className="score-fill" 
+          <div
+            className="score-fill"
             style={{ width: `${(analysis?.boulet_score || 0) * 100}%` }}
           />
         </div>
         <span>{((analysis?.boulet_score || 0) * 100).toFixed(0)}%</span>
       </div>
-      
+
       <div className="suggestions">
         <h4>Suggestions d'amélioration :</h4>
         {analysis?.suggestions?.map((suggestion, index) => (
@@ -263,7 +263,7 @@ export const BouletStyleAssistant = ({ content, topic, onSuggestionApply }) => {
           </div>
         ))}
       </div>
-      
+
       <div className="title-suggestions">
         <h4>Suggestions de titres :</h4>
         {suggestions.map((title, index) => (
@@ -290,7 +290,7 @@ import { apiClient } from '../services/api';
 export const useBouletTemplates = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const analyzeStyle = useCallback(async (content) => {
     setLoading(true);
     try {
@@ -303,7 +303,7 @@ export const useBouletTemplates = () => {
       setLoading(false);
     }
   }, []);
-  
+
   const generateSuggestions = useCallback(async (topic, templateType) => {
     setLoading(true);
     try {
@@ -319,7 +319,7 @@ export const useBouletTemplates = () => {
       setLoading(false);
     }
   }, []);
-  
+
   return {
     analyzeStyle,
     generateSuggestions,
@@ -337,9 +337,9 @@ export const useBouletTemplates = () => {
 def test_boulet_style_analysis():
     service = BouletTemplateService()
     content = "En fait, je pense que l'IA au Québec, c'est l'avenir. Qu'en pensez-vous ?"
-    
+
     analysis = service.analyze_boulet_style(content)
-    
+
     assert analysis['boulet_score'] > 0.5
     assert analysis['quebec_context'] is True
     assert analysis['engagement_level'] == 'high'
@@ -347,7 +347,7 @@ def test_boulet_style_analysis():
 def test_title_generation():
     service = BouletTemplateService()
     suggestions = service.generate_title_suggestions("Tesla", "question")
-    
+
     assert "Tesla... oui ou non ?" in suggestions
     assert len(suggestions) >= 3
 ```
@@ -359,9 +359,9 @@ describe('BouletStyleAssistant', () => {
   test('affiche le score de style', async () => {
     const mockAnalysis = { boulet_score: 0.75, suggestions: [] };
     jest.spyOn(api, 'analyzeStyle').mockResolvedValue(mockAnalysis);
-    
+
     render(<BouletStyleAssistant content="Test content" />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('75%')).toBeInTheDocument();
     });

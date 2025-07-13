@@ -22,7 +22,7 @@
 - **Development Proxy**: Vite dev server proxies `/api` to `http://backend:8000` (Docker internal)
 - **Browser Access**: Frontend uses `VITE_API_BASE_URL=http://localhost:8000/api/v1` for direct API calls
 - **Docker Network**: `backend` hostname only resolves within Docker containers
-- **Configuration Files**: 
+- **Configuration Files**:
   - `docker-compose.yml`: Base configuration with `VITE_API_BASE_URL=http://localhost:8000/api/v1`
   - `docker-compose.override.yml`: Development overrides (MUST match base URL)
   - `vite.config.ts`: Proxy configuration for internal Docker communication
@@ -131,15 +131,30 @@ geekblog/
 - ✅ **Toast Notification System** - Context-based notifications with auto-dismiss and actions
 - ✅ **Application Fully Functional** - Users can now perform all basic content management operations
 
-### 🏗️ Phase 8 - Make It Right: Type Automation & API Refinement (NEXT)
+### 🏗️ Phase 8 - Make It Right: Type Automation & API Refinement (ACTIVE)
 **Durée estimée: 7-10 jours**
+**Started: 2025-07-12**
+**PRD**: See [PRD_PHASE_8_TYPESCRIPT_AUTOMATION.md](./PRD_PHASE_8_TYPESCRIPT_AUTOMATION.md) for detailed requirements
 
 **Objectif**: Transformer le système CRUD de base en système robuste avec automatisation TypeScript, validation complète, et UX fluide. Cette phase se concentre sur la qualité du code, l'automatisation des types, et l'expérience utilisateur cohérente.
 
 **Sous-phases**:
-- **8.1 TypeScript Automation & Code Quality** (2-3 jours): Génération automatique types, validation runtime Zod, enhanced API service layer
-- **8.2 UI/UX Refinement & Component Architecture** (3-4 jours): Design system integration, TemplateGallery avancée, real-time preview system
-- **8.3 Integration & Workflow Optimization** (2-3 jours): Navigation enhancement, performance optimization, developer experience
+- **8.1 TypeScript Automation & Code Quality** (2-3 jours):
+  - [ ] Automatic type generation from SQLAlchemy models
+  - [ ] Runtime validation with Zod schemas
+  - [ ] Enhanced API service layer with retry logic
+  - [ ] Template validation engine
+
+- **8.2 UI/UX Refinement & Component Architecture** (3-4 jours):
+  - [ ] Complete Template Gallery implementation
+  - [ ] Design system integration
+  - [ ] Real-time preview system
+  - [ ] Component library standardization
+
+- **8.3 Integration & Workflow Optimization** (2-3 jours):
+  - [ ] Navigation & routing enhancement
+  - [ ] Performance optimization
+  - [ ] Developer experience improvements
 
 ### 🎨 Phase 9 - Make It Robust: Error States & UX Polish (FINAL)
 **Durée estimée: 10-13 jours**
@@ -238,6 +253,24 @@ geekblog/
 5. ✅ **Application Usability** - Users can now perform all essential content management operations
 6. ✅ **Documentation Updated** - README, TASK, PLANNING synchronized with implementation
 
+### Current Goals & Priorities (2025-07-12)
+
+#### Active Development - Phase 8
+1. **TypeScript Automation Foundation**
+   - Create SQLAlchemy → TypeScript type generator
+   - Implement Zod validation schemas
+   - Set up CI/CD type synchronization
+
+2. **Complete Template System**
+   - Finish TemplateGallery component
+   - Build TemplateCustomizer modal
+   - Integrate template workflow
+
+3. **API Service Enhancement**
+   - Refactor with error handling patterns
+   - Add retry logic and caching
+   - Create service factory
+
 ### Next Session Goals (Future)
 1. **Performance Optimization** - Bundle splitting, lazy loading
 2. **Error Handling Enhancement** - User notifications system
@@ -248,7 +281,7 @@ geekblog/
 1. ✅ **Template Foundation** - Walking skeleton établi avec API et frontend de base (COMPLETED)
 2. **Navigation & Routing Enhancement** - Deep linking modals, breadcrumb navigation
 3. **Performance Optimization** - Bundle splitting, lazy loading, caching HTTP
-4. **Comprehensive Error Handling** - Error boundaries, network resilience, graceful degradation  
+4. **Comprehensive Error Handling** - Error boundaries, network resilience, graceful degradation
 5. **WCAG 2.1 AA Compliance** - Accessibility complète, navigation keyboard, screen reader
 6. **Testing Suite Complete** - Coverage 95%+, E2E tests, visual regression testing
 
@@ -295,4 +328,5 @@ geekblog/
 - **PLANNING.md**: Architecture and development guide (this file)
 - **TASK.md**: Current task tracking and completion status
 - **CLAUDE.md**: AI assistant guidance and commands
+- **PRD_PHASE_8_TYPESCRIPT_AUTOMATION.md**: Detailed requirements for Phase 8
 - **API Documentation**: Available at `/docs` endpoint

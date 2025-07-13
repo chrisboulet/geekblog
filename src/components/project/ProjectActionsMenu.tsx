@@ -12,7 +12,7 @@ interface ProjectActionsMenuProps {
 const ProjectActionsMenu: React.FC<ProjectActionsMenuProps> = ({ project }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
+
   const deleteProjectMutation = useDeleteProject();
 
   const handleEdit = () => {
@@ -60,23 +60,23 @@ const ProjectActionsMenu: React.FC<ProjectActionsMenuProps> = ({ project }) => {
             <span>Edit</span>
           </div>
         </DropdownMenu.Item>
-        
+
         <DropdownMenu.Item onSelect={handleDuplicate}>
           <div className="flex items-center gap-2">
             <span>📋</span>
             <span>Duplicate</span>
           </div>
         </DropdownMenu.Item>
-        
+
         <DropdownMenu.Item onSelect={handleArchive}>
           <div className="flex items-center gap-2">
             <span>📦</span>
             <span>Archive</span>
           </div>
         </DropdownMenu.Item>
-        
+
         <DropdownMenu.Separator />
-        
+
         <DropdownMenu.Item onSelect={handleDelete} destructive>
           <div className="flex items-center gap-2">
             <span>🗑️</span>

@@ -33,7 +33,7 @@ while ! check_db; do
         echo "  - Network connectivity between containers"
         exit 1
     fi
-    
+
     echo -e "Database unavailable - waiting... (${COUNTER}/${TIMEOUT})"
     sleep 1
     COUNTER=$((COUNTER + 1))
@@ -44,12 +44,12 @@ echo -e "${GREEN}✓ Database connection established${NC}"
 # Function to run migrations safely
 run_migrations() {
     echo -e "${YELLOW}Checking database migrations...${NC}"
-    
+
     # Check if alembic is initialized
     if ! alembic current 2>/dev/null; then
         echo -e "${YELLOW}Initializing database with migrations...${NC}"
         alembic upgrade head
-        
+
         if [ $? -eq 0 ]; then
             echo -e "${GREEN}✓ Database initialized successfully${NC}"
         else
@@ -60,14 +60,14 @@ run_migrations() {
         # Check for pending migrations
         CURRENT_REV=$(alembic current 2>/dev/null | grep -oE '[a-f0-9]{12}' | head -1)
         HEAD_REV=$(alembic heads 2>/dev/null | grep -oE '[a-f0-9]{12}' | head -1)
-        
+
         if [ "$CURRENT_REV" != "$HEAD_REV" ]; then
             echo "Current revision: $CURRENT_REV"
             echo "Head revision: $HEAD_REV"
             echo -e "${YELLOW}Running pending migrations...${NC}"
-            
+
             alembic upgrade head
-            
+
             if [ $? -eq 0 ]; then
                 echo -e "${GREEN}✓ Migrations completed successfully${NC}"
             else
@@ -87,7 +87,7 @@ run_migrations
 if [ "$SEED_TEMPLATES" = "true" ]; then
     echo -e "${YELLOW}Seeding blog templates...${NC}"
     python -m app.db.seed_templates
-    
+
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Templates seeded successfully${NC}"
     else
@@ -108,12 +108,12 @@ try:
     from app.main import app
     from app.db.config import engine
     from sqlalchemy import text
-    
+
     # Test database connection
     with engine.connect() as conn:
         result = conn.execute(text('SELECT 1'))
         assert result.fetchone()[0] == 1
-    
+
     print('✓ Database connection: OK')
     print('✓ Application import: OK')
 except Exception as e:

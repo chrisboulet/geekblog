@@ -2,12 +2,15 @@
  * TemplateFilters Component
  * Search and filter controls for template selection with debouncing
  * Supports text search, category, difficulty, tone, and active filters
+ * Enhanced with Radix Select components for accessibility
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, X, ChevronDown } from 'lucide-react';
+import { Search, Filter, X, ChevronDown, Check } from 'lucide-react';
+import * as Select from '@radix-ui/react-select';
 import { useTemplateCategories } from '../../hooks/useTemplates';
 import { TEMPLATE_CATEGORIES } from '../../types/templates';
+import TemplateSearch from './TemplateSearch';
 
 export interface TemplateFilters {
   search?: string;
@@ -37,6 +40,100 @@ const DIFFICULTY_OPTIONS = [
   { value: 'Avancé', label: 'Avancé' }
 ];
 
+/**
+ * Reusable Radix Select component with Neural Flow styling
+ */
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface CustomSelectProps {
+  value: string;
+  onValueChange: (value: string) => void;
+  options: SelectOption[];
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+}
+
+const CustomSelect: React.FC<CustomSelectProps> = ({
+  value,
+  onValueChange,
+  options,
+  placeholder = 'Select...',
+  disabled = false,
+  className = '',
+}) => {
+  return (
+    <Select.Root value={value} onValueChange={onValueChange} disabled={disabled}>
+      <Select.Trigger
+        className={`
+          flex items-center justify-between gap-2 px-3 py-1.5
+          bg-bg-secondary border border-neural-blue/30 rounded-lg
+          text-sm text-text-primary
+          hover:border-neural-blue/50 transition-colors
+          focus:outline-none focus:ring-2 focus:ring-neural-blue/50
+          disabled:opacity-50 disabled:cursor-not-allowed
+          neural-focusable
+          ${className}
+        `}
+        aria-label={placeholder}
+      >
+        <Select.Value placeholder={placeholder} />
+        <Select.Icon>
+          <ChevronDown className="h-3 w-3 text-text-secondary" />
+        </Select.Icon>
+      </Select.Trigger>
+
+      <Select.Portal>
+        <Select.Content
+          className="
+            bg-bg-primary border border-neural-blue/30 rounded-lg shadow-lg
+            overflow-hidden z-50 max-h-60
+            data-[state=open]:animate-in data-[state=closed]:animate-out
+            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
+            data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
+            data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2
+          "
+          position="popper"
+          sideOffset={4}
+        >
+          <Select.ScrollUpButton className="flex items-center justify-center h-6 text-text-secondary">
+            <ChevronDown className="h-3 w-3 rotate-180" />
+          </Select.ScrollUpButton>
+
+          <Select.Viewport className="p-1">
+            {options.map((option) => (
+              <Select.Item
+                key={option.value}
+                value={option.value}
+                className="
+                  relative flex items-center gap-2 px-3 py-2 rounded text-sm
+                  text-text-primary cursor-pointer select-none
+                  hover:bg-neural-blue/10 hover:text-neural-blue
+                  focus:bg-neural-blue/10 focus:text-neural-blue
+                  data-[state=checked]:bg-neural-blue/20 data-[state=checked]:text-neural-blue
+                  outline-none
+                "
+              >
+                <Select.ItemIndicator className="absolute left-2">
+                  <Check className="h-3 w-3" />
+                </Select.ItemIndicator>
+                <Select.ItemText className="ml-5">{option.label}</Select.ItemText>
+              </Select.Item>
+            ))}
+          </Select.Viewport>
+
+          <Select.ScrollDownButton className="flex items-center justify-center h-6 text-text-secondary">
+            <ChevronDown className="h-3 w-3" />
+          </Select.ScrollDownButton>
+        </Select.Content>
+      </Select.Portal>
+    </Select.Root>
+  );
+};
+
 const TemplateFilters: React.FC<TemplateFiltersProps> = ({
   filters,
   onFiltersChange,
@@ -44,17 +141,16 @@ const TemplateFilters: React.FC<TemplateFiltersProps> = ({
   showAdvanced = true,
   isLoading = false
 }) => {
-  const [searchInput, setSearchInput] = useState(filters.search || '');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  
+
   // Fetch available categories from API
   const { data: apiCategories } = useTemplateCategories();
-  
+
   // Combine static and API categories, remove duplicates
   const categoryOptions = React.useMemo(() => {
     const staticCategories = TEMPLATE_CATEGORIES.map(cat => cat.value);
     const allCategories = [...staticCategories];
-    
+
     if (apiCategories) {
       apiCategories.forEach(cat => {
         if (!allCategories.includes(cat)) {
@@ -62,26 +158,12 @@ const TemplateFilters: React.FC<TemplateFiltersProps> = ({
         }
       });
     }
-    
+
     return [
       { value: '', label: 'All Categories' },
       ...allCategories.map(cat => ({ value: cat, label: cat }))
     ];
   }, [apiCategories]);
-
-  // Debounced search effect
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (searchInput !== filters.search) {
-        onFiltersChange({
-          ...filters,
-          search: searchInput.trim() || undefined
-        });
-      }
-    }, debounceMs);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchInput, debounceMs, filters, onFiltersChange]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((key: keyof TemplateFilters, value: any) => {
@@ -91,83 +173,74 @@ const TemplateFilters: React.FC<TemplateFiltersProps> = ({
     });
   }, [filters, onFiltersChange]);
 
+  // Handle search change
+  const handleSearchChange = useCallback((searchTerm: string) => {
+    handleFilterChange('search', searchTerm);
+  }, [handleFilterChange]);
+
   // Clear all filters
   const handleClearFilters = useCallback(() => {
-    setSearchInput('');
     onFiltersChange({ active_only: true });
   }, [onFiltersChange]);
 
   // Check if any filters are active
-  const hasActiveFilters = Object.values(filters).some(value => 
+  const hasActiveFilters = Object.values(filters).some(value =>
     value !== undefined && value !== '' && value !== false
   );
 
   // Count active filters
-  const activeFilterCount = Object.values(filters).filter(value => 
+  const activeFilterCount = Object.values(filters).filter(value =>
     value !== undefined && value !== '' && value !== false
   ).length;
 
+  // Generate search suggestions based on categories and common terms
+  const searchSuggestions = React.useMemo(() => {
+    const suggestions = [
+      ...categoryOptions.slice(1).map(cat => cat.label), // Skip "All Categories"
+      'Guide pratique',
+      'Tutorial',
+      'Sécurité',
+      'Performance',
+      'Boulet style',
+      'Québécois',
+    ];
+    return [...new Set(suggestions)]; // Remove duplicates
+  }, [categoryOptions]);
+
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-text-tertiary" />
-        </div>
-        <input
-          type="text"
-          placeholder="Search templates..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          disabled={isLoading}
-          className="w-full pl-10 pr-4 py-2 bg-bg-secondary border border-neural-purple/30 rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-purple neural-focusable disabled:opacity-50"
-        />
-        {searchInput && (
-          <button
-            onClick={() => setSearchInput('')}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-tertiary hover:text-text-primary transition-colors"
-            title="Clear search"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
+      {/* Enhanced Search Bar */}
+      <TemplateSearch
+        value={filters.search || ''}
+        onSearch={handleSearchChange}
+        isLoading={isLoading}
+        placeholder="Rechercher des modèles..."
+        debounceMs={debounceMs}
+        suggestions={searchSuggestions}
+        disabled={isLoading}
+      />
 
       {/* Quick Filters Row */}
       <div className="flex flex-wrap gap-2 items-center">
-        {/* Category Filter */}
-        <div className="relative">
-          <select
-            value={filters.category || ''}
-            onChange={(e) => handleFilterChange('category', e.target.value)}
-            disabled={isLoading}
-            className="appearance-none bg-bg-secondary border border-neural-purple/30 rounded-lg px-3 py-1.5 pr-8 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-neural-purple neural-focusable disabled:opacity-50"
-          >
-            {categoryOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-text-tertiary pointer-events-none" />
-        </div>
+        {/* Category Filter with Radix Select */}
+        <CustomSelect
+          value={filters.category || ''}
+          onValueChange={(value) => handleFilterChange('category', value)}
+          options={categoryOptions}
+          placeholder="Catégorie"
+          disabled={isLoading}
+          className="min-w-32"
+        />
 
-        {/* Difficulty Filter */}
-        <div className="relative">
-          <select
-            value={filters.difficulty || ''}
-            onChange={(e) => handleFilterChange('difficulty', e.target.value)}
-            disabled={isLoading}
-            className="appearance-none bg-bg-secondary border border-neural-purple/30 rounded-lg px-3 py-1.5 pr-8 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-neural-purple neural-focusable disabled:opacity-50"
-          >
-            {DIFFICULTY_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-text-tertiary pointer-events-none" />
-        </div>
+        {/* Difficulty Filter with Radix Select */}
+        <CustomSelect
+          value={filters.difficulty || ''}
+          onValueChange={(value) => handleFilterChange('difficulty', value)}
+          options={DIFFICULTY_OPTIONS}
+          placeholder="Difficulté"
+          disabled={isLoading}
+          className="min-w-32"
+        />
 
         {/* Active Only Toggle */}
         <label className="flex items-center gap-2 cursor-pointer">
@@ -176,22 +249,22 @@ const TemplateFilters: React.FC<TemplateFiltersProps> = ({
             checked={filters.active_only || false}
             onChange={(e) => handleFilterChange('active_only', e.target.checked || undefined)}
             disabled={isLoading}
-            className="rounded border-neural-purple/30 text-neural-purple focus:ring-neural-purple focus:ring-offset-0 neural-focusable disabled:opacity-50"
+            className="rounded border-neural-blue/30 text-neural-blue focus:ring-neural-blue focus:ring-offset-0 neural-focusable disabled:opacity-50"
           />
-          <span className="text-sm text-text-secondary">Active only</span>
+          <span className="text-sm text-text-secondary">Actifs seulement</span>
         </label>
 
         {/* Advanced Filters Toggle */}
         {showAdvanced && (
           <button
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm text-text-secondary border border-neural-purple/30 rounded-lg hover:bg-bg-glass transition-colors neural-focusable"
+            className="flex items-center gap-1 px-3 py-1.5 text-sm text-text-secondary border border-neural-blue/30 rounded-lg hover:bg-bg-glass hover:border-neural-blue/50 transition-colors neural-focusable"
             disabled={isLoading}
           >
             <Filter className="h-3 w-3" />
-            <span>Advanced</span>
+            <span>Avancé</span>
             {activeFilterCount > 0 && (
-              <span className="bg-neural-purple text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-1">
+              <span className="bg-neural-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-1">
                 {activeFilterCount}
               </span>
             )}
@@ -202,34 +275,34 @@ const TemplateFilters: React.FC<TemplateFiltersProps> = ({
         {hasActiveFilters && (
           <button
             onClick={handleClearFilters}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm text-text-tertiary hover:text-text-primary transition-colors"
+            className="flex items-center gap-1 px-3 py-1.5 text-sm text-text-tertiary hover:text-text-primary transition-colors neural-focusable"
             disabled={isLoading}
-            title="Clear all filters"
+            title="Effacer tous les filtres"
           >
             <X className="h-3 w-3" />
-            <span>Clear</span>
+            <span>Effacer</span>
           </button>
         )}
       </div>
 
       {/* Advanced Filters */}
       {showAdvanced && showAdvancedFilters && (
-        <div className="bg-bg-secondary rounded-lg p-4 border border-neural-purple/20 space-y-3">
-          <h4 className="text-sm font-medium text-text-primary mb-3">Advanced Filters</h4>
-          
+        <div className="bg-bg-secondary rounded-lg p-4 border border-neural-blue/20 space-y-3">
+          <h4 className="text-sm font-medium text-text-primary mb-3">Filtres Avancés</h4>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Tone Filter */}
             <div>
               <label className="block text-xs font-medium text-text-secondary mb-1">
-                Tone
+                Ton
               </label>
               <input
                 type="text"
-                placeholder="e.g., humoristique, technique..."
+                placeholder="ex: humoristique, technique..."
                 value={filters.tone || ''}
                 onChange={(e) => handleFilterChange('tone', e.target.value)}
                 disabled={isLoading}
-                className="w-full px-3 py-1.5 bg-bg-primary border border-neural-purple/30 rounded text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-neural-purple neural-focusable disabled:opacity-50"
+                className="w-full px-3 py-1.5 bg-bg-primary border border-neural-blue/30 rounded text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-neural-blue neural-focusable disabled:opacity-50"
               />
             </div>
           </div>
@@ -239,7 +312,7 @@ const TemplateFilters: React.FC<TemplateFiltersProps> = ({
       {/* Filter Summary */}
       {hasActiveFilters && (
         <div className="text-xs text-text-tertiary">
-          {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
+          {activeFilterCount} filtre{activeFilterCount !== 1 ? 's' : ''} appliqué{activeFilterCount !== 1 ? 's' : ''}
         </div>
       )}
     </div>

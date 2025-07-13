@@ -41,7 +41,7 @@ export const useDeleteTask = () => {
       if (context?.previousProject) {
         queryClient.setQueryData(['project', projectId], context.previousProject);
       }
-      
+
       toast.error('Failed to delete task. Please try again.');
     },
 

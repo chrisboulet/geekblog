@@ -21,12 +21,12 @@ interface ModalFooterProps {
   children: React.ReactNode;
 }
 
-const ModalComponent: React.FC<ModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  title, 
-  children, 
-  size = 'md' 
+const ModalComponent: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = 'md'
 }) => {
   const sizeClasses = {
     sm: 'max-w-sm',
@@ -39,7 +39,7 @@ const ModalComponent: React.FC<ModalProps> = ({
     <DialogPrimitive.Root open={isOpen} onOpenChange={onClose}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
-        <DialogPrimitive.Content 
+        <DialogPrimitive.Content
           className={`
             fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50
             neural-card p-6 w-full mx-4 ${sizeClasses[size]}
@@ -52,9 +52,9 @@ const ModalComponent: React.FC<ModalProps> = ({
               {title}
             </DialogPrimitive.Title>
           )}
-          
+
           {children}
-          
+
           <DialogPrimitive.Close asChild>
             <button
               className="absolute top-4 right-4 text-text-secondary hover:text-text-primary transition-colors"

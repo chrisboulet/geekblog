@@ -11,11 +11,11 @@ interface NeuralCanvasProps {
   onCreateNode?: (type: 'idea' | 'category' | 'tag', position: { x: number; y: number }) => void;
 }
 
-const NeuralCanvas: React.FC<NeuralCanvasProps> = ({ 
+const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
   project,
   isSimpleMode = false,
   onSaveContent,
-  onCreateNode 
+  onCreateNode
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
@@ -117,7 +117,7 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
     const radius = 30; // Percentage from center
     const centerX = 50;
     const centerY = 50;
-    
+
     return {
       x: centerX + Math.cos(angle) * radius,
       y: centerY + Math.sin(angle) * radius
@@ -126,16 +126,16 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
 
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     if (!canvasRef.current) return;
-    
+
     const rect = canvasRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
+
     // Don't create node if clicking on existing elements
     if ((e.target as HTMLElement).closest('.neural-node, .floating-editor')) {
       return;
     }
-    
+
     if (onCreateNode) {
       onCreateNode('idea', { x, y });
     } else {
@@ -152,16 +152,16 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
   }, [onCreateNode]);
 
   const handleNodeMove = useCallback((nodeId: string, newPosition: { x: number; y: number }) => {
-    setNodes(prev => prev.map(node => 
-      node.id === nodeId 
+    setNodes(prev => prev.map(node =>
+      node.id === nodeId
         ? { ...node, position: newPosition }
         : node
     ));
   }, []);
 
   const handleNodeEdit = useCallback((nodeId: string, newContent: string) => {
-    setNodes(prev => prev.map(node => 
-      node.id === nodeId 
+    setNodes(prev => prev.map(node =>
+      node.id === nodeId
         ? { ...node, content: newContent }
         : node
     ));
@@ -169,7 +169,7 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
 
   const handleNodeClick = useCallback((nodeId: string) => {
     setActiveNodeId(nodeId);
-    
+
     // Create neural pulse effect
     const node = nodes.find(n => n.id === nodeId);
     if (node && canvasRef.current) {
@@ -178,7 +178,7 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
       pulse.style.left = node.position.x + '%';
       pulse.style.top = node.position.y + '%';
       pulse.style.transform = 'translate(-50%, -50%)';
-      
+
       canvasRef.current.appendChild(pulse);
       setTimeout(() => pulse.remove(), 3000);
     }
@@ -191,7 +191,7 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
   }, [editorContent, editorTitle, onSaveContent]);
 
   return (
-    <div 
+    <div
       ref={canvasRef}
       className="relative w-full h-full overflow-hidden"
       style={{
@@ -203,7 +203,7 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
       {!isSimpleMode && (
         <ConnectionCanvas nodes={nodes} activeNodeId={activeNodeId} />
       )}
-      
+
       {/* Central Floating Editor */}
       <FloatingEditor
         title={editorTitle}
@@ -213,7 +213,7 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
         onSave={handleSave}
         projectName={project.name}
       />
-      
+
       {/* Neural Nodes */}
       {nodes.map(node => (
         <NeuralNode
@@ -228,7 +228,7 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
           onClick={handleNodeClick}
         />
       ))}
-      
+
       {/* Instructions overlay based on mode */}
       {isSimpleMode ? (
         <div className="absolute top-4 left-4 right-4 text-center">
@@ -266,10 +266,10 @@ const NeuralCanvas: React.FC<NeuralCanvasProps> = ({
       {isSimpleMode && nodes.length < 3 && (
         <div className="absolute bottom-4 right-4">
           <button
-            onClick={() => handleDoubleClick({ 
-              clientX: 0, 
-              clientY: 0, 
-              target: canvasRef.current 
+            onClick={() => handleDoubleClick({
+              clientX: 0,
+              clientY: 0,
+              target: canvasRef.current
             } as any)}
             className="neural-button-primary neural-interactive neural-clickable neural-focusable flex items-center gap-2 px-4 py-2"
             title="Ajouter un nouveau nœud"

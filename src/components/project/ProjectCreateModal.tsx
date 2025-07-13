@@ -11,13 +11,13 @@ interface ProjectCreateModalProps {
   onClose: () => void;
 }
 
-const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({ 
-  isOpen, 
-  onClose 
+const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
+  isOpen,
+  onClose
 }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  
+
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const toast = useToastActions();
@@ -41,7 +41,7 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim()) return;
 
     createProjectMutation.mutate({
@@ -58,8 +58,8 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
   };
 
   return (
-    <Modal 
-      isOpen={isOpen} 
+    <Modal
+      isOpen={isOpen}
       onClose={handleCancel}
       title="Create New Project"
       size="md"
@@ -68,8 +68,8 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
         <Modal.Body>
           <div className="space-y-4">
             <div>
-              <label 
-                htmlFor="newProjectName" 
+              <label
+                htmlFor="newProjectName"
                 className="block text-sm font-medium text-text-primary mb-2"
               >
                 Project Name *
@@ -85,10 +85,10 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
                 autoFocus
               />
             </div>
-            
+
             <div>
-              <label 
-                htmlFor="newProjectDescription" 
+              <label
+                htmlFor="newProjectDescription"
                 className="block text-sm font-medium text-text-primary mb-2"
               >
                 Description (optional)
@@ -103,14 +103,14 @@ const ProjectCreateModal: React.FC<ProjectCreateModalProps> = ({
               />
             </div>
           </div>
-          
+
           {createProjectMutation.isError && (
             <div className="mt-4 p-3 neural-error rounded-md">
               <p className="text-sm">Failed to create project. Please try again.</p>
             </div>
           )}
         </Modal.Body>
-        
+
         <Modal.Footer>
           <button
             type="button"

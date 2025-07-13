@@ -11,16 +11,16 @@ interface TaskEditModalProps {
   onClose: () => void;
 }
 
-const TaskEditModal: React.FC<TaskEditModalProps> = ({ 
-  task, 
-  isOpen, 
-  onClose 
+const TaskEditModal: React.FC<TaskEditModalProps> = ({
+  task,
+  isOpen,
+  onClose
 }) => {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
   const [status, setStatus] = useState(task.status || 'pending');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
+
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
 
@@ -35,31 +35,31 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim()) return;
 
     // OPTIMIZATION: Only send changed fields (partial update)
     const updates: { title?: string; description?: string; status?: string } = {};
-    
+
     if (title.trim() !== task.title) {
       updates.title = title.trim();
     }
-    
+
     if (description.trim() !== (task.description || '')) {
       updates.description = description.trim() || undefined;
     }
-    
+
     if (status !== task.status) {
       updates.status = status;
     }
-    
+
     // Only make API call if there are actual changes
     if (Object.keys(updates).length > 0) {
       updateTaskMutation.mutate(
-        { 
-          taskId: task.id, 
+        {
+          taskId: task.id,
           data: updates,
-          projectId: task.project_id 
+          projectId: task.project_id
         },
         {
           onSuccess: () => {
@@ -98,8 +98,8 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
 
   return (
     <>
-      <Modal 
-        isOpen={isOpen} 
+      <Modal
+        isOpen={isOpen}
         onClose={handleCancel}
         title="Edit Task"
         size="md"
@@ -108,8 +108,8 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
           <Modal.Body>
             <div className="space-y-4">
               <div>
-                <label 
-                  htmlFor="taskTitle" 
+                <label
+                  htmlFor="taskTitle"
                   className="block text-sm font-medium text-text-primary mb-2"
                 >
                   Task Title *
@@ -125,10 +125,10 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                   autoFocus
                 />
               </div>
-              
+
               <div>
-                <label 
-                  htmlFor="taskDescription" 
+                <label
+                  htmlFor="taskDescription"
                   className="block text-sm font-medium text-text-primary mb-2"
                 >
                   Description
@@ -144,8 +144,8 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
               </div>
 
               <div>
-                <label 
-                  htmlFor="taskStatus" 
+                <label
+                  htmlFor="taskStatus"
                   className="block text-sm font-medium text-text-primary mb-2"
                 >
                   Status
@@ -163,14 +163,14 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                 </select>
               </div>
             </div>
-            
+
             {updateTaskMutation.isError && (
               <div className="mt-4 p-3 neural-error rounded-md">
                 <p className="text-sm">Failed to update task. Please try again.</p>
               </div>
             )}
           </Modal.Body>
-          
+
           <Modal.Footer>
             <div className="flex justify-between w-full">
               <button
@@ -181,7 +181,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
               >
                 🗑️ Delete
               </button>
-              
+
               <div className="flex gap-3">
                 <button
                   type="button"

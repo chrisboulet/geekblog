@@ -1,11 +1,13 @@
 import os
-from typing import Optional # Ajout de l'import Optional
+import asyncio
+from typing import Optional  # Ajout de l'import Optional
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
 
 # Charger les variables d'environnement
 load_dotenv()
 from langchain_groq import ChatGroq
+
 # Désactiver temporairement les outils de recherche pour éviter les erreurs de validation
 # TODO: Implémenter les outils de recherche compatibles avec CrewAI 0.140.0
 search_tool = None
@@ -16,13 +18,13 @@ print("Search tools disabled temporarily. AI features will work without web sear
 try:
     llm = ChatGroq(
         api_key=os.getenv("GROQ_API_KEY"),
-        model="llama3-8b-8192", # ou llama3-70b-8192 pour plus de puissance
-        temperature=0.7
+        model="llama3-8b-8192",  # ou llama3-70b-8192 pour plus de puissance
+        temperature=0.7,
     )
 except Exception as e:
     print(f"Erreur lors de l'initialisation du LLM Groq: {e}")
     print("Veuillez vérifier que GROQ_API_KEY est bien configuré.")
-    llm = None # Mettre à None pour éviter les erreurs si la clé n'est pas là
+    llm = None  # Mettre à None pour éviter les erreurs si la clé n'est pas là
 
 # L'outil search_tool est défini ci-dessus lors de l'import
 
@@ -37,9 +39,10 @@ planner_agent = Agent(
         "qui sont auto-explicatifs et mènent à des actions spécifiques."
     ),
     verbose=True,
-    allow_delegation=False, # Ce planificateur ne délègue pas, il produit le plan.
-    llm=llm # Utiliser le LLM configuré
+    allow_delegation=False,  # Ce planificateur ne délègue pas, il produit le plan.
+    llm=llm,  # Utiliser le LLM configuré
 )
+
 
 def create_planning_task(project_goal: str) -> Task:
     """Crée une tâche pour l'agent planificateur."""
@@ -66,13 +69,16 @@ def create_planning_task(project_goal: str) -> Task:
             "Titre de la tâche 2\n"
             "Titre de la tâche 3"
         ),
-        agent=planner_agent
+        agent=planner_agent,
     )
+
 
 def run_planning_crew(project_goal: str) -> list[str]:
     """Exécute le crew de planification et retourne une liste de titres de tâches."""
     if not llm:
-        raise EnvironmentError("LLM non initialisé. Vérifiez la configuration de GROQ_API_KEY.")
+        raise EnvironmentError(
+            "LLM non initialisé. Vérifiez la configuration de GROQ_API_KEY."
+        )
 
     planning_task_instance = create_planning_task(project_goal)
 
@@ -80,20 +86,21 @@ def run_planning_crew(project_goal: str) -> list[str]:
         agents=[planner_agent],
         tasks=[planning_task_instance],
         process=Process.sequential,
-        verbose=2 # Niveau de verbosité pour le logging du crew
+        verbose=2,  # Niveau de verbosité pour le logging du crew
     )
 
     result = planning_crew.kickoff()
 
     if isinstance(result, str):
         # Nettoyer le résultat: séparer par ligne et enlever les lignes vides
-        task_titles = [title.strip() for title in result.split('\n') if title.strip()]
+        task_titles = [title.strip() for title in result.split("\n") if title.strip()]
         # Enlever les éventuels tirets ou numérotations en début de ligne
-        task_titles = [title.lstrip('-*. ') for title in task_titles]
+        task_titles = [title.lstrip("-*. ") for title in task_titles]
         return task_titles
     else:
         print(f"Résultat inattendu du crew de planification: {result}")
         return []
+
 
 # --- Agent Chercheur ---
 researcher_agent = Agent(
@@ -106,11 +113,14 @@ researcher_agent = Agent(
     ),
     verbose=True,
     allow_delegation=False,
-    tools=[search_tool] if search_tool else [], # Outil de recherche web si disponible
-    llm=llm
+    tools=[search_tool] if search_tool else [],  # Outil de recherche web si disponible
+    llm=llm,
 )
 
-def create_research_task(task_title: str, research_context: Optional[str] = None) -> Task:
+
+def create_research_task(
+    task_title: str, research_context: Optional[str] = None
+) -> Task:
     """Crée une tâche pour l'agent chercheur."""
     description = f"Sujet de recherche: '{task_title}'. "
     if research_context:
@@ -128,13 +138,16 @@ def create_research_task(task_title: str, research_context: Optional[str] = None
             "Un résumé textuel des informations trouvées, incluant les points clés, faits, statistiques et exemples. "
             "Les sources (URL) doivent être listées à la fin si possible."
         ),
-        agent=researcher_agent
+        agent=researcher_agent,
     )
+
 
 def run_research_crew(task_title: str, research_context: Optional[str] = None) -> str:
     """Exécute le crew de recherche et retourne le résultat textuel."""
     if not llm:
-        raise EnvironmentError("LLM non initialisé. Vérifiez la configuration de GROQ_API_KEY.")
+        raise EnvironmentError(
+            "LLM non initialisé. Vérifiez la configuration de GROQ_API_KEY."
+        )
 
     research_task_instance = create_research_task(task_title, research_context)
 
@@ -142,7 +155,7 @@ def run_research_crew(task_title: str, research_context: Optional[str] = None) -
         agents=[researcher_agent],
         tasks=[research_task_instance],
         process=Process.sequential,
-        verbose=2
+        verbose=2,
     )
 
     result = research_crew.kickoff()
@@ -159,9 +172,10 @@ writer_agent = Agent(
         "à la clarté, à la fluidité du texte et à l'engagement du lecteur."
     ),
     verbose=True,
-    allow_delegation=False, # Pourrait déléguer à un chercheur si besoin, mais on le gère séparément pour l'instant
-    llm=llm
+    allow_delegation=False,  # Pourrait déléguer à un chercheur si besoin, mais on le gère séparément pour l'instant
+    llm=llm,
 )
+
 
 def create_writing_task(task_title: str, writing_context: Optional[str] = None) -> Task:
     """Crée une tâche pour l'agent rédacteur."""
@@ -181,13 +195,16 @@ def create_writing_task(task_title: str, writing_context: Optional[str] = None) 
             "Un texte rédigé (paragraphe, section, ou article court) sur le sujet demandé, "
             "prêt à être intégré dans un contenu plus large."
         ),
-        agent=writer_agent
+        agent=writer_agent,
     )
+
 
 def run_writing_crew(task_title: str, writing_context: Optional[str] = None) -> str:
     """Exécute le crew de rédaction et retourne le texte produit."""
     if not llm:
-        raise EnvironmentError("LLM non initialisé. Vérifiez la configuration de GROQ_API_KEY.")
+        raise EnvironmentError(
+            "LLM non initialisé. Vérifiez la configuration de GROQ_API_KEY."
+        )
 
     writing_task_instance = create_writing_task(task_title, writing_context)
 
@@ -195,11 +212,12 @@ def run_writing_crew(task_title: str, writing_context: Optional[str] = None) -> 
         agents=[writer_agent],
         tasks=[writing_task_instance],
         process=Process.sequential,
-        verbose=2
+        verbose=2,
     )
 
     result = writing_crew.kickoff()
     return result if isinstance(result, str) else str(result)
+
 
 # --- Crew de Finition ---
 
@@ -217,7 +235,7 @@ critic_agent = Agent(
     ),
     verbose=True,
     allow_delegation=False,
-    llm=llm
+    llm=llm,
 )
 
 # Agent Style
@@ -235,7 +253,7 @@ style_agent = Agent(
     ),
     verbose=True,
     allow_delegation=False,
-    llm=llm
+    llm=llm,
 )
 
 # Agent Vérificateur de Faits
@@ -253,7 +271,7 @@ fact_checker_agent = Agent(
     verbose=True,
     allow_delegation=False,
     tools=[search_tool] if search_tool else [],
-    llm=llm
+    llm=llm,
 )
 
 # Agent Correcteur
@@ -269,8 +287,9 @@ proofreader_agent = Agent(
     ),
     verbose=True,
     allow_delegation=False,
-    llm=llm
+    llm=llm,
 )
+
 
 def create_refinement_tasks(raw_article_content: str) -> list[Task]:
     """Crée la séquence de tâches pour le Crew de Finition."""
@@ -287,7 +306,7 @@ def create_refinement_tasks(raw_article_content: str) -> list[Task]:
             "Ne réécrivez pas l'article, fournissez seulement votre analyse critique sous forme de liste à puces."
         ),
         expected_output="Une liste à puces de critiques constructives et actionnables (minimum 3-5 points).",
-        agent=critic_agent
+        agent=critic_agent,
     )
 
     styling_task = Task(
@@ -301,7 +320,7 @@ def create_refinement_tasks(raw_article_content: str) -> list[Task]:
         ),
         expected_output="L'article complet, réécrit avec un style amélioré, plus engageant et percutant.",
         agent=style_agent,
-        context=[critique_task] # Le styliste dépend de la critique
+        context=[critique_task],  # Le styliste dépend de la critique
     )
 
     fact_checking_task = Task(
@@ -319,7 +338,7 @@ def create_refinement_tasks(raw_article_content: str) -> list[Task]:
             "Si une information n'a pas pu être vérifiée ou est très douteuse, elle peut être signalée par un commentaire comme [Vérification nécessaire: ...]."
         ),
         agent=fact_checker_agent,
-        context=[styling_task] # Le fact-checker travaille sur le texte stylisé
+        context=[styling_task],  # Le fact-checker travaille sur le texte stylisé
     )
 
     proofreading_task = Task(
@@ -332,15 +351,18 @@ def create_refinement_tasks(raw_article_content: str) -> list[Task]:
         ),
         expected_output="L'article final, parfaitement corrigé au niveau linguistique, sans aucune faute.",
         agent=proofreader_agent,
-        context=[fact_checking_task] # Le correcteur travaille sur le texte vérifié
+        context=[fact_checking_task],  # Le correcteur travaille sur le texte vérifié
     )
 
     return [critique_task, styling_task, fact_checking_task, proofreading_task]
 
+
 def run_finishing_crew(raw_article_content: str) -> str:
     """Exécute le Crew de Finition sur un contenu d'article brut."""
     if not llm:
-        raise EnvironmentError("LLM non initialisé. Vérifiez la configuration de GROQ_API_KEY.")
+        raise EnvironmentError(
+            "LLM non initialisé. Vérifiez la configuration de GROQ_API_KEY."
+        )
     if not raw_article_content.strip():
         return "Le contenu de l'article est vide. Rien à raffiner."
 
@@ -349,22 +371,56 @@ def run_finishing_crew(raw_article_content: str) -> str:
     finishing_crew = Crew(
         agents=[critic_agent, style_agent, fact_checker_agent, proofreader_agent],
         tasks=refinement_tasks_instances,
-        process=Process.sequential, # Les tâches s'exécutent en séquence
-        verbose=2
+        process=Process.sequential,  # Les tâches s'exécutent en séquence
+        verbose=2,
     )
 
     # Le résultat final du crew séquentiel est le résultat de la dernière tâche
     final_refined_article = finishing_crew.kickoff()
 
-    return final_refined_article if isinstance(final_refined_article, str) else str(final_refined_article)
+    return (
+        final_refined_article
+        if isinstance(final_refined_article, str)
+        else str(final_refined_article)
+    )
 
 
-if __name__ == '__main__':
+# ========== ASYNC WRAPPERS FOR NON-BLOCKING EXECUTION ==========
+# These async functions use asyncio.to_thread to prevent blocking the FastAPI event loop
+
+
+async def run_planning_crew_async(project_goal: str) -> list[str]:
+    """Async wrapper for run_planning_crew that doesn't block the event loop."""
+    return await asyncio.to_thread(run_planning_crew, project_goal)
+
+
+async def run_research_crew_async(
+    task_title: str, research_context: Optional[str] = None
+) -> str:
+    """Async wrapper for run_research_crew that doesn't block the event loop."""
+    return await asyncio.to_thread(run_research_crew, task_title, research_context)
+
+
+async def run_writing_crew_async(
+    task_title: str, writing_context: Optional[str] = None
+) -> str:
+    """Async wrapper for run_writing_crew that doesn't block the event loop."""
+    return await asyncio.to_thread(run_writing_crew, task_title, writing_context)
+
+
+async def run_finishing_crew_async(raw_content: str) -> str:
+    """Async wrapper for run_finishing_crew that doesn't block the event loop."""
+    return await asyncio.to_thread(run_finishing_crew, raw_content)
+
+
+if __name__ == "__main__":
     # Test local (nécessite que GROQ_API_KEY soit dans l'environnement)
     if not os.getenv("GROQ_API_KEY"):
         print("GROQ_API_KEY n'est pas configurée. Veuillez la définir pour tester.")
     else:
-        sample_goal = "Expliquer les avantages de Tailwind CSS pour le développement frontend."
+        sample_goal = (
+            "Expliquer les avantages de Tailwind CSS pour le développement frontend."
+        )
         print(f"Lancement du test de planification pour l'objectif: '{sample_goal}'")
         try:
             generated_tasks = run_planning_crew(sample_goal)

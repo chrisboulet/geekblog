@@ -42,12 +42,12 @@ const NeuralNode: React.FC<NeuralNodeProps> = ({
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (isEditing) return;
-    
+
     e.preventDefault();
     e.stopPropagation();
-    
+
     setIsDragging(true);
-    
+
     if (nodeRef.current) {
       const rect = nodeRef.current.parentElement!.getBoundingClientRect();
       dragStartRef.current = {
@@ -59,17 +59,17 @@ const NeuralNode: React.FC<NeuralNodeProps> = ({
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !dragStartRef.current || !nodeRef.current) return;
-    
+
     e.preventDefault();
-    
+
     const parentRect = nodeRef.current.parentElement!.getBoundingClientRect();
     const newX = ((e.clientX - parentRect.left - dragStartRef.current.x) / parentRect.width) * 100;
     const newY = ((e.clientY - parentRect.top - dragStartRef.current.y) / parentRect.height) * 100;
-    
+
     // Constrain to canvas bounds
     const constrainedX = Math.max(0, Math.min(100, newX));
     const constrainedY = Math.max(0, Math.min(100, newY));
-    
+
     onMove(id, { x: constrainedX, y: constrainedY });
   }, [isDragging, id, onMove]);
 
@@ -83,7 +83,7 @@ const NeuralNode: React.FC<NeuralNodeProps> = ({
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
@@ -154,7 +154,7 @@ const NeuralNode: React.FC<NeuralNodeProps> = ({
         <span style={{ fontSize: '16px' }}>
           {getNodeIcon(type)}
         </span>
-        
+
         {isEditing ? (
           <input
             type="text"
@@ -187,7 +187,7 @@ const NeuralNode: React.FC<NeuralNodeProps> = ({
           </span>
         )}
       </div>
-      
+
       {/* Connection strength indicator */}
       {isActive && (
         <div className="connection-strength" style={{ marginTop: '8px' }} />

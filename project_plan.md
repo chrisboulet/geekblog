@@ -34,7 +34,7 @@ AVANT                           APRÈS
 ------                          -----
 Sync AI Calls                   → Async Queue System (Celery/Redis)
 No Tests                        → 80%+ Test Coverage
-Hardcoded Prompts              → External Template System  
+Hardcoded Prompts              → External Template System
 Incomplete UI                   → Full Featured Kanban
 Development Only               → Production Infrastructure
 ```
@@ -61,8 +61,8 @@ Frontend                    Backend API                 Workers
 
 ### PHASE 1 - Fondations et Stabilisation ✅ TERMINÉE
 
-**Statut**: COMPLÈTE - Tous les objectifs atteints avec succès  
-**Durée**: 3 jours (prévu: 3-5 jours)  
+**Statut**: COMPLÈTE - Tous les objectifs atteints avec succès
+**Durée**: 3 jours (prévu: 3-5 jours)
 **Couverture de tests**: Backend 100% endpoints, Frontend 100% composants critiques
 
 #### Implémentations Réalisées
@@ -97,7 +97,7 @@ Frontend                    Backend API                 Workers
 - **Scalabilité**: Infrastructure async prête pour charge production
 
 #### Commits de Phase 1
-1. `feat: Phase 1.1 - Complete testing infrastructure` 
+1. `feat: Phase 1.1 - Complete testing infrastructure`
 2. `feat: Phase 1.2 - Frontend testing with Vitest and React Testing Library`
 3. `feat: Complete Phase 1.3 - POC async architecture`
 4. `feat: Complete Phase 1.4 - Code cleanup and routing fixes`
@@ -105,7 +105,7 @@ Frontend                    Backend API                 Workers
 ---
 
 ### PHASE 2 - Architecture Asynchrone Complète ✅ TERMINÉE
-**Durée Estimée**: 2-3 semaines  
+**Durée Estimée**: 2-3 semaines
 **Priorité**: CRITIQUE
 
 #### Objectifs
@@ -117,11 +117,11 @@ Frontend                    Backend API                 Workers
 - Configuration pytest avec fixtures de base de données
 - Tests d'intégration pour tous les endpoints CRUD existants
   - `/projects` - GET, POST, PUT, DELETE
-  - `/tasks` - GET, POST, PUT, DELETE  
+  - `/tasks` - GET, POST, PUT, DELETE
 - Mocking des services CrewAI pour tests unitaires
 - Tests de validation des schémas Pydantic
 
-**1.2 Tests Frontend**  
+**1.2 Tests Frontend**
 - Setup Vitest + React Testing Library
 - Tests des composants critiques:
   - `KanbanBoard.tsx` - rendu et interactions de base
@@ -139,7 +139,7 @@ Frontend                    Backend API                 Workers
 **1.4 Nettoyage Technique Immédiat**
 - Suppression des dépendances non utilisées:
   ```bash
-  npm uninstall @mui/material @mui/icons-material @mui/x-data-grid 
+  npm uninstall @mui/material @mui/icons-material @mui/x-data-grid
   npm uninstall @mui/x-date-pickers @emotion/react @emotion/styled
   npm uninstall react-beautiful-dnd react-quill
   ```
@@ -160,7 +160,7 @@ Frontend                    Backend API                 Workers
 ---
 
 ### PHASE 2 - Migration vers l'Architecture Asynchrone ✅ TERMINÉE
-**Durée Réelle**: 3 semaines  
+**Durée Réelle**: 3 semaines
 **Priorité**: CRITIQUE
 
 #### Objectifs ✅ ACCOMPLIS
@@ -172,7 +172,7 @@ Implémenter complètement le système de jobs en arrière-plan pour tous les ap
 - **Job Management API** - Endpoints complets pour statut, résultats, annulation
 - **Error Handling Robuste** - Classification erreurs, notifications, circuit breaker
 
-#### Réalisations Phase 2.2 ✅ 
+#### Réalisations Phase 2.2 ✅
 **🎯 WORKFLOW ORCHESTRATION SYSTEM**
 - **Orchestration Avancée** - Celery chain/group/chord pour workflows complexes
 - **Modèles Workflow** - WorkflowExecution & TaskOutput pour suivi d'état complet
@@ -188,7 +188,7 @@ Implémenter complètement le système de jobs en arrière-plan pour tous les ap
   # Queue Priority System
   CELERY_ROUTES = {
       'tasks.plan_project': {'queue': 'high'},
-      'tasks.run_agent': {'queue': 'medium'}, 
+      'tasks.run_agent': {'queue': 'medium'},
       'tasks.finishing_crew': {'queue': 'low'}
   }
   ```
@@ -203,7 +203,7 @@ Implémenter complètement le système de jobs en arrière-plan pour tous les ap
 - Nouveau endpoint `GET /jobs/{id}/status`
 - Tests d'intégration complets
 
-**Étape 2: Migration `/tasks/{id}/run-agent`**  
+**Étape 2: Migration `/tasks/{id}/run-agent`**
 - Support des agents researcher/writer
 - Gestion des paramètres d'agent
 - Tests avec mocking CrewAI
@@ -296,7 +296,7 @@ Transformation du pattern synchrone vers asynchrone:
 // AVANT
 const mutation = useMutation(planProject)
 
-// APRÈS  
+// APRÈS
 const mutation = useMutation(startPlanningJob)
 const jobStatus = useJobStatus(mutation.data?.jobId)
 ```
@@ -339,7 +339,7 @@ const collisionDetection = closestCenter;
 
 **Fonctionnalités Drag & Drop:**
 - Déplacement des cartes entre colonnes du Kanban
-- Réorganisation au sein d'une même colonne  
+- Réorganisation au sein d'une même colonne
 - Animation fluide avec feedback visuel
 - Persistance immédiate des changements via API
 - Support touch pour mobile
@@ -365,7 +365,7 @@ PUT /projects/{id}/final-content
 ```
 
 **Interface AssemblyView:**
-- Bouton "Sauvegarder Article Final" 
+- Bouton "Sauvegarder Article Final"
 - Auto-save toutes les 30 secondes
 - Indicateur de statut de sauvegarde
 - Export vers formats multiples (MD, HTML, PDF)
@@ -375,7 +375,7 @@ PUT /projects/{id}/final-content
 **Nouvelle Page Projets:**
 ```
 /projects → Liste de tous les projets
-/projects/new → Création nouveau projet  
+/projects/new → Création nouveau projet
 /projects/:id → Vue Kanban du projet
 /projects/:id/assembly → Vue assemblage
 ```
@@ -399,7 +399,7 @@ PUT /projects/{id}/final-content
 ---
 
 ### PHASE 5 - Externalisation des Prompts
-**Durée Estimée**: 1-2 semaines  
+**Durée Estimée**: 1-2 semaines
 **Priorité**: MOYENNE
 
 #### Objectifs
@@ -450,19 +450,19 @@ variables:
 
 template: |
   # MISSION DE PLANIFICATION
-  
+
   Objectif du projet: {project_goal}
   {%- if context %}
   Contexte additionnel: {context}
   {%- endif %}
-  
+
   Votre mission est de générer une liste de tâches...
-  
+
   ## FORMAT DE SORTIE REQUIS
   - Chaque tâche sur une nouvelle ligne
   - Pas de numérotation
   - Actions claires et concises
-  
+
   ## EXEMPLES
   ...
 
@@ -477,15 +477,15 @@ class PromptManager:
     def __init__(self, environment: str = "production"):
         self.environment = environment
         self._cache = {}
-    
+
     def get_prompt(self, agent_name: str, **variables) -> str:
         template = self._load_template(agent_name)
         return self._interpolate(template, variables)
-    
+
     def _load_template(self, agent_name: str) -> dict:
         # Cache with TTL + file watching for dev
         # Environment-specific overrides
-        
+
     def _interpolate(self, template: dict, variables: dict) -> str:
         # Jinja2 templating with safety checks
         # Variable validation
@@ -526,7 +526,7 @@ Optimiser les performances pour supporter la montée en charge.
 # Cache des résultats IA avec TTL adaptatif
 CACHE_STRATEGY = {
     'planning_results': {'ttl': 3600, 'compress': True},
-    'research_results': {'ttl': 7200, 'compress': True}, 
+    'research_results': {'ttl': 7200, 'compress': True},
     'writing_results': {'ttl': 1800, 'compress': False},
     'final_articles': {'ttl': 86400, 'compress': True}
 }
@@ -534,7 +534,7 @@ CACHE_STRATEGY = {
 
 **Cache Hit Rate Optimisé:**
 - Hashing des inputs pour déduplication
-- Compression des gros contenus  
+- Compression des gros contenus
 - Invalidation sélective par tags
 - Metrics de cache hit rate (objectif: 30%+)
 
@@ -545,7 +545,7 @@ CACHE_STRATEGY = {
 # Par utilisateur et par endpoint
 RATE_LIMITS = {
     'plan_project': '5/hour',
-    'run_agent': '20/hour', 
+    'run_agent': '20/hour',
     'assemble_project': '2/hour'
 }
 ```
@@ -564,7 +564,7 @@ def call_groq_api():
 
 **6.3 Optimisations Base de Données**
 - Index composites sur colonnes fréquentes
-- Eager loading des relations Task/Project  
+- Eager loading des relations Task/Project
 - Pagination avec curseur pour grandes listes
 - Requêtes N+1 éliminées
 
@@ -640,7 +640,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    
+
   postgres:
     image: postgres:15
     environment:
@@ -677,7 +677,7 @@ jobs:
           cd backend
           pip install -r requirements.txt
           pytest --cov=app tests/
-      - name: Run Frontend Tests  
+      - name: Run Frontend Tests
         run: |
           cd frontend
           npm ci
@@ -691,7 +691,7 @@ jobs:
     steps:
       - name: Build and Push Images
         # Docker build + push to registry
-        
+
   deploy-staging:
     needs: build
     runs-on: ubuntu-latest
@@ -699,7 +699,7 @@ jobs:
     steps:
       - name: Deploy to Staging
         # Deploy + smoke tests
-        
+
   deploy-production:
     needs: deploy-staging
     if: github.ref == 'refs/heads/main'
@@ -728,7 +728,7 @@ async def logging_middleware(request, call_next):
     start_time = time.time()
     response = await call_next(request)
     duration = time.time() - start_time
-    
+
     logger.info(
         "request_completed",
         method=request.method,
@@ -768,12 +768,12 @@ Faciliter l'adoption, la maintenance et les contributions.
 docs/
 ├── getting-started/
 │   ├── README.md (Quick start guide)
-│   ├── installation.md 
+│   ├── installation.md
 │   ├── configuration.md
 │   └── first-project.md
 ├── user-guide/
 │   ├── kanban-workflow.md
-│   ├── ai-delegation.md  
+│   ├── ai-delegation.md
 │   ├── article-assembly.md
 │   └── project-management.md
 ├── api-reference/
@@ -809,7 +809,7 @@ docs/
   post:
     summary: Planifier un projet avec l'IA
     description: |
-      Lance l'agent planificateur qui décompose l'objectif 
+      Lance l'agent planificateur qui décompose l'objectif
       du projet en tâches actionnables.
     requestBody:
       content:
@@ -877,7 +877,7 @@ Phase Beta 1: Beta Fermée (2 semaines)
 ├── Sessions de test dirigées
 └── Itération rapide sur les bugs critiques
 
-Phase Beta 2: Beta Ouverte (4 semaines)  
+Phase Beta 2: Beta Ouverte (4 semaines)
 ├── 100 utilisateurs via invitation
 ├── Analytics détaillées d'usage
 ├── A/B test des prompts principaux
@@ -896,7 +896,7 @@ Phase GA: General Availability
 ```
 Performance Metrics:
 ├── API Response Time (P50/P95/P99)
-├── Job Queue Length by Priority  
+├── Job Queue Length by Priority
 ├── Error Rate by Endpoint
 ├── Cache Hit Rate per Service
 └── Database Connection Pool Usage
@@ -904,7 +904,7 @@ Performance Metrics:
 Business Metrics:
 ├── Daily/Weekly Active Users
 ├── Project Creation Rate
-├── AI Delegation Success Rate  
+├── AI Delegation Success Rate
 ├── Article Completion Rate
 └── User Retention (Day 1/7/30)
 
@@ -929,7 +929,7 @@ Technical Metrics:
 # Infrastructure pour tester les prompts
 @prompt_ab_test(
     control_version="v2.1",
-    test_version="v2.2", 
+    test_version="v2.2",
     traffic_split=0.1
 )
 def get_planner_prompt():
@@ -940,7 +940,7 @@ def get_planner_prompt():
 
 **Canaux de Support:**
 - Base de connaissances searchable
-- Chat support intégré pour beta users  
+- Chat support intégré pour beta users
 - GitHub Issues pour bugs techniques
 - Feedback form dans l'application
 
@@ -971,7 +971,7 @@ def get_planner_prompt():
 - **Scalabilité**: Support de 100+ utilisateurs simultanés
 - **Qualité**: Test coverage > 80%, 0 bugs critiques en production
 
-### Métriques Produit  
+### Métriques Produit
 - **Adoption**: 50+ utilisateurs actifs hebdomadaires
 - **Engagement**: 80%+ taux de completion des tâches
 - **Satisfaction**: NPS > 50, satisfaction utilisateur > 4/5
@@ -1029,7 +1029,7 @@ def get_planner_prompt():
 
 ### Dépendances Externes
 - **API Groq**: Limites de rate, coûts, availability
-- **Frameworks**: CrewAI updates, React/TypeScript évolutions  
+- **Frameworks**: CrewAI updates, React/TypeScript évolutions
 - **Services**: GitHub Actions limits, cloud provider quotas
 
 ---
@@ -1059,7 +1059,7 @@ Ce plan transforme GeekBlog d'un prototype à une application production-ready e
 
 **Prochaines étapes immédiates:**
 1. Validation du plan avec l'équipe
-2. Setup environnement de développement  
+2. Setup environnement de développement
 3. Début Phase 1: Tests + POC Celery
 4. Itération basée sur retours et métriques
 

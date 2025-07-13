@@ -81,10 +81,10 @@ const OnboardingOverlay: React.FC<OnboardingOverlayProps> = ({
         if (element) {
           element.classList.add('onboarding-highlight');
           setHighlightedElement(element);
-          
+
           // Scroll to element if needed
-          element.scrollIntoView({ 
-            behavior: 'smooth', 
+          element.scrollIntoView({
+            behavior: 'smooth',
             block: 'center',
             inline: 'center'
           });
@@ -150,7 +150,7 @@ const OnboardingOverlay: React.FC<OnboardingOverlayProps> = ({
       {/* Overlay backdrop */}
       <div className="onboarding-overlay">
         {/* Tooltip */}
-        <div 
+        <div
           className="onboarding-tooltip"
           style={getTooltipPosition()}
         >
@@ -160,11 +160,11 @@ const OnboardingOverlay: React.FC<OnboardingOverlayProps> = ({
               {currentStep + 1} / {steps.length}
             </div>
           </div>
-          
+
           <p className="tooltip-description">
             {currentStepData.description}
           </p>
-          
+
           <div className="tooltip-actions">
             <button
               onClick={onSkip}
@@ -173,7 +173,7 @@ const OnboardingOverlay: React.FC<OnboardingOverlayProps> = ({
             >
               Ignorer
             </button>
-            
+
             <div className="navigation-buttons">
               {currentStep > 0 && (
                 <button
@@ -183,7 +183,7 @@ const OnboardingOverlay: React.FC<OnboardingOverlayProps> = ({
                   Précédent
                 </button>
               )}
-              
+
               {currentStepData.action ? (
                 <button
                   onClick={currentStepData.action.onClick}
@@ -201,7 +201,7 @@ const OnboardingOverlay: React.FC<OnboardingOverlayProps> = ({
               )}
             </div>
           </div>
-          
+
           {/* Progress dots */}
           <div className="progress-dots">
             {steps.map((_, index) => (

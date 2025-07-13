@@ -34,12 +34,12 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
   };
 
   const baseClasses = "neural-card neural-interactive neural-clickable p-4 cursor-pointer transition-all duration-200";
-  const stateClasses = disabled 
-    ? "opacity-50 cursor-not-allowed" 
-    : isSelected 
-      ? "ring-2 ring-neural-purple border-neural-purple" 
+  const stateClasses = disabled
+    ? "opacity-50 cursor-not-allowed"
+    : isSelected
+      ? "ring-2 ring-neural-purple border-neural-purple"
       : "hover:border-neural-blue hover:shadow-neural-glow-sm";
-  
+
   const combinedClasses = `${baseClasses} ${stateClasses} ${className}`.trim();
 
   return (
@@ -63,29 +63,29 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         <div className="text-2xl mb-2" aria-hidden="true">
           {template.icon}
         </div>
-        
+
         {/* Template Name */}
         <h3 className="font-semibold text-text-primary mb-2 text-sm md:text-base">
           {template.name}
         </h3>
-        
+
         {/* Template Description */}
         <p className="text-sm text-text-secondary mb-3 line-clamp-2">
           {template.description}
         </p>
-        
+
         {/* Template Metadata */}
         <div className="flex justify-between items-center text-xs gap-2">
           {/* Difficulty Badge */}
-          <span 
+          <span
             className="bg-neural-purple/20 text-neural-purple px-2 py-1 rounded-full text-xs font-medium flex-shrink-0"
             title={`Difficulty: ${template.difficulty}`}
           >
             {template.difficulty}
           </span>
-          
+
           {/* Estimated Duration */}
-          <span 
+          <span
             className="text-text-tertiary text-right truncate"
             title={`Estimated duration: ${template.estimated_duration}`}
           >

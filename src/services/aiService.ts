@@ -1,6 +1,5 @@
 import { JobStatus } from '../types/job';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { apiClient } from '../lib/api';
 
 /**
  * Service pour les opérations IA
@@ -13,28 +12,16 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
  * @returns JobStatus pour suivre la progression
  */
 export const planProjectAsync = async (
-  projectId: number, 
+  projectId: number,
   projectGoal?: string
 ): Promise<JobStatus> => {
-  const response = await fetch(`${API_BASE_URL}/projects/${projectId}/plan-async`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(projectGoal),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
-  }
-
-  return await response.json();
+  const response = await apiClient.post(`projects/${projectId}/plan-async`, projectGoal);
+  return response.data;
 };
 
 /**
  * Lance la planification IA synchrone d'un projet (version originale)
- * @param projectId ID du projet à planifier  
+ * @param projectId ID du projet à planifier
  * @param projectGoal Objectif du projet (optionnel)
  * @returns Projet mis à jour
  */
@@ -42,20 +29,8 @@ export const planProjectSync = async (
   projectId: number,
   projectGoal?: string
 ): Promise<any> => {
-  const response = await fetch(`${API_BASE_URL}/projects/${projectId}/plan`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(projectGoal),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
-  }
-
-  return await response.json();
+  const response = await apiClient.post(`projects/${projectId}/plan`, projectGoal);
+  return response.data;
 };
 
 /**
@@ -70,23 +45,11 @@ export const runAgentOnTask = async (
   agentType: 'researcher' | 'writer',
   context?: string
 ): Promise<any> => {
-  const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/run-agent`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      agent_type: agentType,
-      context: context
-    }),
+  const response = await apiClient.post(`tasks/${taskId}/run-agent`, {
+    agent_type: agentType,
+    context: context
   });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return response.data;
 };
 
 /**
@@ -101,21 +64,9 @@ export const runAgentOnTaskAsync = async (
   agentType: 'researcher' | 'writer',
   context?: string
 ): Promise<JobStatus> => {
-  const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/run-agent-async`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      agent_type: agentType,
-      context: context
-    }),
+  const response = await apiClient.post(`tasks/${taskId}/run-agent-async`, {
+    agent_type: agentType,
+    context: context
   });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return response.data;
 };

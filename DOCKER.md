@@ -260,11 +260,11 @@ export ALLOWED_ORIGINS=https://your-domain.com
 server {
     listen 80;
     server_name your-domain.com;
-    
+
     location / {
         proxy_pass http://localhost:80;
     }
-    
+
     location /api/ {
         proxy_pass http://localhost:8000;
     }
@@ -326,15 +326,15 @@ curl http://localhost:8000/docs
 - **Rollback disponible** avec `alembic downgrade -1`
 
 #### Fonctionnalités disponibles
-✅ **Archivage de projets** - Alternative sûre à la suppression  
-✅ **Paramètres configurables** - Settings JSON par projet  
-✅ **Duplication de projets** - Avec préservation des tâches  
-✅ **Filtrage avancé** - Par statut, tags, pagination  
-✅ **Gestion des tags** - Système de tags CSV  
+✅ **Archivage de projets** - Alternative sûre à la suppression
+✅ **Paramètres configurables** - Settings JSON par projet
+✅ **Duplication de projets** - Avec préservation des tâches
+✅ **Filtrage avancé** - Par statut, tags, pagination
+✅ **Gestion des tags** - Système de tags CSV
 ✅ **APIs complètes** - Tous les endpoints CRUD étendus
 
 #### Interface utilisateur (à venir)
-🔜 **Menus kebab** - Actions contextuelles sur chaque projet  
-🔜 **Couleurs sémantiques** - Bleu (édition), Rouge (danger), etc.  
-🔜 **Animations** - Rotation hover + fade-in dropdowns  
+🔜 **Menus kebab** - Actions contextuelles sur chaque projet
+🔜 **Couleurs sémantiques** - Bleu (édition), Rouge (danger), etc.
+🔜 **Animations** - Rotation hover + fade-in dropdowns
 🔜 **Templates de projet** - Blog, Documentation, Marketing, Research

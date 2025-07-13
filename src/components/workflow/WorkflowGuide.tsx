@@ -10,7 +10,7 @@ const WorkflowGuide: React.FC<WorkflowGuideProps> = ({ projectName, onStartPlann
     <div className="neural-card bg-gradient-to-br from-bg-primary to-bg-secondary p-8 text-center max-w-4xl mx-auto">
       <div className="mb-6">
         <h2 className="text-2xl font-bold neural-text-gradient mb-2">
-          Bienvenue dans GeekBlog! 
+          Bienvenue dans GeekBlog!
         </h2>
         <p className="text-text-secondary">
           Votre assistant IA pour créer du contenu de blog de qualité
@@ -47,14 +47,14 @@ const WorkflowGuide: React.FC<WorkflowGuideProps> = ({ projectName, onStartPlann
         <p className="text-text-secondary">
           Prêt à commencer ? Cliquez sur "Planifier avec l'IA" pour que l'assistant analyse votre projet et crée vos premières tâches.
         </p>
-        
+
         <button
           onClick={onStartPlanning}
           className="neural-button-primary text-lg px-8 py-3 shadow-neural-glow-blue"
         >
           🚀 Commencer la planification IA
         </button>
-        
+
         <p className="text-xs text-text-tertiary mt-4">
           Conseil : Vous pouvez aussi ajouter des tâches manuellement en cliquant sur "+ Ajouter une tâche" dans chaque colonne.
         </p>

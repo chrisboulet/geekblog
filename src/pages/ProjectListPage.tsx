@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getProjects, createProject } from '../lib/api';
 import { Project, ProjectCreate } from '../types/api';
 import NeuralBackground from '../components/neural/NeuralBackground';
 import NavigationHeader from '../components/navigation/NavigationHeader';
-import TemplateSelectionModal from '../components/templates/TemplateSelectionModal';
 import ProjectCreateModal from '../components/project/ProjectCreateModal';
 import ProjectActionsMenu from '../components/project/ProjectActionsMenu';
 
@@ -14,12 +13,20 @@ import ProjectActionsMenu from '../components/project/ProjectActionsMenu';
  */
 const ProjectListPage: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
-  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+
+  // Handle action query parameter
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'create') {
+      setIsCreating(true);
+    }
+  }, [searchParams]);
 
   // Fetch projects
   const { data: projects, isLoading, isError, refetch } = useQuery<Project[]>({
@@ -115,10 +122,10 @@ const ProjectListPage: React.FC = () => {
                   🚀 Quick Start
                 </button>
                 <button
-                  onClick={() => setShowTemplateModal(true)}
+                  onClick={() => navigate('/projects/new/template')}
                   className="w-full neural-button neural-interactive neural-clickable neural-focusable"
                 >
-                  ⚙️ Use Template
+                  ⚙️ Écrire un billet
                 </button>
               </div>
             </div>
@@ -132,7 +139,7 @@ const ProjectListPage: React.FC = () => {
     <div className="min-h-screen flex flex-col relative" style={{ background: 'var(--bg-primary)' }}>
       <NeuralBackground />
       <NavigationHeader />
-      
+
       <main className="flex-grow relative z-10 p-4 md:p-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -145,7 +152,7 @@ const ProjectListPage: React.FC = () => {
                 Manage your content creation projects and AI workflows
               </p>
             </div>
-            
+
             <div className="flex gap-2">
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -160,10 +167,10 @@ const ProjectListPage: React.FC = () => {
                 🚀 Quick Start
               </button>
               <button
-                onClick={() => setShowTemplateModal(true)}
+                onClick={() => navigate('/projects/new/template')}
                 className="neural-button neural-interactive neural-clickable neural-focusable"
               >
-                ⚙️ Template
+                ⚙️ Écrire un billet
               </button>
             </div>
           </div>
@@ -190,7 +197,7 @@ const ProjectListPage: React.FC = () => {
                       className="w-full px-4 py-2 bg-bg-secondary border border-neural-purple/30 rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-purple focus:border-neural-purple neural-focusable transition-all"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="projectDescription" className="block text-sm font-medium text-text-primary mb-2">
                       Description (optional)
@@ -204,7 +211,7 @@ const ProjectListPage: React.FC = () => {
                       className="w-full px-4 py-2 bg-bg-secondary border border-neural-purple/30 rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-purple focus:border-neural-purple neural-focusable transition-all"
                     />
                   </div>
-                  
+
                   <div className="md:col-span-2 flex gap-3">
                     <button
                       type="submit"
@@ -233,7 +240,7 @@ const ProjectListPage: React.FC = () => {
                     </button>
                   </div>
                 </form>
-                
+
                 {createProjectMutation.isError && (
                   <div className="mt-4 p-4 neural-error rounded-lg">
                     <p>Failed to create project. Please try again.</p>
@@ -267,13 +274,13 @@ const ProjectListPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {project.description && (
                   <p className="text-text-secondary text-sm mb-4 line-clamp-3">
                     {project.description}
                   </p>
                 )}
-                
+
                 <div className="flex justify-between items-center text-xs text-text-tertiary">
                   <span>
                     {project.tasks?.length || 0} tasks
@@ -294,15 +301,6 @@ const ProjectListPage: React.FC = () => {
         onClose={() => setShowCreateModal(false)}
       />
 
-      {/* Template Selection Modal */}
-      <TemplateSelectionModal
-        isOpen={showTemplateModal}
-        onClose={() => setShowTemplateModal(false)}
-        onStartFromScratch={() => {
-          setShowTemplateModal(false);
-          setIsCreating(true);
-        }}
-      />
     </div>
   );
 };

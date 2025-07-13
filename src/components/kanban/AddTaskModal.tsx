@@ -9,11 +9,11 @@ interface AddTaskModalProps {
   defaultStatus: string;
 }
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  projectId, 
-  defaultStatus 
+const AddTaskModal: React.FC<AddTaskModalProps> = ({
+  isOpen,
+  onClose,
+  projectId,
+  defaultStatus
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -59,7 +59,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
         <h2 className="text-xl font-semibold mb-4 neural-text-gradient">
           Nouvelle tâche - {defaultStatus}
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
@@ -75,7 +75,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
               autoFocus
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
               Description
@@ -88,7 +88,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
               rows={3}
             />
           </div>
-          
+
           <div className="flex space-x-3 pt-4">
             <button
               type="submit"

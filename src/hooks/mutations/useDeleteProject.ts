@@ -24,7 +24,7 @@ export const useDeleteProject = () => {
 
       // Optimistically remove the project from the list
       if (previousProjects) {
-        queryClient.setQueryData<Project[]>(['projects'], old => 
+        queryClient.setQueryData<Project[]>(['projects'], old =>
           old?.filter(p => p.id !== projectId) || []
         );
       }
@@ -44,7 +44,7 @@ export const useDeleteProject = () => {
       if (context?.previousProject) {
         queryClient.setQueryData(['project', projectId], context.previousProject);
       }
-      
+
       toast.error('Failed to delete project. Please try again.');
     },
 
@@ -59,7 +59,7 @@ export const useDeleteProject = () => {
 
     onSuccess: (data, projectId) => {
       toast.success('Project deleted successfully.');
-      
+
       // Navigate away from the project page if we're currently on it
       const currentPath = window.location.pathname;
       if (currentPath.includes(`/project/${projectId}`)) {
