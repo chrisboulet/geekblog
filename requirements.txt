@@ -1,0 +1,26 @@
+# Production Dependencies
+# GeekBlog - Single-user optimized architecture
+
+# Web Framework
+fastapi
+uvicorn
+
+# HTTP Client
+httpx
+
+# Database
+sqlalchemy
+aiosqlite
+
+# Environment
+python-dotenv
+
+# AI & Automation
+crewai
+langchain_groq
+
+# Queue System (TO BE REMOVED in Sprint 2)
+celery
+
+# Additional production dependencies
+pydantic
