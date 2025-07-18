@@ -1,8 +1,103 @@
 # TASK.md - GeekBlog Task Tracking
 
-## 📋 Current Sprint - Phase 5: Advanced Features
+## 🚀 CRITICAL REFACTORING SPRINTS - Architecture Simplification
 
-### Date: 2025-07-07
+### Start Date: 2025-07-18
+### Duration: 4 weeks (4 sprints)
+### Priority: IMMEDIATE - Blocks all legacy development
+
+## 📋 Current Sprint - REFACTORING Sprint 1: Database Migration
+
+### Week 1 (2025-07-18 to 2025-07-25)
+**Goal**: Replace PostgreSQL + Alembic with SQLite + simple migrations
+
+## 🎯 REFACTORING Active Tasks
+
+### 🔴 Sprint 1: Database Migration (Week 1)
+
+- [ ] **Database Schema Analysis** (Day 1-2)
+  - [ ] Audit all SQLAlchemy models for PostgreSQL-specific features
+  - [ ] Identify foreign keys, constraints, and indexes
+  - [ ] Document current database schema and relationships
+  - [ ] Create compatibility matrix PostgreSQL → SQLite
+
+- [ ] **SQLite Migration Strategy** (Day 2-3)
+  - [ ] Design data migration approach (export/import)
+  - [ ] Create SQLite-compatible model versions
+  - [ ] Plan migration for existing user data
+  - [ ] Design simple migration system (replace Alembic)
+
+- [ ] **SQLite Implementation** (Day 3-4)
+  - [ ] Configure SQLite database connection in db config
+  - [ ] Update models for SQLite compatibility
+  - [ ] Implement basic migration scripts
+  - [ ] Test all CRUD operations with SQLite backend
+
+- [ ] **Validation & Testing** (Day 4-5)
+  - [ ] Run comprehensive tests on SQLite backend
+  - [ ] Performance comparison: PostgreSQL vs SQLite
+  - [ ] Update database documentation
+  - [ ] Create backup/restore procedures for SQLite
+
+### 🟠 Sprint 2: Queue System Replacement (Week 2) - PLANNED
+
+- [ ] **Celery Analysis** (Day 1-2)
+  - [ ] Map all existing Celery tasks and workflows
+  - [ ] Analyze async_job_service.py dependencies
+  - [ ] Design BackgroundTasks equivalent architecture
+  - [ ] Plan job status tracking without Redis
+
+- [ ] **BackgroundTasks Implementation** (Day 3-4)
+  - [ ] Create background_service.py replacement
+  - [ ] Update AI endpoints to use BackgroundTasks
+  - [ ] Implement in-memory job status tracking
+  - [ ] Update frontend job polling for new backend
+
+- [ ] **Redis Removal** (Day 4-5)
+  - [ ] Remove all Redis dependencies
+  - [ ] Test async operations without Redis
+  - [ ] Update Docker configuration
+  - [ ] Validate job polling performance
+
+### 🟡 Sprint 3: Docker Simplification (Week 3) - PLANNED
+
+- [ ] **Container Architecture Design** (Day 1-2)
+  - [ ] Design single-container FastAPI + static files
+  - [ ] Plan development vs production Docker configs
+  - [ ] Create Dockerfile.simple specification
+
+- [ ] **Docker Implementation** (Day 3-4)
+  - [ ] Build consolidated container
+  - [ ] Configure static file serving in FastAPI
+  - [ ] Update docker-compose.yml (5 → 2 services)
+  - [ ] Test single-container deployment
+
+### 🟢 Sprint 4: Cleanup & Optimization (Week 4) - PLANNED
+
+- [ ] **Code Cleanup** (Day 1-2)
+  - [ ] Remove tasks/ directory and celery_config.py
+  - [ ] Remove PostgreSQL-specific code
+  - [ ] Update all imports and dependencies
+
+- [ ] **Single-User Optimization** (Day 3-5)
+  - [ ] Optimize UI workflows for solo usage
+  - [ ] Remove unnecessary complexity features
+  - [ ] Final testing and documentation
+
+## 📊 Refactoring Progress Tracking
+
+### Sprint 1 Goals (Week 1)
+- [ ] PostgreSQL → SQLite migration complete
+- [ ] All CRUD operations working with SQLite
+- [ ] Data migration strategy implemented
+- [ ] Performance baseline established
+
+### Overall Refactoring Goals
+- **Architecture**: 5 containers → 1 container
+- **Memory Usage**: ~2GB → <500MB  
+- **Dependencies**: PostgreSQL + Redis → SQLite only
+- **Startup Time**: ~2 minutes → <30 seconds
+- **Maintenance**: Complex → Zero external dependencies
 
 ---
 

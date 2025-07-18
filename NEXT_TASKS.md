@@ -1,91 +1,124 @@
 # NEXT_TASKS.md - Prochaines Actions Immédiates
 
-**Dernière mise à jour**: 2025-07-13
-**Focus actuel**: Phase 2 M2 - Standardisation Styling HomePage.tsx
+**Dernière mise à jour**: 2025-07-18
+**Focus actuel**: REFACTORING Sprint 1 - Database Migration (PostgreSQL → SQLite)
+**PRIORITÉ CRITIQUE**: Architecture Simplification - Bloque tout développement legacy
 
 ---
 
 ## Actions Immédiates (5-10 prochaines tâches)
 
-### 🔴 CRITIQUE - À faire aujourd'hui
+### 🚨 REFACTORING SPRINT 1 - SEMAINE 1 (2025-07-18 à 2025-07-25)
 
-1. **[PHASE 1] ✅ COMPLETED - Performance NavigationHeader**
-   - ✅ METHOD_TASK.md + MITIGATION_PLAN.md créés
-   - ✅ Baseline performance + DevTools setup
-   - ✅ Extraction CSS-in-JS → NavigationHeader.module.css
-   - ✅ 53% réduction code + 50% amélioration performance
-   - ✅ Frontend Docker opérationnel + validation visuelle
+**OBJECTIF**: Remplacer PostgreSQL + Alembic par SQLite + migrations simples
 
-2. **[PHASE 2] Préparer standardisation HomePage.tsx**
-   - ⏳ Analyser 15 styles inline identifiés (lignes 80-83, 179-182)
-   - ⏳ Créer baseline performance HomePage
-   - ⏳ Setup HomePage.module.css suivant pattern établi
-   - Référence: MITIGATION_PLAN.md#phase-2-action-2.1
+### 🔴 CRITIQUE - À faire aujourd'hui et demain (Day 1-2)
 
-### 🟠 HAUTE - Cette semaine
+1. **[REFACTORING] Analyse Schema Database** 
+   - ⏳ Auditer tous les modèles SQLAlchemy pour fonctionnalités PostgreSQL-spécifiques
+   - ⏳ Identifier foreign keys, contraintes, et indexes problématiques  
+   - ⏳ Documenter schema actuel et relations entre tables
+   - ⏳ Créer matrice compatibilité PostgreSQL → SQLite
+   - Référence: TASK.md#database-schema-analysis
 
-3. **[PHASE 1] Extraction CSS-in-JS → CSS Modules**
-   - ⏳ Créer `/src/styles/components/NavigationHeader.module.css`
-   - ⏳ Extraire lignes 122-264 de NavigationHeader.tsx
-   - ⏳ Préserver variables `var(--neural-*)`
-   - ⏳ Tests visuels comparaison avant/après
-   - Référence: MITIGATION_PLAN.md#phase-1-action-1.1
+2. **[REFACTORING] Stratégie Migration SQLite**
+   - ⏳ Concevoir approche migration données (export/import)
+   - ⏳ Créer versions modèles compatibles SQLite
+   - ⏳ Planifier migration données utilisateur existantes
+   - ⏳ Designer système migration simple (remplacer Alembic)
+   - Référence: TASK.md#sqlite-migration-strategy
 
-4. **[PHASE 1] Optimisation performance NavigationHeader**
-   - ⏳ Grouper media queries dans module CSS
-   - ⏳ Ajouter `will-change: transform` pour animations
-   - ⏳ Mesurer amélioration performance >50%
-   - Référence: MITIGATION_PLAN.md#phase-1-action-1.2
+### 🟠 HAUTE - Cette semaine (Day 3-4)
 
-5. **[PHASE 2] Préparer standardisation HomePage**
-   - ⏳ Analyser styles inline HomePage.tsx (lignes 80-83, 179-182)
-   - ⏳ Planifier conversion vers CSS Modules
-   - ⏳ Identifier variables CSS à centraliser
-   - Référence: MITIGATION_PLAN.md#phase-2-action-2.1
+3. **[REFACTORING] Implémentation SQLite**
+   - ⏳ Configurer connexion database SQLite dans db config
+   - ⏳ Mettre à jour modèles pour compatibilité SQLite
+   - ⏳ Implémenter scripts migration basiques
+   - ⏳ Tester toutes opérations CRUD avec backend SQLite
+   - Référence: TASK.md#sqlite-implementation
 
-### 🟡 MOYENNE - Semaine prochaine
+4. **[REFACTORING] Validation & Tests Database**
+   - ⏳ Exécuter tests complets sur backend SQLite
+   - ⏳ Comparaison performance: PostgreSQL vs SQLite
+   - ⏳ Mettre à jour documentation database
+   - ⏳ Créer procédures backup/restore pour SQLite
+   - Référence: TASK.md#validation-testing
 
-6. **[SETUP] Créer scripts automatisation**
-   - ⏳ Script benchmark performance automatisé
-   - ⏳ Script validation visuelle (screenshots)
-   - ⏳ Setup Webpack Bundle Analyzer
-   - Référence: MITIGATION_PLAN.md#phase-6-action-6.1
+5. **[REFACTORING] Préparation Sprint 2**
+   - ⏳ Documenter toutes tâches Celery existantes
+   - ⏳ Analyser dépendances async_job_service.py
+   - ⏳ Rechercher BackgroundTasks patterns FastAPI
+   - ⏳ Planifier architecture job status tracking sans Redis
+   - Référence: TASK.md#sprint-2-queue-system-replacement
 
-7. **[PHASE 3] Audit sécurité locale**
-   - ⏳ Analyser configuration CORS actuelle app/main.py
-   - ⏳ Lister endpoints à sécuriser
-   - ⏳ Préparer validation input frontend
-   - Référence: MITIGATION_PLAN.md#phase-3
+### 🟡 MOYENNE - Semaine prochaine (Sprint 2)
 
-### 🟢 BASSE - Quand possible
+6. **[REFACTORING] Sprint 2 - Remplacement Queue System**
+   - ⏳ Mapper tous workflows Celery existants
+   - ⏳ Designer architecture BackgroundTasks équivalente
+   - ⏳ Créer background_service.py de remplacement
+   - ⏳ Mettre à jour endpoints AI pour BackgroundTasks
+   - Référence: TASK.md#sprint-2-queue-system-replacement
 
-8. **[DOCUMENTATION] Créer guides développement**
-   - ⏳ Guide "Comment ajouter nouveau composant"
-   - ⏳ Checklist pré-commit personnalisée
-   - ⏳ Process validation UX futures modifications
-   - Référence: MITIGATION_PLAN.md#phase-7-action-7.2
+7. **[REFACTORING] Suppression Redis**
+   - ⏳ Supprimer toutes dépendances Redis
+   - ⏳ Tester opérations async sans Redis
+   - ⏳ Mettre à jour configuration Docker
+   - ⏳ Valider performance job polling
+   - Référence: TASK.md#redis-removal
+
+### 🟢 BASSE - Sprint 3-4 (Semaines 3-4)
+
+8. **[REFACTORING] Simplification Docker (Sprint 3)**
+   - ⏳ Designer container unique FastAPI + fichiers statiques
+   - ⏳ Créer Dockerfile.simple
+   - ⏳ Mettre à jour docker-compose.yml (5 → 2 services)
+   - ⏳ Tester déploiement container unique
+
+9. **[REFACTORING] Cleanup Final (Sprint 4)**
+   - ⏳ Supprimer tasks/ et celery_config.py
+   - ⏳ Supprimer code spécifique PostgreSQL
+   - ⏳ Optimiser UI pour workflow solo
+   - ⏳ Tests complets et documentation finale
 
 ---
 
 ## Contexte & Références
 
-### Plan Principal
-- 📄 **MITIGATION_PLAN.md**: Plan complet 7 phases
-- 📄 **METHOD_TASK.md**: Méthode de gestion
-- 📄 **TASK.md**: Tâches générales projet
+### Plan Principal REFACTORING
+- 📄 **PLANNING.md**: Architecture simplifiée complète 
+- 📄 **TASK.md**: Sprints refactoring 4 semaines
+- 📄 **PRD_ARCHITECTURE_SIMPLIFICATION.md**: Requirements détaillés (à créer)
 
-### Phase Actuelle
-**PHASE 1 - Performance Critique**: Résoudre CSS-in-JS massif NavigationHeader
+### Sprint Actuel
+**SPRINT 1 - Database Migration**: PostgreSQL → SQLite + migrations simples
 
-### Metrics de Succès Phase 1
-- ✅ Temps render NavigationHeader réduit >50%
-- ✅ Aucune régression visuelle
-- ✅ CSS externalisé et réutilisable
+### Metrics de Succès Sprint 1
+- ✅ Schema PostgreSQL entièrement analysé
+- ✅ Migration SQLite opérationnelle  
+- ✅ Toutes opérations CRUD fonctionnelles avec SQLite
+- ✅ Performance baseline SQLite vs PostgreSQL établie
+
+### Progress Global REFACTORING
+```
+⏳ SPRINT 1: Database Migration (PostgreSQL → SQLite)
+⏳ SPRINT 2: Queue System (Celery + Redis → BackgroundTasks)  
+⏳ SPRINT 3: Docker Simplification (5 containers → 1)
+⏳ SPRINT 4: Cleanup & Single-User Optimization
+```
+
+### Objectifs Architecture Cible
+- **Complexité**: 5 containers → 1 container
+- **Mémoire**: ~2GB → <500MB
+- **Dépendances**: PostgreSQL + Redis → SQLite seulement  
+- **Startup**: ~2 minutes → <30 secondes
+- **Maintenance**: Complexe → Zéro dépendances externes
 
 ### Dependencies
-- React DevTools Profiler installé
-- Webpack Bundle Analyzer configuré
-- Git branches pour rollback si nécessaire
+- React DevTools Profiler installé ✅
+- Webpack Bundle Analyzer à configurer ⏳
+- Git branches pour rollback si nécessaire ✅
+- Types génération pipeline fonctionnel ✅
 
 ---
 
@@ -93,10 +126,18 @@
 
 *Espace pour noter découvertes importantes pendant l'exécution*
 
-### 2025-07-13
-- Plan de mitigation validé et documenté
-- Méthode de gestion des tâches établie
-- Prêt pour Phase 1 performance critique
+### 2025-07-13 - Phases 1-5 COMPLETED
+- ✅ **5 Phases majeures terminées** avec succès
+- ✅ **Code qualité bout en bout** maintenue (aucun noqa, patterns propres)
+- ✅ **Résultats mesurables** : +50% performance, sécurité hardened, types auto, messages FR
+- ✅ **Architecture solide** : CSS Modules, validation centralisée, constants documentées
+- 🎯 **Prêt pour Phase 6** : Testing & validation pour garantir zéro régression
+
+### Artifacts créés Phase 5
+- 📄 `src/utils/messages.ts` : 35+ messages français centralisés
+- 📄 `src/utils/validation.ts` : 8 validators + patterns extraits
+- 📄 `src/utils/constants.ts` : 30+ constantes type-safe
+- 🔧 Architecture plus maintenable et professionnelle
 
 ---
 
