@@ -5,13 +5,11 @@ from sqlalchemy import (
     String,
     Text,
     ForeignKey,
-    DateTime,
     Boolean,
-    JSON,
 )
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 from app.db.config import Base
+from app.db.compat import JSON, DateTimeFunc, DateTimeType
 
 
 class Project(Base):
@@ -20,16 +18,16 @@ class Project(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False)
     description = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTimeType, server_default=DateTimeFunc)
+    updated_at = Column(DateTimeType, onupdate=DateTimeFunc)
 
     # Contenu final assemblé
     final_content = Column(Text, nullable=True)
-    final_content_updated_at = Column(DateTime(timezone=True), nullable=True)
+    final_content_updated_at = Column(DateTimeType, nullable=True)
 
     # Extensions pour gestion avancée des projets
     archived = Column(Boolean, default=False, nullable=False)
-    archived_at = Column(DateTime(timezone=True), nullable=True)
+    archived_at = Column(DateTimeType, nullable=True)
     settings = Column(JSON, nullable=True)
     tags = Column(String, nullable=True)  # Format CSV pour simplicité
 
@@ -53,12 +51,12 @@ class Task(Base):
         String, default="À faire", nullable=False
     )  # Ex: "À faire", "En cours", "Révision", "Terminé"
     order = Column(BigInteger, default=0)  # Pour l'assemblage
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTimeType, server_default=DateTimeFunc)
+    updated_at = Column(DateTimeType, onupdate=DateTimeFunc)
 
     # Suivi IA
     created_by_ai = Column(Boolean, default=False, nullable=False)
-    last_updated_by_ai_at = Column(DateTime(timezone=True), nullable=True)
+    last_updated_by_ai_at = Column(DateTimeType, nullable=True)
 
     project = relationship("Project", back_populates="tasks")
 
@@ -91,6 +89,6 @@ class BlogTemplate(Base):
     additional_metadata = Column(JSON, nullable=True)  # Informations supplémentaires
 
     # Audit trail
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTimeType, server_default=DateTimeFunc)
+    updated_at = Column(DateTimeType, onupdate=DateTimeFunc)
     is_active = Column(Boolean, default=True)  # Pour désactiver sans supprimer

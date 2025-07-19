@@ -2,9 +2,9 @@
 Modèles pour le suivi des jobs asynchrones
 """
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, Float, JSON, ForeignKey
-from sqlalchemy.sql import func
+from sqlalchemy import Column, Integer, String, Text, Float, ForeignKey
 from app.db.config import Base
+from app.db.compat import JSON, DateTimeFunc, DateTimeType
 
 
 class AsyncJob(Base):
@@ -45,9 +45,9 @@ class AsyncJob(Base):
     )  # Historique des étapes avec timestamps
 
     # Horodatage
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    completed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTimeType, server_default=DateTimeFunc)
+    updated_at = Column(DateTimeType, onupdate=DateTimeFunc)
+    completed_at = Column(DateTimeType, nullable=True)
 
     # Résultat (optionnel, peut être stocké dans Redis)
     result_summary = Column(Text, nullable=True)  # Résumé du résultat

@@ -7,18 +7,15 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    DateTime,
-    JSON,
     ForeignKey,
-    Enum,
     Index,
 )
-from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import enum
 import uuid
 
 from app.db.config import Base
+from app.db.compat import JSON, DateTimeFunc, DateTimeType, get_enum_type, get_enum_check_constraint
 
 
 class WorkflowType(str, enum.Enum):
@@ -59,9 +56,9 @@ class WorkflowExecution(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
-    workflow_type = Column(Enum(WorkflowType), nullable=False)
+    workflow_type = Column(get_enum_type(WorkflowType), nullable=False)
     status = Column(
-        Enum(WorkflowStatus), default=WorkflowStatus.PENDING, nullable=False
+        get_enum_type(WorkflowStatus), default=WorkflowStatus.PENDING, nullable=False
     )
 
     # Progression du workflow
@@ -76,9 +73,9 @@ class WorkflowExecution(Base):
     )  # Options du workflow, paramètres, etc.
 
     # Horodatage
-    started_at = Column(DateTime(timezone=True), server_default=func.now())
-    completed_at = Column(DateTime(timezone=True), nullable=True)
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    started_at = Column(DateTimeType, server_default=DateTimeFunc)
+    completed_at = Column(DateTimeType, nullable=True)
+    updated_at = Column(DateTimeType, onupdate=DateTimeFunc)
 
     # Gestion d'erreurs
     error_details = Column(
@@ -90,11 +87,14 @@ class WorkflowExecution(Base):
     async_jobs = relationship("AsyncJob", backref="workflow_execution")
     task_outputs = relationship("TaskOutput", backref="workflow_execution")
 
-    # Index pour performances
-    __table_args__ = (
+    # Index pour performances et contraintes SQLite
+    __table_args__ = tuple(filter(None, [
         Index("idx_workflow_project_status", "project_id", "status"),
         Index("idx_workflow_started", "started_at"),
-    )
+        # Contraintes CHECK pour SQLite (ignorées par PostgreSQL)
+        get_enum_check_constraint("workflow_type", WorkflowType),
+        get_enum_check_constraint("status", WorkflowStatus),
+    ]))
 
 
 class TaskOutput(Base):
@@ -110,7 +110,7 @@ class TaskOutput(Base):
         String, ForeignKey("workflow_executions.id"), nullable=True
     )
 
-    output_type = Column(Enum(TaskOutputType), nullable=False)
+    output_type = Column(get_enum_type(TaskOutputType), nullable=False)
     content = Column(Text, nullable=False)
     content_hash = Column(String(64), nullable=True)  # SHA-256 pour déduplication
 
@@ -125,15 +125,17 @@ class TaskOutput(Base):
     # }
 
     # Horodatage
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTimeType, server_default=DateTimeFunc)
 
     # Relations
     task = relationship("Task", backref="outputs")
 
-    # Index pour performances
-    __table_args__ = (
+    # Index pour performances et contraintes SQLite
+    __table_args__ = tuple(filter(None, [
         Index("idx_output_task_type", "task_id", "output_type"),
         Index("idx_output_workflow", "workflow_execution_id"),
         Index("idx_output_created", "created_at"),
         Index("idx_output_hash", "content_hash"),
-    )
+        # Contraintes CHECK pour SQLite (ignorées par PostgreSQL)
+        get_enum_check_constraint("output_type", TaskOutputType),
+    ]))
