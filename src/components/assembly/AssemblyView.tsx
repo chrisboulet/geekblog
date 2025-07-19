@@ -26,10 +26,10 @@ const AssemblyView: React.FC<AssemblyViewProps> = ({ project }) => {
     const rawHtmlContent = orderedTasks.map(task =>
       `<h2>${task.title}</h2>\n${task.description || '<p>Contenu non disponible.</p>'}`
     ).join('<hr class="my-4 border-neutral-700">\n');
-    
+
     // Réinitialiser le contenu raffiné si les tâches sources changent
     setRefinedContent('');
-    
+
     return rawHtmlContent;
   }, [orderedTasks]);
 
@@ -115,8 +115,8 @@ const AssemblyView: React.FC<AssemblyViewProps> = ({ project }) => {
         </div>
         {refinementMutation.error ? (
            <p className="text-xs text-red-400 mt-2">
-             Erreur: {String(refinementMutation.error instanceof Error 
-               ? refinementMutation.error.message 
+             Erreur: {String(refinementMutation.error instanceof Error
+               ? refinementMutation.error.message
                : refinementMutation.error || 'Une erreur inattendue s\'est produite')}
            </p>
         ) : null}

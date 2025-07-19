@@ -59,7 +59,7 @@ services:
     ports:
       # Expose for local tools (pgAdmin, DBeaver, etc.)
       - "5432:5432"
-    command: 
+    command:
       - "postgres"
       - "-c"
       - "log_statement=all"

@@ -17,9 +17,9 @@ interface DropdownMenuItemProps {
 
 interface DropdownMenuSeparatorProps {}
 
-const DropdownMenuComponent: React.FC<DropdownMenuProps> = ({ 
-  trigger, 
-  children, 
+const DropdownMenuComponent: React.FC<DropdownMenuProps> = ({
+  trigger,
+  children,
   align = 'end',
   side = 'bottom'
 }) => {
@@ -28,7 +28,7 @@ const DropdownMenuComponent: React.FC<DropdownMenuProps> = ({
       <DropdownMenuPrimitive.Trigger asChild>
         {trigger}
       </DropdownMenuPrimitive.Trigger>
-      
+
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
           align={align}
@@ -43,11 +43,11 @@ const DropdownMenuComponent: React.FC<DropdownMenuProps> = ({
   );
 };
 
-const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({ 
-  onSelect, 
-  children, 
+const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
+  onSelect,
+  children,
   disabled = false,
-  destructive = false 
+  destructive = false
 }) => {
   return (
     <DropdownMenuPrimitive.Item
@@ -56,8 +56,8 @@ const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({
       className={`
         px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200
         focus:outline-none focus:ring-2 focus:ring-neural-purple/50
-        ${disabled 
-          ? 'text-text-disabled cursor-not-allowed' 
+        ${disabled
+          ? 'text-text-disabled cursor-not-allowed'
           : destructive
             ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'
             : 'text-text-primary hover:bg-neural-purple/10 hover:text-neural-purple'

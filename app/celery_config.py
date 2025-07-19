@@ -1,6 +1,7 @@
 """
 Configuration Celery pour les tâches asynchrones
 """
+
 import os
 from celery import Celery
 from kombu import Queue
@@ -13,7 +14,7 @@ celery_app = Celery(
     "geekblog_tasks",
     broker=REDIS_URL,
     backend=REDIS_URL,
-    include=["app.tasks.ai_tasks"]
+    include=["app.tasks.ai_tasks"],
 )
 
 # Configuration Celery
@@ -24,7 +25,6 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
-    
     # Queues avec priorités
     task_routes={
         "app.tasks.ai_tasks.planning_task": {"queue": "high"},
@@ -32,7 +32,6 @@ celery_app.conf.update(
         "app.tasks.ai_tasks.writing_task": {"queue": "medium"},
         "app.tasks.ai_tasks.finishing_task": {"queue": "low"},
     },
-    
     # Configuration des queues
     task_default_queue="default",
     task_queues=(
@@ -41,21 +40,17 @@ celery_app.conf.update(
         Queue("low", routing_key="low"),
         Queue("default", routing_key="default"),
     ),
-    
     # Retry et timeouts
     task_acks_late=True,
     worker_prefetch_multiplier=1,
     task_default_retry_delay=60,  # 1 minute
     task_max_retries=3,
-    
     # Résultats
     result_expires=3600,  # 1 heure
     result_backend_transport_options={
-        'visibility_timeout': 3600,
-        'retry_policy': {
-            'timeout': 5.0
-        }
-    }
+        "visibility_timeout": 3600,
+        "retry_policy": {"timeout": 5.0},
+    },
 )
 
 # Configuration pour le développement

@@ -24,12 +24,20 @@ if (!apiBaseUrl) {
   throw new Error("VITE_API_BASE_URL is not defined. Please check your environment configuration.");
 }
 
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Add API Key to all requests
+// In development, the backend allows requests without API key
+// In production, set VITE_API_KEY environment variable
+const apiKey = import.meta.env.VITE_API_KEY;
+if (apiKey) {
+  apiClient.defaults.headers.common['X-API-KEY'] = apiKey;
+}
 
 // Types API (simplifiés, à affiner en fonction des schémas Pydantic du backend)
 // Il serait mieux de générer ces types à partir de la spécification OpenAPI du backend

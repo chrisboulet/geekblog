@@ -13,19 +13,19 @@ export { default as TemplateSelectionModal } from './TemplateSelectionModal';
 export type { TemplateFilters as TemplateFiltersState } from './TemplateFilters';
 
 // Re-export useful template types from types module
-export type { 
-  Template, 
-  TemplateCustomization, 
+export type {
+  Template,
+  TemplateCustomization,
   ProjectFromTemplate,
   TemplateCategory,
   TemplateStats,
-  LocalizationLevel 
+  LocalizationLevel
 } from '../../types/templates';
 
 // Re-export template constants
-export { 
-  TEMPLATE_CATEGORIES, 
-  LOCALIZATION_LEVELS 
+export {
+  TEMPLATE_CATEGORIES,
+  LOCALIZATION_LEVELS
 } from '../../types/templates';
 
 // Re-export template hooks for convenience

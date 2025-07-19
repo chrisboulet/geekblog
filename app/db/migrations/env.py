@@ -19,10 +19,11 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
-from app.models.models import Base # Import your Base
-from app.db.config import DATABASE_URL # Import your DATABASE_URL
+from app.models.models import Base  # Import your Base
+from app.db.config import DATABASE_URL  # Import your DATABASE_URL
+
 target_metadata = Base.metadata
-config.set_main_option('sqlalchemy.url', DATABASE_URL)
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 
 # other values from the config, defined by the needs of env.py,
@@ -69,9 +70,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

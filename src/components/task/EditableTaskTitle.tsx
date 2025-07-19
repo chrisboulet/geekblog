@@ -7,14 +7,14 @@ interface EditableTaskTitleProps {
   className?: string;
 }
 
-const EditableTaskTitle: React.FC<EditableTaskTitleProps> = ({ 
-  task, 
-  className = '' 
+const EditableTaskTitle: React.FC<EditableTaskTitleProps> = ({
+  task,
+  className = ''
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   const updateTaskMutation = useUpdateTask();
 
   // ACCESSIBILITY: Focus management
@@ -32,7 +32,7 @@ const EditableTaskTitle: React.FC<EditableTaskTitleProps> = ({
 
   const handleSave = () => {
     const trimmedTitle = title.trim();
-    
+
     if (trimmedTitle && trimmedTitle !== task.title) {
       updateTaskMutation.mutate(
         {
@@ -92,7 +92,7 @@ const EditableTaskTitle: React.FC<EditableTaskTitleProps> = ({
         onKeyDown={handleKeyDown}
         className={`
           w-full bg-bg-secondary border border-neural-blue/50 rounded px-2 py-1
-          text-text-primary placeholder-text-secondary 
+          text-text-primary placeholder-text-secondary
           focus:outline-none focus:ring-2 focus:ring-neural-blue focus:border-neural-blue
           transition-all
           ${updateTaskMutation.isPending ? 'opacity-50 cursor-wait' : ''}

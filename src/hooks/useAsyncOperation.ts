@@ -54,7 +54,7 @@ export const useAsyncOperation = <TVariables = any, TResult = any>(
         error: errorMessage,
         isPolling: false
       }));
-      
+
       if (onError) {
         onError(errorMessage);
       }
@@ -81,7 +81,7 @@ export const useAsyncOperation = <TVariables = any, TResult = any>(
               queryClient.invalidateQueries({ queryKey });
             });
           }
-          
+
           if (onSuccess && status.result) {
             onSuccess(status.result);
           }
@@ -93,7 +93,7 @@ export const useAsyncOperation = <TVariables = any, TResult = any>(
             ...prev,
             error: errorMessage
           }));
-          
+
           if (onError) {
             onError(errorMessage);
           }
@@ -161,7 +161,7 @@ export const useAsyncOperation = <TVariables = any, TResult = any>(
     execute: startMutation.mutate,
     reset,
     cancel,
-    
+
     // State
     isExecuting: startMutation.isPending || operationState.isPolling,
     isStarting: startMutation.isPending,
@@ -169,7 +169,7 @@ export const useAsyncOperation = <TVariables = any, TResult = any>(
     isComplete: operationState.status ? jobService.isJobComplete(operationState.status) : false,
     isSuccessful: operationState.status ? jobService.isJobSuccessful(operationState.status) : false,
     isFailed: operationState.status ? jobService.isJobFailed(operationState.status) : false,
-    
+
     // Data
     jobId: operationState.jobId,
     status: operationState.status,
@@ -177,7 +177,7 @@ export const useAsyncOperation = <TVariables = any, TResult = any>(
     step: operationState.status?.step,
     result: operationState.status?.result,
     error: operationState.error || startMutation.error?.message,
-    
+
     // Status helpers
     statusMessage: operationState.status ? jobService.getJobStatusMessage(operationState.status) : '',
     estimatedTimeRemaining: operationState.status ? jobService.getEstimatedTimeRemaining(operationState.status) : null

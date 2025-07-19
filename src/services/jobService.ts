@@ -30,6 +30,15 @@ export const cancelJob = async (jobId: string): Promise<{ job_id: string; messag
   return response.data;
 };
 
+/**
+ * Get status for multiple jobs in a single request (batch operation)
+ * Optimized to avoid N+1 queries on the backend
+ */
+export const getBatchJobStatus = async (jobIds: string[]): Promise<JobStatus[]> => {
+  const response = await apiClient.post('/jobs/status', jobIds);
+  return response.data;
+};
+
 
 /**
  * Helper to check if a job status indicates completion
@@ -85,7 +94,7 @@ export const getEstimatedTimeRemaining = (status: JobStatus): number | null => {
   const now = new Date();
   const createdAt = new Date(status.created_at);
   const elapsedMs = now.getTime() - createdAt.getTime();
-  
+
   if (status.progress >= 100) {
     return 0;
   }
@@ -105,6 +114,6 @@ export const getEstimatedTimeRemaining = (status: JobStatus): number | null => {
 
   const remainingProgress = 100 - status.progress;
   const estimatedRemainingMs = remainingProgress / progressRate;
-  
+
   return Math.max(0, estimatedRemainingMs);
 };

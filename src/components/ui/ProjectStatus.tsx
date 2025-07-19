@@ -8,7 +8,7 @@ interface ProjectStatusProps {
 const ProjectStatus: React.FC<ProjectStatusProps> = ({ project }) => {
   const tasks = project.tasks || [];
   const totalTasks = tasks.length;
-  
+
   if (totalTasks === 0) {
     return (
       <div className="flex items-center space-x-2 text-sm">
@@ -49,13 +49,13 @@ const ProjectStatus: React.FC<ProjectStatusProps> = ({ project }) => {
           {progressPercentage}% terminé
         </span>
       </div>
-      
+
       <div className="flex items-center space-x-1 text-text-tertiary">
         <span>({completedTasks}/{totalTasks} tâches)</span>
       </div>
 
       <div className="w-24 bg-bg-secondary rounded-full h-2">
-        <div 
+        <div
           className="h-2 rounded-full bg-gradient-to-r from-neural-purple to-neural-blue transition-all duration-300"
           style={{ width: `${progressPercentage}%` }}
         />

@@ -42,10 +42,10 @@ export const useJobPolling = (
     },
     {
       enabled: enabled && !!jobId,
-      
+
       // Dynamic polling interval based on job status
       refetchInterval: (data) => {
-      
+
       // Stop polling for final states
       if (!data || jobService.isJobComplete(data)) {
         // Call onComplete callback if job succeeded
@@ -54,30 +54,30 @@ export const useJobPolling = (
         }
         return false;
       }
-      
+
       // Faster polling during active processing
       if (data.status === 'PROGRESS') {
         return pollingInterval; // Poll faster during active work
       }
-      
+
       // Slower polling for pending jobs
       if (data.status === 'PENDING') {
         return Math.min(pollingInterval * 2, maxPollingInterval);
       }
-      
+
       // Default polling interval
       return pollingInterval;
     },
-    
+
     // Keep polling in background
     refetchIntervalInBackground: true,
-    
+
     // Always consider job status stale for real-time updates
     staleTime: 0,
-    
+
     // Don't cache job status for too long
     cacheTime: 30000, // 30 seconds
-    
+
     // Retry configuration for network errors
     retry: (failureCount, error) => {
       // Don't retry HTTP 404/400 errors (job not found/invalid)
@@ -87,7 +87,7 @@ export const useJobPolling = (
       // Retry up to 3 times for other errors
       return failureCount < 3;
     },
-    
+
     // Handle errors
     onError: (error: Error) => {
       console.error('Job polling error:', error);
@@ -125,17 +125,17 @@ export const useMultiJobPolling = (
   jobIds: (string | null)[],
   options: UseJobPollingOptions = {}
 ) => {
-  const results = jobIds.map(jobId => 
+  const results = jobIds.map(jobId =>
     useJobPolling(jobId, options)
   );
-  
+
   // Aggregate status
   const isAnyLoading = results.some(result => result.isLoading);
   const isAnyError = results.some(result => result.isError);
-  const allComplete = results.every(result => 
+  const allComplete = results.every(result =>
     !result.data || jobService.isJobComplete(result.data)
   );
-  
+
   return {
     results,
     isAnyLoading,

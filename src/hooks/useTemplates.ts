@@ -97,12 +97,12 @@ export function useCreateProjectFromTemplate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: ProjectFromTemplate) => 
+    mutationFn: (request: ProjectFromTemplate) =>
       TemplateService.createProjectFromTemplate(request),
     onSuccess: (newProject: Project) => {
       // Invalidate and refetch projects
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      
+
       // Optionally add the new project to the cache
       queryClient.setQueryData(['projects', 'detail', newProject.id], newProject);
     },
@@ -143,9 +143,9 @@ export function useInvalidateTemplates() {
 
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: templateKeys.all }),
-    invalidateList: (filters?: Record<string, any>) => 
+    invalidateList: (filters?: Record<string, any>) =>
       queryClient.invalidateQueries({ queryKey: templateKeys.list(filters) }),
-    invalidateTemplate: (id: number) => 
+    invalidateTemplate: (id: number) =>
       queryClient.invalidateQueries({ queryKey: templateKeys.detail(id) }),
   };
 }

@@ -36,7 +36,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           {description}
         </p>
       </Modal.Body>
-      
+
       <Modal.Footer>
         <button
           onClick={onClose}
@@ -50,8 +50,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           disabled={isLoading}
           className={`
             neural-interactive neural-clickable neural-focusable disabled:opacity-50
-            ${isDestructive 
-              ? 'neural-button border-red-500 text-red-400 hover:bg-red-500/10' 
+            ${isDestructive
+              ? 'neural-button border-red-500 text-red-400 hover:bg-red-500/10'
               : 'neural-button-primary'
             }
           `}

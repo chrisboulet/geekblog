@@ -30,14 +30,14 @@ const NeuralBackground: React.FC = () => {
     for (let i = 0; i < NEURAL_CONFIG.lines.count; i++) {
       const line = document.createElement('div');
       line.className = 'neural-line';
-      
+
       const width = Math.random() * (NEURAL_CONFIG.lines.maxWidth - NEURAL_CONFIG.lines.minWidth) + NEURAL_CONFIG.lines.minWidth;
       line.style.width = width + 'px';
       line.style.left = Math.random() * 100 + '%';
       line.style.top = Math.random() * 100 + '%';
       line.style.transform = `rotate(${Math.random() * 360}deg)`;
       line.style.animationDelay = Math.random() * 3 + 's';
-      
+
       bg.appendChild(line);
     }
 
@@ -45,18 +45,18 @@ const NeuralBackground: React.FC = () => {
     for (let i = 0; i < NEURAL_CONFIG.particles.count; i++) {
       const particle = document.createElement('div');
       particle.className = 'neural-particle';
-      
+
       particle.style.left = Math.random() * 100 + '%';
       particle.style.top = Math.random() * 100 + '%';
-      
+
       // Set random travel direction
       const tx = (Math.random() - 0.5) * NEURAL_CONFIG.particles.travelDistance;
       const ty = (Math.random() - 0.5) * NEURAL_CONFIG.particles.travelDistance;
       particle.style.setProperty('--tx', tx + 'px');
       particle.style.setProperty('--ty', ty + 'px');
-      
+
       particle.style.animationDelay = Math.random() * 10 + 's';
-      
+
       bg.appendChild(particle);
     }
 
@@ -69,7 +69,7 @@ const NeuralBackground: React.FC = () => {
   }, []);
 
   return (
-    <div 
+    <div
       ref={backgroundRef}
       className="neural-bg"
       aria-hidden="true"

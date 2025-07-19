@@ -26,10 +26,10 @@ const FloatingEditor: React.FC<FloatingEditorProps> = ({
   useEffect(() => {
     const words = content.trim().split(/\s+/).filter(word => word.length > 0);
     setWordCount(words.length);
-    
+
     // Simple connection detection (words that might link to other concepts)
-    const connections = words.filter(word => 
-      word.startsWith('#') || 
+    const connections = words.filter(word =>
+      word.startsWith('#') ||
       word.startsWith('@') ||
       word.length > 8 // Long words might be concepts
     );
@@ -42,7 +42,7 @@ const FloatingEditor: React.FC<FloatingEditorProps> = ({
       e.preventDefault();
       onSave?.();
     }
-    
+
     // Ctrl+Enter to expand/minimize
     if (e.ctrlKey && e.key === 'Enter') {
       e.preventDefault();
@@ -86,7 +86,7 @@ const FloatingEditor: React.FC<FloatingEditorProps> = ({
             width: '100%'
           }}
         />
-        
+
         <div className="flex items-center gap-2">
           <button
             onClick={toggleMinimized}
@@ -108,7 +108,7 @@ const FloatingEditor: React.FC<FloatingEditorProps> = ({
           >
             {isMinimized ? '⤢' : '⤡'}
           </button>
-          
+
           <button
             onClick={toggleExpanded}
             className="editor-expand"
@@ -131,7 +131,7 @@ const FloatingEditor: React.FC<FloatingEditorProps> = ({
           </button>
         </div>
       </div>
-      
+
       {!isMinimized && (
         <>
           <textarea
@@ -166,7 +166,7 @@ Utilisez Ctrl+Enter pour agrandir"
               fontFamily: 'inherit'
             }}
           />
-          
+
           <div className="editor-footer" style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -188,7 +188,7 @@ Utilisez Ctrl+Enter pour agrandir"
                 <span style={{ color: 'var(--neural-purple)' }}>{connectionCount}</span> connexions
               </span>
             </div>
-            
+
             <div style={{
               display: 'flex',
               gap: '8px'
@@ -208,7 +208,7 @@ Utilisez Ctrl+Enter pour agrandir"
           </div>
         </>
       )}
-      
+
       {isMinimized && (
         <div style={{
           textAlign: 'center',

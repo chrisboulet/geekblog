@@ -33,7 +33,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
     transform,
     transition,
     isDragging: isSortableDragging,
-  } = useSortable({ 
+  } = useSortable({
     id: String(task.id),
     data: {
       type: 'Task',
@@ -66,7 +66,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
 
   // New async operation hook
   const asyncAgentOperation = useAsyncOperation(
-    ({ agentType, context }: { agentType: api.AgentType; context?: string }) => 
+    ({ agentType, context }: { agentType: api.AgentType; context?: string }) =>
       api.runAgentOnTaskAsync(String(task.id), agentType, context),
     {
       invalidateQueries: [['project', String(projectId)]],
@@ -132,12 +132,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
   };
 
   // Determine which operation is currently active
-  const isExecuting = useAsync 
-    ? asyncAgentOperation.isExecuting 
+  const isExecuting = useAsync
+    ? asyncAgentOperation.isExecuting
     : runAgentMutation.isPending;
-  
-  const currentError = useAsync 
-    ? asyncAgentOperation.error 
+
+  const currentError = useAsync
+    ? asyncAgentOperation.error
     : (runAgentMutation.error instanceof Error ? runAgentMutation.error.message : null);
 
   return (
@@ -145,15 +145,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
       ref={setNodeRef}
       style={style}
       className={`bg-bg-primary p-3 rounded-lg shadow-md border border-neutral-700/50 hover:border-neural-blue focus-within:border-neural-blue focus-within:ring-1 focus-within:ring-neural-blue transition-all duration-150 ease-in-out ${
-        isSortableDragging || isDragging 
-          ? 'opacity-50 shadow-2xl scale-105 rotate-3 z-50' 
+        isSortableDragging || isDragging
+          ? 'opacity-50 shadow-2xl scale-105 rotate-3 z-50'
           : 'cursor-grab active:cursor-grabbing hover:shadow-lg'
       }`}
     >
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-start gap-2 flex-1 min-w-0">
-          <div 
-            {...attributes} 
+          <div
+            {...attributes}
             {...listeners}
             className="text-text-tertiary hover:text-neural-blue transition-colors p-1 cursor-grab active:cursor-grabbing flex-shrink-0"
             aria-label="Glisser pour déplacer la tâche"
@@ -189,7 +189,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
               <DropdownMenuPrimitive.Label className="px-2 py-1 text-xs text-text-tertiary">
                 Mode: {useAsync ? 'Asynchrone' : 'Synchrone'}
               </DropdownMenuPrimitive.Label>
-              
+
               {/* Mode toggle */}
               <DropdownMenuPrimitive.Item
                 className="flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-purple/30 outline-none cursor-pointer"
@@ -198,40 +198,40 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
                 <Zap size={14} className={`mr-2 ${useAsync ? 'text-neural-blue' : 'text-neural-purple'}`} />
                 Basculer vers {useAsync ? 'synchrone' : 'asynchrone'}
               </DropdownMenuPrimitive.Item>
-              
+
               <DropdownMenuPrimitive.Separator className="h-px bg-neutral-700 my-1" />
               <DropdownMenuPrimitive.Label className="px-2 py-1 text-xs text-text-tertiary">Déléguer à l'IA</DropdownMenuPrimitive.Label>
-              
+
               <DropdownMenuPrimitive.Item
                 className={`flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-blue/30 outline-none cursor-pointer ${isExecuting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={() => handleDelegateToAI('researcher')}
                 disabled={isExecuting}
               >
                 <Search size={14} className="mr-2 text-neural-purple" />
-                {isExecuting ? 
-                  (useAsync && asyncAgentOperation.step ? `${asyncAgentOperation.step}...` : 'Recherche IA...') : 
+                {isExecuting ?
+                  (useAsync && asyncAgentOperation.step ? `${asyncAgentOperation.step}...` : 'Recherche IA...') :
                   'Chercheur IA'
                 }
                 {useAsync && (
                   <span className="ml-auto text-xs text-neural-blue">Async</span>
                 )}
               </DropdownMenuPrimitive.Item>
-              
+
               <DropdownMenuPrimitive.Item
                 className={`flex items-center px-2 py-1.5 rounded-sm hover:bg-neural-blue/30 outline-none cursor-pointer ${isExecuting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={() => handleDelegateToAI('writer')}
                 disabled={isExecuting}
               >
                 <Brain size={14} className="mr-2 text-neural-pink" />
-                {isExecuting ? 
-                  (useAsync && asyncAgentOperation.step ? `${asyncAgentOperation.step}...` : 'Rédaction IA...') : 
+                {isExecuting ?
+                  (useAsync && asyncAgentOperation.step ? `${asyncAgentOperation.step}...` : 'Rédaction IA...') :
                   'Rédacteur IA'
                 }
                 {useAsync && (
                   <span className="ml-auto text-xs text-neural-blue">Async</span>
                 )}
               </DropdownMenuPrimitive.Item>
-              
+
               {/* Emergency sync fallback when async is active */}
               {useAsync && asyncAgentOperation.jobId && asyncAgentOperation.isPolling && (
                 <>
@@ -262,16 +262,16 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
       {useAsync && asyncAgentOperation.status && (
         <div className="mb-3 space-y-2">
           <div className="flex items-center justify-between">
-            <JobStatusBadge 
-              status={asyncAgentOperation.status} 
-              size="sm" 
+            <JobStatusBadge
+              status={asyncAgentOperation.status}
+              size="sm"
               showProgress={true}
             />
             {asyncAgentOperation.isExecuting && (
               <LoadingSpinner size="sm" color="neural-blue" />
             )}
           </div>
-          <JobProgressBar 
+          <JobProgressBar
             status={asyncAgentOperation.status}
             size="sm"
             showStep={true}
@@ -284,12 +284,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
       {!useAsync && runAgentMutation.isPending && (
          <p className="text-xs text-neural-blue animate-pulse-fast">Agent IA en cours ({runAgentMutation.variables?.agentType})...</p>
       )}
-      
+
       {/* Error display for both sync and async */}
       {currentError && (
          <p className="text-xs text-red-400 mb-2">Erreur Agent IA: {currentError}</p>
       )}
-      
+
       {/* <div className="text-xs text-text-tertiary">ID: {task.id}</div> */}
 
       {/* Edit Task Modal */}
@@ -300,7 +300,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
             <DialogPrimitive.Title className="text-lg font-semibold text-text-primary mb-4">
               Modifier la tâche
             </DialogPrimitive.Title>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">
@@ -314,7 +314,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
                   placeholder="Titre de la tâche"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">
                   Description
@@ -328,7 +328,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, projectId, isDragging = false
                 />
               </div>
             </div>
-            
+
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={handleCancelEdit}

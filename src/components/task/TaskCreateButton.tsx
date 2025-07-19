@@ -6,9 +6,9 @@ interface TaskCreateButtonProps {
   defaultStatus?: string;
 }
 
-const TaskCreateButton: React.FC<TaskCreateButtonProps> = ({ 
-  projectId, 
-  defaultStatus = 'pending' 
+const TaskCreateButton: React.FC<TaskCreateButtonProps> = ({
+  projectId,
+  defaultStatus = 'pending'
 }) => {
   const [showModal, setShowModal] = useState(false);
 

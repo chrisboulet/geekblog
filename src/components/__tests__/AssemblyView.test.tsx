@@ -9,7 +9,7 @@ import * as api from '../../lib/api'
 vi.mock('../editor/RichTextEditor', () => ({
   default: ({ initialContent, onContentChange }: { initialContent: string, onContentChange?: (content: string) => void }) => (
     <div data-testid="rich-text-editor">
-      <textarea 
+      <textarea
         data-testid="editor-content"
         value={initialContent}
         onChange={(e) => onContentChange?.(e.target.value)}
@@ -45,7 +45,7 @@ describe('AssemblyView', () => {
 
   it('renders two-panel layout correctly', () => {
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     expect(screen.getByText('Ordre des Sections')).toBeInTheDocument()
     expect(screen.getByText('Aperçu de l\'Article')).toBeInTheDocument()
     expect(screen.getByTestId('rich-text-editor')).toBeInTheDocument()
@@ -53,32 +53,32 @@ describe('AssemblyView', () => {
 
   it('filters and displays only eligible tasks', () => {
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     // Devrait afficher les tâches "Terminé" et "Révision"
     expect(screen.getByText('Introduction')).toBeInTheDocument()
     expect(screen.getByText('Développement')).toBeInTheDocument()
     expect(screen.getByText('Conclusion')).toBeInTheDocument()
-    
+
     // Ne devrait pas afficher la tâche "À faire"
     expect(screen.queryByText('Non terminé')).not.toBeInTheDocument()
   })
 
   it('sorts tasks by order correctly', () => {
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     const taskElements = screen.getAllByTestId(/task-item/)
-    
+
     // Vérifier l'ordre des tâches
     expect(taskElements[0]).toHaveTextContent('Introduction')
-    expect(taskElements[1]).toHaveTextContent('Développement') 
+    expect(taskElements[1]).toHaveTextContent('Développement')
     expect(taskElements[2]).toHaveTextContent('Conclusion')
   })
 
   it('assembles content correctly in HTML format', () => {
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     const editorContent = screen.getByTestId('editor-content')
-    
+
     // Vérifier que le contenu assemblé contient les éléments attendus
     expect(editorContent.value).toContain('<h2>Introduction</h2>')
     expect(editorContent.value).toContain('Contenu introduction')
@@ -90,17 +90,17 @@ describe('AssemblyView', () => {
   it('handles empty tasks gracefully', () => {
     const emptyProject = { ...mockProject, tasks: [] }
     render(<AssemblyView project={emptyProject} />)
-    
+
     expect(screen.getByText('Ordre des Sections')).toBeInTheDocument()
     expect(screen.getByTestId('rich-text-editor')).toBeInTheDocument()
-    
+
     const editorContent = screen.getByTestId('editor-content')
     expect(editorContent.value).toBe('')
   })
 
   it('shows "Lancer le Raffinage IA" button', () => {
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     expect(screen.getByText('Lancer le Raffinage IA')).toBeInTheDocument()
   })
 
@@ -108,10 +108,10 @@ describe('AssemblyView', () => {
     mockApiClient.runFinishingCrew.mockResolvedValue('Contenu raffiné par l\'IA')
 
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     const refineButton = screen.getByText('Lancer le Raffinage IA')
     fireEvent.click(refineButton)
-    
+
     await waitFor(() => {
       expect(mockApiClient.runFinishingCrew).toHaveBeenCalledWith(
         projectWithCompletedTasks.id,
@@ -125,10 +125,10 @@ describe('AssemblyView', () => {
     mockApiClient.runFinishingCrew.mockResolvedValue(refinedContent)
 
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     const refineButton = screen.getByText('Lancer le Raffinage IA')
     fireEvent.click(refineButton)
-    
+
     await waitFor(() => {
       const editorContent = screen.getByTestId('editor-content')
       expect(editorContent.value).toBe(refinedContent)
@@ -144,19 +144,19 @@ describe('AssemblyView', () => {
     mockApiClient.runFinishingCrew.mockReturnValue(pendingPromise)
 
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     const refineButton = screen.getByText('Lancer le Raffinage IA')
     fireEvent.click(refineButton)
-    
+
     // Vérifier l'état de chargement
     await waitFor(() => {
       expect(screen.getByText('Raffinage en cours...')).toBeInTheDocument()
       expect(refineButton).toBeDisabled()
     })
-    
+
     // Résoudre la promesse
     resolvePromise!('Contenu raffiné')
-    
+
     // Vérifier que le loading disparaît
     await waitFor(() => {
       expect(screen.queryByText('Raffinage en cours...')).not.toBeInTheDocument()
@@ -169,20 +169,20 @@ describe('AssemblyView', () => {
     mockApiClient.runFinishingCrew.mockRejectedValue(new Error('API Error'))
 
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     const refineButton = screen.getByText('Lancer le Raffinage IA')
     fireEvent.click(refineButton)
-    
+
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Erreur lors du raffinage IA:',
         expect.any(Error)
       )
     })
-    
+
     // Vérifier qu'un message d'erreur est affiché
     expect(screen.getByText(/Erreur lors du raffinage/)).toBeInTheDocument()
-    
+
     consoleErrorSpy.mockRestore()
   })
 
@@ -196,7 +196,7 @@ describe('AssemblyView', () => {
     }
 
     render(<AssemblyView project={projectWithEmptyTasks} />)
-    
+
     const editorContent = screen.getByTestId('editor-content')
     expect(editorContent.value).toContain('<h2>Sans description</h2>')
     expect(editorContent.value).toContain('<p>Contenu non disponible.</p>')
@@ -204,20 +204,20 @@ describe('AssemblyView', () => {
 
   it('resets refined content when tasks change', () => {
     const { rerender } = render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     // Simuler un contenu raffiné existant
     mockApiClient.runFinishingCrew.mockResolvedValue('Contenu raffiné')
     const refineButton = screen.getByText('Lancer le Raffinage IA')
     fireEvent.click(refineButton)
-    
+
     // Changer les tâches du projet
     const newProject = {
       ...projectWithCompletedTasks,
       tasks: [completedTasks[0]] // Seulement une tâche maintenant
     }
-    
+
     rerender(<AssemblyView project={newProject} />)
-    
+
     // Le contenu raffiné devrait être réinitialisé
     const editorContent = screen.getByTestId('editor-content')
     expect(editorContent.value).not.toBe('Contenu raffiné')
@@ -226,7 +226,7 @@ describe('AssemblyView', () => {
 
   it('allows reordering tasks in left panel', () => {
     render(<AssemblyView project={projectWithCompletedTasks} />)
-    
+
     // Vérifier que les boutons de réorganisation sont présents
     expect(screen.getAllByText('↑')).toHaveLength(2) // Pas de bouton up pour le premier
     expect(screen.getAllByText('↓')).toHaveLength(2) // Pas de bouton down pour le dernier

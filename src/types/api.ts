@@ -24,7 +24,7 @@ export interface Task extends TaskBase {
   project_id: number;
   created_at: string; // ISO datetime string
   updated_at?: string | null; // ISO datetime string
-  
+
   // Suivi IA
   created_by_ai: boolean;
   last_updated_by_ai_at?: string | null; // ISO datetime string
@@ -44,10 +44,10 @@ export interface Project extends ProjectBase {
   id: number; // ou string si UUID
   created_at: string; // ISO datetime string
   updated_at?: string | null; // ISO datetime string
-  
+
   // Planification IA
   planning_status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
   planning_job_id?: string | null;
-  
+
   tasks: Task[]; // Les tâches sont incluses dans la réponse du projet
 }

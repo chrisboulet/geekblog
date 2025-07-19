@@ -27,10 +27,10 @@ const ProjectPage: React.FC = () => {
   const queryClient = useQueryClient();
   const toast = useToastActions();
   const { projectId } = useParams<{ projectId: string }>();
-  
+
   // Convertir l'ID en nombre et valider
   const projectIdNumber = projectId ? parseInt(projectId, 10) : null;
-  
+
   // Validation early return MUST be before any hooks
   if (!projectIdNumber || isNaN(projectIdNumber)) {
     return (
@@ -39,7 +39,7 @@ const ProjectPage: React.FC = () => {
       </div>
     );
   }
-  
+
   // Récupérer les données du projet - Safe now that projectIdNumber is validated
   const { data: project, isLoading: isLoadingProject, error: projectError, refetch: refetchProject } = useQuery({
     queryKey: ['project', projectIdNumber],
@@ -101,7 +101,7 @@ const ProjectPage: React.FC = () => {
 
   // Mutation for updating project
   const updateProjectMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: api.ProjectUpdate }) => 
+    mutationFn: ({ id, data }: { id: number; data: api.ProjectUpdate }) =>
       api.updateProject(id, data),
     onSuccess: (updatedProject) => {
       queryClient.setQueryData(['project', updatedProject.id], updatedProject);
@@ -121,7 +121,7 @@ const ProjectPage: React.FC = () => {
   const handlePlanProject = () => {
     // Redirect to new integrated planning interface
     setCurrentView('tasks');
-    
+
     // Show informative message about the new planning interface
     setTimeout(() => {
       toast.info('🚀 Nouvelle interface de planification ! Utilisez le bouton "Planifier avec IA" ci-dessus pour bénéficier de la planification intelligente améliorée.');
@@ -130,7 +130,7 @@ const ProjectPage: React.FC = () => {
 
   const handleSaveContent = (content: string, title: string) => {
     if (!project) return;
-    
+
     // Update project description with the neural flow content
     const updatedDescription = `${title ? title + '\n\n' : ''}${content}`;
     updateProjectMutation.mutate({
@@ -143,9 +143,9 @@ const ProjectPage: React.FC = () => {
     if (!project) return;
 
     // Create a new task based on the node type
-    const taskTitle = type === 'idea' ? 'New Idea' : 
+    const taskTitle = type === 'idea' ? 'New Idea' :
                      type === 'category' ? 'New Category' : 'New Tag';
-    
+
     createTaskMutation.mutate({
       project_id: project.id,
       title: taskTitle,
@@ -155,12 +155,12 @@ const ProjectPage: React.FC = () => {
   };
 
   // Determine which operation is currently active
-  const isPlanningInProgress = useAsyncPlanning 
-    ? asyncPlanningOperation.isExecuting 
+  const isPlanningInProgress = useAsyncPlanning
+    ? asyncPlanningOperation.isExecuting
     : planProjectMutation.isPending;
-  
-  const planningError = useAsyncPlanning 
-    ? asyncPlanningOperation.error 
+
+  const planningError = useAsyncPlanning
+    ? asyncPlanningOperation.error
     : (planProjectMutation.error instanceof Error ? planProjectMutation.error.message : null);
 
   // Early returns for loading states
@@ -202,14 +202,14 @@ const ProjectPage: React.FC = () => {
     <div className="relative h-full flex flex-col text-text-primary" style={{ background: 'var(--bg-primary)' }}>
       {/* Neural Background */}
       <NeuralBackground />
-      
+
       {/* Navigation Header */}
-      <NavigationHeader 
+      <NavigationHeader
         projectName={project.name}
         projectId={project.id}
         currentView={currentView}
       />
-      
+
       {/* Main Content with Neural styling */}
       <div className="relative z-10 p-4 md:p-8 h-full flex flex-col">
         {/* Project Info and View Switcher */}
@@ -222,19 +222,19 @@ const ProjectPage: React.FC = () => {
               <p className="text-text-secondary italic text-sm md:text-base">{project.description}</p>
             )}
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
             {/* Task Management */}
             <TaskCreateButton projectId={projectIdNumber} />
-            
+
             {/* View Switcher */}
-            <ViewSwitcher 
+            <ViewSwitcher
               currentView={currentView}
               onViewChange={setCurrentView}
               isSimpleMode={isSimpleMode}
               onToggleSimpleMode={setIsSimpleMode}
             />
-            
+
             {/* AI Planning Controls */}
             <div className="flex gap-2 items-center">
               {/* New interface indicator */}
@@ -268,16 +268,16 @@ const ProjectPage: React.FC = () => {
       {useAsyncPlanning && asyncPlanningOperation.status && (
         <div className="mb-6 space-y-3">
           <div className="flex items-center justify-between">
-            <JobStatusBadge 
-              status={asyncPlanningOperation.status} 
-              size="md" 
+            <JobStatusBadge
+              status={asyncPlanningOperation.status}
+              size="md"
               showProgress={true}
             />
             <span className="text-sm text-text-tertiary">
               Mode: Planification asynchrone
             </span>
           </div>
-          <JobProgressBar 
+          <JobProgressBar
             status={asyncPlanningOperation.status}
             size="md"
             showStep={true}
@@ -295,7 +295,7 @@ const ProjectPage: React.FC = () => {
 
         <div className="flex-grow overflow-hidden">
           {currentView === 'neural' && (
-            <NeuralCanvas 
+            <NeuralCanvas
               project={project}
               isSimpleMode={isSimpleMode}
               onSaveContent={handleSaveContent}

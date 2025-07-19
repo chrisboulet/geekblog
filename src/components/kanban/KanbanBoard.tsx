@@ -6,21 +6,21 @@ import { Column as KanbanColumnType, Task as KanbanTaskType } from '../../types/
 import TaskCard from './TaskCard';
 import AddTaskModal from './AddTaskModal';
 import WorkflowGuide from '../workflow/WorkflowGuide';
-import { 
-  DndContext, 
-  closestCenter, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
   useSensors,
   DragEndEvent,
   DragOverEvent,
   DragStartEvent
 } from '@dnd-kit/core';
-import { 
-  SortableContext, 
-  sortableKeyboardCoordinates, 
-  verticalListSortingStrategy 
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
 
@@ -28,9 +28,9 @@ import { useDroppable } from '@dnd-kit/core';
 const KANBAN_COLUMNS_STATUS_ORDER = ['À faire', 'En cours', 'Révision', 'Terminé'];
 
 // Composant pour zone de drop vide
-const EmptyColumnDropZone: React.FC<{ columnId: string; isActive: boolean }> = ({ 
-  columnId, 
-  isActive 
+const EmptyColumnDropZone: React.FC<{ columnId: string; isActive: boolean }> = ({
+  columnId,
+  isActive
 }) => {
   const { setNodeRef } = useDroppable({
     id: columnId,
@@ -41,7 +41,7 @@ const EmptyColumnDropZone: React.FC<{ columnId: string; isActive: boolean }> = (
   });
 
   return (
-    <div 
+    <div
       ref={setNodeRef}
       className={`text-sm text-text-tertiary text-center py-8 rounded-lg border-2 border-dashed transition-all duration-200 ${
         isActive ? 'border-neural-blue bg-neural-blue bg-opacity-10' : 'border-text-tertiary border-opacity-30'
@@ -161,12 +161,12 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project, onStartPlanning }) =
       if (overTask) {
         newStatus = overTask.status || 'À faire';
         newOrder = overTask.order || 0;
-        
+
         // Réorganiser les autres tâches dans la même colonne
         const tasksInColumn = project.tasks?.filter(
           task => task.status === newStatus && task.id !== activeTask.id
         ) || [];
-        
+
         tasksInColumn.forEach(task => {
           if ((task.order || 0) >= newOrder) {
             updateTaskMutation.mutate({
@@ -206,8 +206,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project, onStartPlanning }) =
   if (totalTasks === 0) {
     return (
       <div className="p-8">
-        <WorkflowGuide 
-          projectName={project.name} 
+        <WorkflowGuide
+          projectName={project.name}
           onStartPlanning={onStartPlanning || (() => {})}
         />
       </div>
@@ -215,17 +215,17 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project, onStartPlanning }) =
   }
 
   return (
-    <DndContext 
-      sensors={sensors} 
-      collisionDetection={closestCenter} 
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}
     >
       <div className="flex space-x-4 p-4 overflow-x-auto h-full neural-card bg-gradient-to-r from-bg-secondary/80 to-bg-primary/80">
         {kanbanColumns.map((column) => (
-          <div 
-            key={column.id} 
+          <div
+            key={column.id}
             className={`neural-card bg-gradient-to-b from-bg-primary to-bg-secondary w-80 min-w-[320px] p-4 flex flex-col max-h-full transition-all duration-200 ${
               activeId && KANBAN_COLUMNS_STATUS_ORDER.includes(String(activeId)) ? 'ring-2 ring-neural-blue shadow-neural-glow-blue' : ''
             }`}
@@ -239,17 +239,17 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project, onStartPlanning }) =
                 activeId ? 'bg-bg-secondary bg-opacity-50' : ''
               }`}>
                 {column.tasks.map((task) => (
-                  <TaskCard 
-                    key={task.id} 
-                    task={task} 
+                  <TaskCard
+                    key={task.id}
+                    task={task}
                     projectId={project.id}
                     isDragging={String(task.id) === activeId}
                   />
                 ))}
                 {column.tasks.length === 0 && (
-                  <EmptyColumnDropZone 
-                    columnId={column.id} 
-                    isActive={!!activeId} 
+                  <EmptyColumnDropZone
+                    columnId={column.id}
+                    isActive={!!activeId}
                   />
                 )}
               </div>
@@ -263,7 +263,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ project, onStartPlanning }) =
           </div>
         ))}
       </div>
-      
+
       <AddTaskModal
         isOpen={addTaskModalOpen}
         onClose={() => setAddTaskModalOpen(false)}

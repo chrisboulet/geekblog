@@ -31,7 +31,7 @@ services:
 
   # Backend FastAPI
   backend:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: geekblog_backend_prod
@@ -56,7 +56,7 @@ services:
 
   # Worker Celery
   celery_worker:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: geekblog_celery_prod

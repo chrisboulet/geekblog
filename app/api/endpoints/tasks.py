@@ -4,16 +4,20 @@ from typing import List, Optional, Literal
 
 from app.schemas import schemas
 from app.schemas.job_schemas import JobStatus
-from app.services import task_service, ai_service # ai_service ajouté
+from app.services import task_service, ai_service  # ai_service ajouté
 from app.services import job_service
-from app.services.exceptions import ProjectNotFoundException, TaskNotFoundException, InvalidTaskDataException
+from app.services.exceptions import (
+    ProjectNotFoundException,
+    TaskNotFoundException,
+    InvalidTaskDataException,
+)
 from app.db.config import get_db
-from app.models import models
 from app.tasks.ai_tasks import research_task, writing_task
 
 router = APIRouter()
 
 AgentType = Literal["researcher", "writer"]
+
 
 @router.post("/", response_model=schemas.Task, status_code=201)
 def create_task_endpoint(task: schemas.TaskCreate, db: Session = Depends(get_db)):
@@ -34,13 +38,24 @@ def read_task_endpoint(task_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Task not found")
     return db_task
 
+
 # Endpoint pour exécuter un agent IA sur une tâche
-@router.post("/{task_id}/run-agent", response_model=schemas.Task, tags=["Tasks", "AI Agents"])
+@router.post(
+    "/{task_id}/run-agent", response_model=schemas.Task, tags=["Tasks", "AI Agents"]
+)
 async def run_agent_on_task(
     task_id: int,
-    agent_type: AgentType = Body(..., embed=True, description="Type d'agent à exécuter ('researcher' ou 'writer')."),
-    context: Optional[str] = Body(None, embed=True, description="Contexte supplémentaire pour l'agent (par exemple, résultats d'une recherche précédente pour l'agent rédacteur). Si non fourni, la description actuelle de la tâche peut être utilisée comme contexte initial."),
-    db: Session = Depends(get_db)
+    agent_type: AgentType = Body(
+        ...,
+        embed=True,
+        description="Type d'agent à exécuter ('researcher' ou 'writer').",
+    ),
+    context: Optional[str] = Body(
+        None,
+        embed=True,
+        description="Contexte supplémentaire pour l'agent (par exemple, résultats d'une recherche précédente pour l'agent rédacteur). Si non fourni, la description actuelle de la tâche peut être utilisée comme contexte initial.",
+    ),
+    db: Session = Depends(get_db),
 ):
     db_task = task_service.get_task(db, task_id=task_id)
     if not db_task:
@@ -56,48 +71,72 @@ async def run_agent_on_task(
         if agent_type == "researcher":
             # Le chercheur utilise le titre de la tâche comme sujet principal,
             # et `effective_context` comme instructions/clarifications additionnelles.
-            ai_result = ai_service.run_research_crew(task_title=task_title, research_context=effective_context)
+            ai_result = await ai_service.run_research_crew_async(
+                task_title=task_title, research_context=effective_context
+            )
         elif agent_type == "writer":
             # Le rédacteur utilise le titre de la tâche comme sujet à rédiger,
             # et `effective_context` comme matériel de base (par exemple, résultat d'une recherche).
-            ai_result = ai_service.run_writing_crew(task_title=task_title, writing_context=effective_context)
+            ai_result = await ai_service.run_writing_crew_async(
+                task_title=task_title, writing_context=effective_context
+            )
         else:
             # Normalement impossible grâce à Literal, mais par sécurité :
-            raise HTTPException(status_code=400, detail=f"Invalid agent type: {agent_type}")
+            raise HTTPException(
+                status_code=400, detail=f"Invalid agent type: {agent_type}"
+            )
 
     except EnvironmentError as e:
         raise HTTPException(status_code=503, detail=f"AI Service Unavailable: {e}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI agent execution failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"AI agent execution failed: {str(e)}"
+        )
 
     if not ai_result:
         # Si l'IA ne retourne rien, on peut soit lever une erreur, soit juste ne pas mettre à jour.
         # Pour l'instant, on ne met pas à jour la description si le résultat est vide.
         # On pourrait aussi changer le statut en "Erreur IA" ou quelque chose de similaire.
         # Ici, on va juste retourner la tâche sans la modifier si le résultat est vide, mais on la met quand même en révision.
-        pass # ai_result est vide
+        pass  # ai_result est vide
 
     # Mettre à jour la tâche avec le résultat de l'IA et changer son statut
     task_update_data = schemas.TaskUpdate(
-        description=ai_result if ai_result else db_task.description, # Garder l'ancienne description si l'IA ne retourne rien
-        status="Révision" # Toujours passer en révision après une action IA
+        description=ai_result
+        if ai_result
+        else db_task.description,  # Garder l'ancienne description si l'IA ne retourne rien
+        status="Révision",  # Toujours passer en révision après une action IA
     )
 
-    updated_task = task_service.update_task(db, task_id=task_id, task_update=task_update_data)
+    updated_task = task_service.update_task(
+        db, task_id=task_id, task_update=task_update_data
+    )
     if not updated_task:
         # Cela ne devrait pas arriver si get_task a réussi plus tôt, mais par sécurité :
-        raise HTTPException(status_code=500, detail="Failed to update task after AI execution")
+        raise HTTPException(
+            status_code=500, detail="Failed to update task after AI execution"
+        )
 
     return updated_task
 
 
 # Endpoint asynchrone pour exécuter un agent IA sur une tâche (Phase 2.1 - Fix Anti-Pattern)
-@router.post("/{task_id}/run-agent-async", response_model=JobStatus, tags=["Tasks", "AI Agents", "Async"])
+@router.post(
+    "/{task_id}/run-agent-async",
+    response_model=JobStatus,
+    tags=["Tasks", "AI Agents", "Async"],
+)
 async def run_agent_on_task_async(
     task_id: int,
-    agent_type: AgentType = Body(..., embed=True, description="Type d'agent à exécuter ('researcher' ou 'writer')."),
-    context: Optional[str] = Body(None, embed=True, description="Contexte supplémentaire pour l'agent."),
-    db: Session = Depends(get_db)
+    agent_type: AgentType = Body(
+        ...,
+        embed=True,
+        description="Type d'agent à exécuter ('researcher' ou 'writer').",
+    ),
+    context: Optional[str] = Body(
+        None, embed=True, description="Contexte supplémentaire pour l'agent."
+    ),
+    db: Session = Depends(get_db),
 ):
     """
     Version asynchrone de l'exécution d'agents IA - Phase 2.1 Anti-Pattern Fix
@@ -117,17 +156,17 @@ async def run_agent_on_task_async(
         job_type = "agent_writer"
     else:
         raise HTTPException(status_code=400, detail=f"Invalid agent type: {agent_type}")
-    
+
     # Estimation de durée basée sur le type d'agent
     estimated_duration = 60.0 if agent_type == "researcher" else 45.0  # en secondes
-    
+
     # Métadonnées pour tracking
     metadata = {
         "agent_type": agent_type,
         "task_title": db_task.title,
-        "context_provided": context is not None
+        "context_provided": context is not None,
     }
-    
+
     # Créer l'enregistrement en base de données avec métadonnées enrichies
     job_service.create_job_record(
         db=db,
@@ -135,9 +174,9 @@ async def run_agent_on_task_async(
         job_type=job_type,
         task_id=task_id,
         metadata=metadata,
-        estimated_duration=estimated_duration
+        estimated_duration=estimated_duration,
     )
-    
+
     return JobStatus(
         job_id=job.id,
         status="PENDING",
@@ -146,14 +185,18 @@ async def run_agent_on_task_async(
         step=f"Démarrage de l'agent {agent_type}...",
         status_message=f"Initialisation de l'agent {agent_type} pour la tâche '{db_task.title}'",
         estimated_duration=estimated_duration,
-        metadata=metadata
+        metadata=metadata,
     )
 
 
 # Endpoint pour récupérer les tâches d'un projet spécifique
 @router.get("/project/{project_id}", response_model=List[schemas.Task])
-def get_tasks_for_project_endpoint(project_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    tasks = task_service.get_tasks_by_project(db, project_id=project_id, skip=skip, limit=limit)
+def get_tasks_for_project_endpoint(
+    project_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+):
+    tasks = task_service.get_tasks_by_project(
+        db, project_id=project_id, skip=skip, limit=limit
+    )
     if not tasks:
         # Il est possible qu'un projet n'ait pas de tâches, donc ce n'est pas nécessairement une erreur 404
         # Cependant, si le projet lui-même n'existe pas, cela pourrait être géré en amont ou ici.
@@ -163,7 +206,9 @@ def get_tasks_for_project_endpoint(project_id: int, skip: int = 0, limit: int = 
 
 
 @router.put("/{task_id}", response_model=schemas.Task)
-def update_task_endpoint(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(get_db)):
+def update_task_endpoint(
+    task_id: int, task: schemas.TaskUpdate, db: Session = Depends(get_db)
+):
     try:
         db_task = task_service.update_task(db, task_id=task_id, task_update=task)
         if db_task is None:

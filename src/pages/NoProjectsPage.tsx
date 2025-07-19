@@ -69,7 +69,7 @@ export default function NoProjectsPage() {
                 <p className="text-text-secondary mb-6">
                   Create your first project to begin organizing your content creation workflow with AI agents.
                 </p>
-                
+
                 <div className="space-y-4">
                   <button
                     onClick={handleQuickStart}
@@ -85,7 +85,7 @@ export default function NoProjectsPage() {
                       <>🚀 Quick Start with Sample Project</>
                     )}
                   </button>
-                  
+
                   <button
                     onClick={() => setIsCreating(true)}
                     className="w-full neural-button neural-interactive neural-clickable neural-focusable"
@@ -100,7 +100,7 @@ export default function NoProjectsPage() {
               <h2 className="text-2xl font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>
                 Create Your Project
               </h2>
-              
+
               <form onSubmit={handleCreateProject} className="space-y-4">
                 <div>
                   <label htmlFor="projectName" className="block text-sm font-medium text-text-primary mb-2">
@@ -116,7 +116,7 @@ export default function NoProjectsPage() {
                     className="w-full px-4 py-2 bg-bg-secondary border border-neural-purple/30 rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-purple focus:border-neural-purple neural-focusable transition-all"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="projectDescription" className="block text-sm font-medium text-text-primary mb-2">
                     Description (optional)
@@ -130,7 +130,7 @@ export default function NoProjectsPage() {
                     className="w-full px-4 py-2 bg-bg-secondary border border-neural-purple/30 rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-neural-purple focus:border-neural-purple neural-focusable transition-all"
                   />
                 </div>
-                
+
                 <div className="flex space-x-4 pt-4">
                   <button
                     type="button"
@@ -155,7 +155,7 @@ export default function NoProjectsPage() {
                   </button>
                 </div>
               </form>
-              
+
               {createProjectMutation.isError && (
                 <div className="mt-4 p-4 neural-error rounded-lg">
                   <p>

@@ -1,6 +1,7 @@
 """
 Schémas Pydantic pour les jobs asynchrones
 """
+
 from pydantic import BaseModel, validator
 from typing import Optional, Any, Dict, List
 from datetime import datetime
@@ -8,6 +9,7 @@ from datetime import datetime
 
 class JobCreate(BaseModel):
     """Données pour créer un nouveau job"""
+
     type: str
     project_id: Optional[int] = None
     task_id: Optional[int] = None
@@ -17,6 +19,7 @@ class JobCreate(BaseModel):
 
 class ProgressStep(BaseModel):
     """Étape de progression avec timestamp"""
+
     step: str
     progress: float
     timestamp: datetime
@@ -25,6 +28,7 @@ class ProgressStep(BaseModel):
 
 class JobStatus(BaseModel):
     """Statut d'un job asynchrone avec tracking enrichi"""
+
     job_id: str
     status: str  # PENDING, PROGRESS, SUCCESS, FAILURE, RETRY, REVOKED
     job_type: Optional[str] = None
@@ -39,13 +43,13 @@ class JobStatus(BaseModel):
     progress_history: Optional[List[ProgressStep]] = None  # Historique des étapes
     metadata: Optional[Dict[str, Any]] = None
 
-    @validator('progress')
+    @validator("progress")
     def validate_progress(cls, v):
         if v < 0 or v > 100:
-            raise ValueError('Progress must be between 0 and 100')
+            raise ValueError("Progress must be between 0 and 100")
         return v
-    
-    @validator('progress_history', pre=True)
+
+    @validator("progress_history", pre=True)
     def validate_progress_history(cls, v):
         if v is None:
             return v
@@ -55,9 +59,11 @@ class JobStatus(BaseModel):
             for item in v:
                 if isinstance(item, dict):
                     # Parse timestamps strings si nécessaire
-                    if 'timestamp' in item and isinstance(item['timestamp'], str):
+                    if "timestamp" in item and isinstance(item["timestamp"], str):
                         try:
-                            item['timestamp'] = datetime.fromisoformat(item['timestamp'])
+                            item["timestamp"] = datetime.fromisoformat(
+                                item["timestamp"]
+                            )
                         except:
                             pass
                     result.append(item)
@@ -72,6 +78,7 @@ class JobStatus(BaseModel):
 
 class JobResult(BaseModel):
     """Résultat d'un job terminé"""
+
     job_id: str
     status: str
     result: Any
@@ -80,12 +87,13 @@ class JobResult(BaseModel):
 
 class JobSummary(BaseModel):
     """Résumé d'un job pour les listes"""
+
     job_id: str
     type: str
     status: str
     progress: float
     project_id: Optional[int] = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True

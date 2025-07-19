@@ -9,14 +9,14 @@ interface ProjectEditModalProps {
   onClose: () => void;
 }
 
-const ProjectEditModal: React.FC<ProjectEditModalProps> = ({ 
-  project, 
-  isOpen, 
-  onClose 
+const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
+  project,
+  isOpen,
+  onClose
 }) => {
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description || '');
-  
+
   const updateProjectMutation = useUpdateProject();
 
   // Reset form when project changes or modal opens
@@ -29,20 +29,20 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim()) return;
 
     // OPTIMIZATION: Only send changed fields (partial update)
     const updates: { name?: string; description?: string } = {};
-    
+
     if (name.trim() !== project.name) {
       updates.name = name.trim();
     }
-    
+
     if (description.trim() !== (project.description || '')) {
       updates.description = description.trim() || undefined;
     }
-    
+
     // Only make API call if there are actual changes
     if (Object.keys(updates).length > 0) {
       updateProjectMutation.mutate(
@@ -66,8 +66,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   };
 
   return (
-    <Modal 
-      isOpen={isOpen} 
+    <Modal
+      isOpen={isOpen}
       onClose={handleCancel}
       title="Edit Project"
       size="md"
@@ -76,8 +76,8 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
         <Modal.Body>
           <div className="space-y-4">
             <div>
-              <label 
-                htmlFor="projectName" 
+              <label
+                htmlFor="projectName"
                 className="block text-sm font-medium text-text-primary mb-2"
               >
                 Project Name *
@@ -93,10 +93,10 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
                 autoFocus
               />
             </div>
-            
+
             <div>
-              <label 
-                htmlFor="projectDescription" 
+              <label
+                htmlFor="projectDescription"
                 className="block text-sm font-medium text-text-primary mb-2"
               >
                 Description
@@ -111,14 +111,14 @@ const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               />
             </div>
           </div>
-          
+
           {updateProjectMutation.isError && (
             <div className="mt-4 p-3 neural-error rounded-md">
               <p className="text-sm">Failed to update project. Please try again.</p>
             </div>
           )}
         </Modal.Body>
-        
+
         <Modal.Footer>
           <button
             type="button"

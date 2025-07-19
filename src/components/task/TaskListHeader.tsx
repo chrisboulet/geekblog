@@ -9,9 +9,9 @@ interface TaskListHeaderProps {
   onPlanningComplete?: () => void;
 }
 
-const TaskListHeader: React.FC<TaskListHeaderProps> = ({ 
-  project, 
-  onPlanningComplete 
+const TaskListHeader: React.FC<TaskListHeaderProps> = ({
+  project,
+  onPlanningComplete
 }) => {
   const toast = useToastActions();
 
@@ -161,7 +161,7 @@ const TaskListHeader: React.FC<TaskListHeaderProps> = ({
         </div>
         {getStatusIcon()}
       </div>
-      
+
       <div className="flex items-center space-x-3">
         {getActionButton()}
       </div>

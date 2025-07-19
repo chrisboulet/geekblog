@@ -13,9 +13,9 @@ export const useUpdateProject = () => {
   const toast = useToastActions();
 
   return useMutation({
-    mutationFn: ({ projectId, data }: UpdateProjectPayload) => 
+    mutationFn: ({ projectId, data }: UpdateProjectPayload) =>
       api.updateProject(projectId, data),
-    
+
     // CRITICAL: Optimistic update pattern
     onMutate: async ({ projectId, data }) => {
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
@@ -28,7 +28,7 @@ export const useUpdateProject = () => {
 
       // Optimistically update the projects list
       if (previousProjects) {
-        queryClient.setQueryData<Project[]>(['projects'], old => 
+        queryClient.setQueryData<Project[]>(['projects'], old =>
           old?.map(p => p.id === projectId ? { ...p, ...data } : p) || []
         );
       }
@@ -53,7 +53,7 @@ export const useUpdateProject = () => {
       if (context?.previousProject) {
         queryClient.setQueryData(['project', projectId], context.previousProject);
       }
-      
+
       // Show error notification
       toast.error('Failed to update project. Please try again.');
     },

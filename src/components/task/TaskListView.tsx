@@ -67,17 +67,17 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
   // Filter and sort tasks
   const filteredAndSortedTasks = useMemo(() => {
     let filtered = project.tasks;
-    
+
     // Apply status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(task => (task.status || 'undefined') === statusFilter);
     }
-    
+
     // Apply sorting
     return [...filtered].sort((a, b) => {
       let aValue: any;
       let bValue: any;
-      
+
       switch (sortBy) {
         case 'title':
           aValue = a.title.toLowerCase();
@@ -101,7 +101,7 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
           bValue = new Date(b.updated_at || b.created_at);
           break;
       }
-      
+
       if (sortOrder === 'asc') {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       } else {
@@ -148,17 +148,17 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
   return (
     <div className="h-full flex flex-col bg-bg-secondary rounded-lg shadow-lg">
       {/* AI Planning Header */}
-      <TaskListHeader 
-        project={project} 
+      <TaskListHeader
+        project={project}
         onPlanningComplete={handlePlanningComplete}
       />
-      
+
       {/* Contextual Assistant */}
-      <ContextualAssistant 
+      <ContextualAssistant
         project={project}
         onSuggestionClick={handleAssistantSuggestion}
       />
-      
+
       {/* Header with controls */}
       <div className="p-4 border-b border-neutral-700">
         <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
@@ -170,7 +170,7 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
               Visualisez, modifiez et organisez toutes les tâches de votre projet
             </p>
           </div>
-          
+
           <div className="flex flex-wrap gap-3 items-center">
             {/* Status filter */}
             <select
@@ -183,7 +183,7 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
                 <option key={status} value={status}>{status}</option>
               ))}
             </select>
-            
+
             {/* Sort controls */}
             <select
               value={sortBy}
@@ -196,7 +196,7 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
               <option value="status">Statut</option>
               <option value="order">Ordre</option>
             </select>
-            
+
             <button
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
               className="px-3 py-2 bg-bg-primary border border-neutral-600 rounded-md text-text-primary text-sm hover:border-neural-blue transition-colors"
@@ -204,7 +204,7 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
             >
               {sortOrder === 'asc' ? '↑' : '↓'}
             </button>
-            
+
             {/* Create task button */}
             <TaskCreateButton projectId={project.id} />
           </div>
@@ -216,7 +216,7 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
         {filteredAndSortedTasks.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-text-secondary text-lg mb-4">
-              {statusFilter === 'all' 
+              {statusFilter === 'all'
                 ? 'Aucune tâche dans ce projet'
                 : `Aucune tâche avec le statut "${statusFilter}"`
               }
@@ -230,71 +230,71 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
         ) : (
           <div className="space-y-3">
             {filteredAndSortedTasks.map((task) => (
-              <div 
-                key={task.id} 
+              <div
+                key={task.id}
                 className="bg-bg-primary border border-neutral-700/50 rounded-lg p-4 hover:border-neural-blue/50 transition-all duration-200 group"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     {/* Editable title */}
                     <div className="mb-2">
-                      <EditableTaskTitle 
+                      <EditableTaskTitle
                         task={task}
                         className="text-lg font-medium text-text-primary"
                       />
                     </div>
-                    
+
                     {/* Task metadata */}
                     <div className="flex flex-wrap gap-3 text-sm text-text-tertiary mb-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status || 'undefined')}`}>
                         {task.status || 'Undefined'}
                       </span>
-                      
+
                       {/* AI badges */}
                       {task.created_by_ai && (
                         <span className="px-2 py-1 bg-neural-blue/20 text-neural-blue rounded-full text-xs font-medium flex items-center gap-1">
                           🤖 Créée par IA
                         </span>
                       )}
-                      
+
                       {task.last_updated_by_ai_at && (
                         <span className="px-2 py-1 bg-neural-purple/20 text-neural-purple rounded-full text-xs font-medium flex items-center gap-1">
                           ✨ Enrichie par IA
                         </span>
                       )}
-                      
+
                       {task.order !== undefined && task.order > 0 && (
                         <span className="text-neural-pink">
                           Ordre: {task.order}
                         </span>
                       )}
-                      
+
                       <span>
                         Créé: {formatDate(task.created_at)}
                       </span>
-                      
+
                       <span>
                         Modifié: {formatDate(task.updated_at)}
                       </span>
-                      
+
                       {task.last_updated_by_ai_at && (
                         <span className="text-neural-purple text-xs">
                           IA: {formatDate(task.last_updated_by_ai_at)}
                         </span>
                       )}
                     </div>
-                    
+
                     {/* Task description preview */}
                     {task.description && (
                       <div className="text-text-secondary text-sm line-clamp-2">
-                        {task.description.length > 150 
+                        {task.description.length > 150
                           ? `${task.description.substring(0, 150)}...`
                           : task.description
                         }
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Actions */}
                   <div className="flex-shrink-0">
                     <button
@@ -310,7 +310,7 @@ const TaskListView: React.FC<TaskListViewProps> = ({ project }) => {
           </div>
         )}
       </div>
-      
+
       {/* Edit Modal */}
       {selectedTask && (
         <TaskEditModal

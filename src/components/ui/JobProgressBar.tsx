@@ -83,7 +83,7 @@ const JobProgressBar: React.FC<JobProgressBarProps> = ({
             </span>
           )}
         </div>
-        
+
         {showTimeRemaining && timeRemaining && timeRemaining > 0 && (
           <span className="text-text-tertiary">
             ~{formatTimeRemaining(timeRemaining)}
@@ -102,12 +102,12 @@ const JobProgressBar: React.FC<JobProgressBarProps> = ({
           style={{
             transform: `translateX(-${100 - progress}%)`,
             // Add pulse animation for active progress
-            animation: status.status === 'PROGRESS' && !isComplete 
-              ? 'pulse 2s infinite' 
+            animation: status.status === 'PROGRESS' && !isComplete
+              ? 'pulse 2s infinite'
               : undefined
           }}
         />
-        
+
         {/* Animated shimmer effect for active progress */}
         {status.status === 'PROGRESS' && !isComplete && (
           <div

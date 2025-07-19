@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validation Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+</head>
+<body>
+    <h1>Phase 3 M3 - Validation Test</h1>
+
+    <h2>Title Validation (Max 100 chars)</h2>
+    <input type="text" id="titleInput" placeholder="Test title..." maxlength="100">
+    <div id="titleError" style="color: red;"></div>
+    <div id="titleCount">0/100 caractères</div>
+
+    <h2>Description Validation (Max 500 chars)</h2>
+    <textarea id="descInput" placeholder="Test description..." maxlength="500"></textarea>
+    <div id="descError" style="color: red;"></div>
+    <div id="descCount">0/500 caractères</div>
+
+    <h2>XSS Protection Test</h2>
+    <input type="text" id="xssInput" placeholder="Try: <script>alert('xss')</script>">
+    <div id="xssResult"></div>
+
+    <script>
+        // Validation functions (simplified version)
+        const LIMITS = { TITLE_MAX_LENGTH: 100, DESCRIPTION_MAX_LENGTH: 500 };
+
+        const validateTitle = (title) => {
+            if (!title.trim()) return "Le titre est requis";
+            if (title.length > LIMITS.TITLE_MAX_LENGTH) return `Le titre doit faire moins de ${LIMITS.TITLE_MAX_LENGTH} caractères`;
+            return null;
+        };
+
+        const validateDescription = (description) => {
+            if (description.length > LIMITS.DESCRIPTION_MAX_LENGTH) return `La description doit faire moins de ${LIMITS.DESCRIPTION_MAX_LENGTH} caractères`;
+            return null;
+        };
+
+        const sanitizeInput = (input) => {
+            return DOMPurify.sanitize(input, {
+                ALLOWED_TAGS: [],
+                ALLOWED_ATTR: [],
+                KEEP_CONTENT: true
+            });
+        };
+
+        // Title validation
+        document.getElementById('titleInput').addEventListener('input', (e) => {
+            const value = e.target.value;
+            const sanitized = sanitizeInput(value);
+            e.target.value = sanitized;
+
+            const error = validateTitle(sanitized);
+            document.getElementById('titleError').textContent = error || '';
+            document.getElementById('titleCount').textContent = `${sanitized.length}/${LIMITS.TITLE_MAX_LENGTH} caractères`;
+        });
+
+        // Description validation
+        document.getElementById('descInput').addEventListener('input', (e) => {
+            const value = e.target.value;
+            const sanitized = sanitizeInput(value);
+            e.target.value = sanitized;
+
+            const error = validateDescription(sanitized);
+            document.getElementById('descError').textContent = error || '';
+            document.getElementById('descCount').textContent = `${sanitized.length}/${LIMITS.DESCRIPTION_MAX_LENGTH} caractères`;
+        });
+
+        // XSS test
+        document.getElementById('xssInput').addEventListener('input', (e) => {
+            const value = e.target.value;
+            const sanitized = sanitizeInput(value);
+            e.target.value = sanitized;
+            document.getElementById('xssResult').innerHTML = `Sanitized: <code>${sanitized}</code>`;
+        });
+    </script>
+</body>
+</html>
