@@ -1,0 +1,85 @@
+version: '3.8'
+
+# GeekBlog Optimized - Single Container Architecture
+# Remplace l'ancienne architecture 5-containers par 1 container autonome
+
+services:
+  geekblog:
+    # Image optimisée avec FastAPI + React intégré
+    image: geekblog:latest
+    container_name: geekblog
+    
+    # Exposition du port
+    ports:
+      - "8000:8000"
+    
+    # Configuration minimale
+    environment:
+      # REQUIS: Clé API Groq pour les agents IA
+      - GROQ_API_KEY=${GROQ_API_KEY:-your_groq_api_key_here}
+      
+      # Base de données SQLite (remplace PostgreSQL)
+      - DATABASE_URL=sqlite:///data/geekblog.db
+      
+      # Configuration performance
+      - WORKERS=1
+      - LOG_LEVEL=info
+      
+      # CORS pour développement local
+      - ALLOWED_ORIGINS=http://localhost:8000,http://localhost:3000,http://localhost:5173
+    
+    # Persistence des données
+    volumes:
+      # Volume nommé pour les données SQLite
+      - geekblog_data:/app/data
+      
+      # Optionnel: backups locaux
+      - ./backups:/app/backups
+    
+    # Redémarrage automatique
+    restart: unless-stopped
+    
+    # Health check unifié
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Limites de ressources (95% réduction vs ancienne version)
+    deploy:
+      resources:
+        limits:
+          memory: 512M      # vs 12GB+ ancienne version
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+
+# Volume persistant pour SQLite
+volumes:
+  geekblog_data:
+    driver: local
+
+# Plus besoin de:
+# - geekblog_network (un seul container)
+# - postgres_data (remplacé par SQLite)
+# - redis_data (remplacé par BackgroundTasks)
+# - node_modules (intégré dans l'image)
+
+# Comparaison avec l'ancienne architecture:
+# 
+# AVANT (docker-compose.yml):
+# - 5 services: db, redis, backend, celery_worker, frontend
+# - 3 volumes: postgres_data, redis_data, node_modules
+# - 1 network: geekblog_network
+# - 12GB+ RAM total
+# - Orchestration complexe avec healthchecks
+# 
+# APRÈS (docker-compose.simple.yml):
+# - 1 service: geekblog (tout intégré)
+# - 1 volume: geekblog_data (SQLite seulement)
+# - Pas de network custom nécessaire
+# - <512MB RAM total
+# - Démarrage simple et rapide
